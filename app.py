@@ -1,111 +1,65 @@
-import fitz  # PyMuPDF
-import re
+import google.generativeai as genai
+from flask import Flask, render_template, request, jsonify
+import pdfplumber
+import os
 import json
 
-# -------------------------------
-# STEP 1: Extract text properly
-# -------------------------------
-def extract_text_blocks(pdf_path):
-    doc = fitz.open(pdf_path)
+app = Flask(__name__)
+
+# Render ke environment variable se key uthayega
+api_key = os.environ.get("GEMINI_API_KEY")
+genai.configure(api_key=api_key)
+model = genai.GenerativeModel('gemini-1.5-flash')
+
+def get_questions_from_ai(raw_text):
+    prompt = f"""
+    Analyze this raw text from a NEET DPP PDF. 
+    Extract all questions and their options. 
+    Format the output as a STRICT JSON array of objects.
+    
+    Rules:
+    1. Each object: {{"id": int, "q": "text", "options": ["A", "B", "C", "D"], "correct_ans": int}}
+    2. 'correct_ans' is index (A=0, B=1, C=2, D=3).
+    3. Find the 'Answer Key' at the end of text to fill 'correct_ans'.
+    4. If options are jumbled (like A, C, B, D), sort them as A, B, C, D.
+    5. Keep LaTeX math formulas as they are.
+
+    TEXT:
+    {raw_text}
+    """
+    
+    response = model.generate_content(prompt)
+    # JSON clean karne ke liye logic
+    text_res = response.text.strip()
+    if "```json" in text_res:
+        text_res = text_res.split("```json")[1].split("```")[0]
+    
+    return json.loads(text_res)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/upload', methods=['POST'])
+def upload():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file"}), 400
+    
+    file = request.files['file']
     full_text = ""
-
-    for page in doc:
-        blocks = page.get_text("blocks")
+    
+    try:
+        with pdfplumber.open(file) as pdf:
+            for page in pdf.pages:
+                full_text += (page.extract_text() or "") + "\n"
         
-        # Sort blocks left to right, top to bottom
-        blocks.sort(key=lambda b: (b[1], b[0]))
-        
-        for b in blocks:
-            full_text += b[4] + "\n"
+        # AI Processing
+        questions_data = get_questions_from_ai(full_text)
+        return jsonify(questions_data)
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": "AI could not process this PDF"}), 500
 
-    return full_text
-
-
-# -------------------------------
-# STEP 2: Extract Questions
-# -------------------------------
-def extract_questions(text):
-    pattern = r'(Q\d+.*?)(?=Q\d+|Answer Key|$)'
-    matches = re.findall(pattern, text, re.DOTALL)
-
-    questions = []
-
-    for m in matches:
-        questions.append(m.strip())
-
-    return questions
-
-
-# -------------------------------
-# STEP 3: Extract Options
-# -------------------------------
-def extract_options(q_text):
-    options = re.findall(r'\([A-D]\)\s*.*?(?=\([A-D]\)|$)', q_text, re.DOTALL)
-    return [opt.strip() for opt in options]
-
-
-# -------------------------------
-# STEP 4: Extract Answer Key
-# -------------------------------
-def extract_answers(text):
-    answers = {}
-
-    match = re.search(r'Answer Key(.*)', text, re.DOTALL | re.IGNORECASE)
-    if not match:
-        return answers
-
-    key_text = match.group(1)
-
-    pairs = re.findall(r'Q(\d+)\s*\(?([A-D0-9]+)\)?', key_text)
-
-    for q, ans in pairs:
-        answers[int(q)] = ans
-
-    return answers
-
-
-# -------------------------------
-# STEP 5: Build Final Data
-# -------------------------------
-def build_data(pdf_path):
-    text = extract_text_blocks(pdf_path)
-
-    questions = extract_questions(text)
-    answers = extract_answers(text)
-
-    final_data = []
-
-    for q in questions:
-        q_no_match = re.search(r'Q(\d+)', q)
-        if not q_no_match:
-            continue
-
-        q_no = int(q_no_match.group(1))
-        options = extract_options(q)
-
-        # Remove options from question text
-        clean_question = re.split(r'\([A-D]\)', q)[0].strip()
-
-        final_data.append({
-            "question_no": q_no,
-            "question": clean_question,
-            "options": options,
-            "answer": answers.get(q_no, "N/A")
-        })
-
-    return final_data
-
-
-# -------------------------------
-# RUN
-# -------------------------------
-if __name__ == "__main__":
-    pdf_path = "your_file.pdf"  # <-- yaha apna PDF name daal
-
-    data = build_data(pdf_path)
-
-    # Save JSON
-    with open("output.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
-
-    print("✅ Done! Output saved in output.json")
+if __name__ == '__main__':
+    # Local testing ke liye port 5000, Render auto-handle karega
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
