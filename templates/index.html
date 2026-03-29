@@ -2,143 +2,150 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <title>NEET PDF to Test - PW Style</title>
+    <title>NEET Test Portal - PDF Upload</title>
     <style>
-        :root { --pw-blue: #5a4bda; --ans: #28a745; --skip: #dc3545; }
-        body { font-family: sans-serif; margin: 0; background: #f4f7fe; display: flex; flex-direction: column; height: 100vh; }
+        :root { --pw-blue: #5a4bda; --green: #28a745; --red: #dc3545; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f0f2f5; display: flex; flex-direction: column; height: 100vh; }
         
-        /* Header & Upload */
-        header { background: white; padding: 15px 30px; display: flex; justify-content: space-between; border-bottom: 2px solid #ddd; }
-        .upload-section { background: #eee; padding: 10px; text-align: center; }
+        /* Layout */
+        .header { background: #fff; padding: 15px 30px; border-bottom: 2px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        .main-container { display: flex; flex: 1; overflow: hidden; }
+        .test-area { flex: 3; padding: 30px; background: #fff; margin: 15px; border-radius: 12px; overflow-y: auto; }
+        .sidebar { flex: 1; background: #fff; padding: 20px; border-left: 1px solid #ddd; display: flex; flex-direction: column; }
 
-        /* Test Layout */
-        .main-layout { display: flex; flex: 1; overflow: hidden; }
-        .question-box { flex: 3; padding: 40px; background: white; margin: 15px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .sidebar { flex: 1; background: white; padding: 20px; border-left: 1px solid #ddd; }
+        /* UI Elements */
+        .upload-bar { background: #5a4bda; color: white; padding: 10px; text-align: center; }
+        .q-text { font-size: 1.4rem; margin-bottom: 20px; font-weight: 500; }
+        .option { padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin: 10px 0; cursor: pointer; transition: 0.2s; }
+        .option:hover { background: #f8f9ff; border-color: var(--pw-blue); }
+        .option.selected { background: #eef0ff; border-color: var(--pw-blue); font-weight: bold; }
         
-        /* Options & Palette */
-        .option { display: block; padding: 15px; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px; cursor: pointer; }
-        .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 15px; }
-        .q-num { width: 40px; height: 40px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 5px; }
-        .q-num.active { border: 2px solid var(--pw-blue); font-weight: bold; }
-        .q-num.green { background: var(--ans); color: white; border: none; }
-        .q-num.red { background: var(--skip); color: white; border: none; }
+        /* Palette Grid */
+        .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 20px; }
+        .q-circle { width: 40px; height: 40px; border: 1px solid #ccc; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; }
+        .q-circle.active { border: 2px solid var(--pw-blue); }
+        .q-circle.saved { background: var(--green); color: white; border: none; }
+        .q-circle.visited { background: var(--red); color: white; border: none; }
 
-        .controls { padding: 20px; background: white; border-top: 1px solid #ddd; display: flex; justify-content: space-between; }
-        button { padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .footer { padding: 20px; background: #fff; border-top: 1px solid #ddd; display: flex; justify-content: space-between; }
+        button { padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
         .btn-next { background: var(--pw-blue); color: white; }
     </style>
 </head>
 <body>
 
-<div class="upload-section">
-    <strong>Step 1: Upload Question PDF </strong>
-    <input type="file" id="pdfFile" accept=".pdf">
-    <button onclick="uploadPDF()" style="background: #28a745; color: white;">Generate Test</button>
+<div class="upload-bar" id="upload-ui">
+    Uplaod NEET PDF: <input type="file" id="pdfInput" accept=".pdf">
+    <button onclick="startProcessing()" style="background: white; color: var(--pw-blue); margin-left:10px;">Create Test</button>
 </div>
 
-<header>
-    <div id="test-title">NEET Mock Test</div>
-    <div id="timer" style="font-size: 1.5rem; color: var(--pw-blue);">03:00:00</div>
-</header>
+<div class="header">
+    <div style="font-size: 1.2rem; font-weight: bold;">PW Style Test Engine</div>
+    <div id="timer" style="font-size: 1.4rem; color: var(--pw-blue);">03:00:00</div>
+</div>
 
-<div class="main-layout">
-    <div class="question-box">
-        <h3 id="q-number">Question 1</h3>
-        <p id="q-text" style="font-size: 1.3rem;">Please upload a PDF to start...</p>
-        <div id="options-container"></div>
+<div class="main-container">
+    <div class="test-area" id="test-area">
+        <h3 id="q-no">Question 1</h3>
+        <p class="q-text" id="q-display">Pehle PDF upload karein...</p>
+        <div id="options-box"></div>
     </div>
 
     <div class="sidebar">
         <h4>Question Palette</h4>
-        <div class="palette-grid" id="palette"></div>
-        <button onclick="finishTest()" style="width: 100%; margin-top: 20px; background: orange; color: white;">Final Submit</button>
+        <div class="palette" id="palette-grid"></div>
+        <button onclick="submitFinal()" style="margin-top: auto; background: #ff9800; color: white;">Final Submit</button>
     </div>
 </div>
 
-<div class="controls">
-    <button onclick="clearSelection()" style="background: #ccc;">Clear</button>
-    <button class="btn-next" onclick="saveNext()">Save & Next</button>
+<div class="footer">
+    <button onclick="clearRes()" style="background: #eee;">Clear Response</button>
+    <button class="btn-next" onclick="saveAndNext()">Save & Next</button>
 </div>
 
 <script>
     let questions = [];
     let currentIdx = 0;
-    let answers = [];
+    let userAnswers = [];
     let status = [];
 
-    async function uploadPDF() {
-        const fileInput = document.getElementById('pdfFile');
-        if(!fileInput.files[0]) return alert("Select a file first");
+    async function startProcessing() {
+        const file = document.getElementById('pdfInput').files[0];
+        if(!file) return alert("File select karein!");
 
         const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
+        formData.append('file', file);
 
-        document.getElementById('q-text').innerText = "Processing PDF... Please wait.";
+        document.getElementById('q-display').innerText = "Processing PDF... Please wait.";
         
-        const response = await fetch('/upload', { method: 'POST', body: formData });
-        questions = await response.json();
-        
+        const res = await fetch('/upload', { method: 'POST', body: formData });
+        questions = await res.json();
+
         if(questions.length > 0) {
-            answers = new Array(questions.length).fill(null);
+            userAnswers = new Array(questions.length).fill(null);
             status = new Array(questions.length).fill('unvisited');
-            loadQuestion(0);
+            document.getElementById('upload-ui').style.display = 'none';
+            loadQ(0);
         } else {
-            alert("Could not extract questions. Check PDF format.");
+            alert("No questions found in PDF!");
         }
     }
 
-    function loadQuestion(idx) {
+    function loadQ(idx) {
         currentIdx = idx;
-        const q = questions[idx];
-        document.getElementById('q-number').innerText = `Question ${idx + 1}`;
-        document.getElementById('q-text').innerText = q.q;
+        const qData = questions[idx];
+        document.getElementById('q-no').innerText = `Question ${idx + 1}`;
+        document.getElementById('q-display').innerText = qData.q;
         
         let html = '';
-        q.options.forEach((opt, i) => {
-            let selected = answers[idx] === i ? 'style="background:#eef0ff; border-color:var(--pw-blue)"' : '';
-            html += `<div class="option" ${selected} onclick="setAnswer(${i})">
-                        <input type="radio" name="opt" ${answers[idx] === i ? 'checked' : ''}> ${opt}
-                     </div>`;
+        qData.options.forEach((opt, i) => {
+            let activeClass = userAnswers[idx] === i ? 'selected' : '';
+            html += `<div class="option ${activeClass}" onclick="selectOpt(${i})">${opt}</div>`;
         });
-        document.getElementById('options-container').innerHTML = html;
-        updatePalette();
+        document.getElementById('options-box').innerHTML = html;
+        renderPalette();
     }
 
-    function setAnswer(i) {
-        answers[currentIdx] = i;
-        loadQuestion(currentIdx); // Refresh UI
+    function selectOpt(i) {
+        userAnswers[currentIdx] = i;
+        loadQ(currentIdx);
     }
 
-    function saveNext() {
-        status[currentIdx] = (answers[currentIdx] !== null) ? 'green' : 'red';
-        if(currentIdx < questions.length - 1) loadQuestion(currentIdx + 1);
-        else updatePalette();
+    function saveAndNext() {
+        status[currentIdx] = (userAnswers[currentIdx] !== null) ? 'saved' : 'visited';
+        if(currentIdx < questions.length - 1) loadQ(currentIdx + 1);
+        else renderPalette();
     }
 
-    function updatePalette() {
+    function renderPalette() {
         let html = '';
         for(let i=0; i<questions.length; i++) {
-            let cls = `q-num ${status[i]}`;
+            let cls = `q-circle ${status[i]}`;
             if(i === currentIdx) cls += ' active';
-            html += `<div class="${cls}" onclick="loadQuestion(${i})">${i+1}</div>`;
+            html += `<div class="${cls}" onclick="loadQ(${i})">${i+1}</div>`;
         }
-        document.getElementById('palette').innerHTML = html;
+        document.getElementById('palette-grid').innerHTML = html;
     }
 
-    function finishTest() {
-        alert("Test Finished! Scoring logic can be added here.");
+    function clearRes() {
+        userAnswers[currentIdx] = null;
+        status[currentIdx] = 'unvisited';
+        loadQ(currentIdx);
     }
 
-    // Timer logic simple
+    // Timer (3 Hours)
     let time = 10800;
     setInterval(() => {
-        let m = Math.floor(time/60);
+        let h = Math.floor(time/3600);
+        let m = Math.floor((time%3600)/60);
         let s = time%60;
-        document.getElementById('timer').innerText = `${Math.floor(m/60)}:${m%60}:${s}`;
+        document.getElementById('timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
         time--;
     }, 1000);
-</script>
 
+    function submitFinal() {
+        alert("Test successfully submitted!");
+    }
+</script>
 </body>
 </html>
