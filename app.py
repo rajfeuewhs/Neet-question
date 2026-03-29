@@ -5,83 +5,74 @@ import os
 
 app = Flask(__name__)
 
-def clean_text(text):
-    # Faltu spaces aur junk characters hatane ke liye
-    return re.sub(r'\s+', ' ', text).strip()
+def clean_txt(t):
+    return re.sub(r'\s+', ' ', t).strip()
 
-def extract_advanced(pdf_path):
+def extract_advanced_dpp(pdf_path):
     questions = []
+    ans_map = {}
     full_text = ""
     
     try:
         with pdfplumber.open(pdf_path) as pdf:
             for page in pdf.pages:
-                page_text = page.extract_text()
-                if page_text:
-                    full_text += page_text + "\n"
+                full_text += (page.extract_text() or "") + "\n"
 
-        # 1. Sabse pehle poore text ko clean karo
-        if not full_text.strip():
-            return {"error": "PDF is empty or Image-based (Scanned)"}
+        # 1. Answer Key Pehle nikaalo (Page 2 se)
+        if "Answer Key" in full_text:
+            key_part = full_text.split("Answer Key")[-1]
+            # Pattern: Q1 (C) ya Q1 (B)
+            key_matches = re.findall(r'Q(\d+)\s*[\(\[]?([A-D])[\)\]]?', key_part)
+            for q_num, char in key_matches:
+                ans_map[int(q_num)] = ord(char.upper()) - ord('A')
 
-        # 2. Split Logic: Ye 1., Q1., Question 1:, [1] sabko handle karega
-        # Pattern: Naya sawal wahan shuru hota hai jahan Number ke baad . ya ) ho
-        q_pattern = r'\n(?=\d+[\.\)\s\-]|Q(?:uestion)?\s*\d+[\.\)\s\-])'
-        blocks = re.split(q_pattern, full_text)
+        # 2. Questions Split karo (Sirf Answer Key se pehle wala part)
+        content_for_qs = full_text.split("Answer Key")[0]
+        # Pattern: Jo "Q" aur "Number" se shuru ho
+        q_blocks = re.split(r'\n(?=Q\d+)', content_for_qs)
 
-        for block in blocks:
-            if len(block.strip()) < 10: continue
+        q_id = 1
+        for block in q_blocks:
+            if not block.strip() or len(block) < 10: continue
+
+            # --- SMART OPTION EXTRACTION ---
+            # Hum block ko split karenge jahan bhi (A), (B), (C), (D) mile
+            parts = re.split(r'\(([A-D])\)', block)
             
-            # Options nikalne ka logic (A/B/C/D ya 1/2/3/4 in brackets/dots)
-            # Pattern: (A) ya A. ya A) 
-            opt_pattern = r'[\(\[]?[A-D1-4][\)\.\s\]]\s*|[A-D]\s+[\u2022\-\>]'
-            
-            # Question text wo hai jo pehle option se pehle aata hai
-            parts = re.split(opt_pattern, block)
-            
-            if len(parts) > 1:
-                question_body = clean_text(parts[0])
-                # Baki bache hue parts options hain
-                options_found = [clean_text(p) for p in parts[1:] if p.strip()]
-                
-                if len(options_found) >= 2:
-                    questions.append({
-                        "q": question_body,
-                        "options": options_found[:4], # Sirf pehle 4 options lo
-                        "ans": 0 # Default Index
-                    })
+            # parts[0] hamesha question text hoga
+            q_text = clean_txt(parts[0])
+            # Q1, Q2 jaisa prefix hatao text se
+            q_text = re.sub(r'^Q\d+\s*', '', q_text)
 
-        print(f"--- Perfect Checker Log ---")
-        print(f"Blocks detected: {len(blocks)}")
-        print(f"Final Questions: {len(questions)}")
-        
+            options_list = []
+            # parts mein pattern aisa hota hai: [text, 'A', opt_val, 'B', opt_val...]
+            for i in range(2, len(parts), 2):
+                options_list.append(clean_txt(parts[i]))
+
+            if len(options_list) >= 2:
+                questions.append({
+                    "id": q_id,
+                    "q": q_text,
+                    "options": options_list[:4],
+                    "correct_ans": ans_map.get(q_id, 0)
+                })
+                q_id += 1
+
         return questions
-
     except Exception as e:
         return {"error": str(e)}
 
 @app.route('/')
-def index():
-    return render_template('index.html')
+def index(): return render_template('index.html')
 
 @app.route('/upload', methods=['POST'])
-def handle_upload():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file"}), 400
-    
+def upload():
     file = request.files['file']
-    temp_name = "test_upload.pdf"
-    file.save(temp_name)
-    
-    result = extract_advanced(temp_name)
-    
-    if os.path.exists(temp_name):
-        os.remove(temp_name)
-        
-    if isinstance(result, dict) and "error" in result:
-        return jsonify(result), 422
-        
-    return jsonify(result)
+    temp = "dpp_temp.pdf"
+    file.save(temp)
+    data = extract_advanced_dpp(temp)
+    os.remove(temp)
+    return jsonify(data)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True)
