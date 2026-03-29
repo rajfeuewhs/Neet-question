@@ -5,80 +5,83 @@ import os
 
 app = Flask(__name__)
 
-# Ye function PDF se questions nikalne ki koshish karta hai
-def extract_neet_questions(pdf_path):
+def clean_text(text):
+    # Faltu spaces aur junk characters hatane ke liye
+    return re.sub(r'\s+', ' ', text).strip()
+
+def extract_advanced(pdf_path):
     questions = []
+    full_text = ""
+    
     try:
         with pdfplumber.open(pdf_path) as pdf:
-            text = ""
             for page in pdf.pages:
                 page_text = page.extract_text()
                 if page_text:
-                    text += page_text + "\n"
-        
-        # Debugging: Terminal mein dikhayega kitna text mila
-        print(f"--- Extraction Started ---")
-        print(f"Total characters found in PDF: {len(text)}")
+                    full_text += page_text + "\n"
 
-        if len(text) < 50:
-            print("Error: PDF mein text nahi mila (Shayad ye scanned image PDF hai)")
-            return []
+        # 1. Sabse pehle poore text ko clean karo
+        if not full_text.strip():
+            return {"error": "PDF is empty or Image-based (Scanned)"}
 
-        # Regex Update: Ye 1. 2. ya Q1. Q2. dono ko pakdega
-        # Hum text ko split kar rahe hain jahan bhi naya question number shuru ho raha hai
-        blocks = re.split(r'\n(?=\d+[\.\)\s])', text) 
-        print(f"Total potential question blocks: {len(blocks)}")
+        # 2. Split Logic: Ye 1., Q1., Question 1:, [1] sabko handle karega
+        # Pattern: Naya sawal wahan shuru hota hai jahan Number ke baad . ya ) ho
+        q_pattern = r'\n(?=\d+[\.\)\s\-]|Q(?:uestion)?\s*\d+[\.\)\s\-])'
+        blocks = re.split(q_pattern, full_text)
 
         for block in blocks:
-            lines = [l.strip() for l in block.strip().split('\n') if l.strip()]
-            if len(lines) >= 2:
-                q_text = lines[0]
-                # A) B) C) D) ya (A) (B) (C) (D) patterns dhoondna
-                opts = [l for l in lines if re.match(r'^[\(\[]?[A-D][\)\.\s\]]', l)]
+            if len(block.strip()) < 10: continue
+            
+            # Options nikalne ka logic (A/B/C/D ya 1/2/3/4 in brackets/dots)
+            # Pattern: (A) ya A. ya A) 
+            opt_pattern = r'[\(\[]?[A-D1-4][\)\.\s\]]\s*|[A-D]\s+[\u2022\-\>]'
+            
+            # Question text wo hai jo pehle option se pehle aata hai
+            parts = re.split(opt_pattern, block)
+            
+            if len(parts) > 1:
+                question_body = clean_text(parts[0])
+                # Baki bache hue parts options hain
+                options_found = [clean_text(p) for p in parts[1:] if p.strip()]
                 
-                if len(opts) >= 2: # Kam se kam 2 options milne par add karein
+                if len(options_found) >= 2:
                     questions.append({
-                        "q": q_text,
-                        "options": opts[:4],
-                        "ans": 0 # Default (Manually verify karna hoga baad mein)
+                        "q": question_body,
+                        "options": options_found[:4], # Sirf pehle 4 options lo
+                        "ans": 0 # Default Index
                     })
+
+        print(f"--- Perfect Checker Log ---")
+        print(f"Blocks detected: {len(blocks)}")
+        print(f"Final Questions: {len(questions)}")
         
-        print(f"Successfully extracted {len(questions)} questions.")
-        print(f"--- Extraction Finished ---")
+        return questions
 
     except Exception as e:
-        print(f"System Error: {str(e)}")
-    
-    return questions
+        return {"error": str(e)}
 
 @app.route('/')
-def home():
+def index():
     return render_template('index.html')
 
 @app.route('/upload', methods=['POST'])
-def upload():
+def handle_upload():
     if 'file' not in request.files:
-        return jsonify({"error": "No file uploaded"}), 400
+        return jsonify({"error": "No file"}), 400
     
     file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No file selected"}), 400
-
-    # Temporary save karein process karne ke liye
-    temp_path = "temp_test.pdf"
-    file.save(temp_path)
+    temp_name = "test_upload.pdf"
+    file.save(temp_name)
     
-    data = extract_neet_questions(temp_path)
+    result = extract_advanced(temp_name)
     
-    # File delete karein taaki memory bhar na jaye
-    if os.path.exists(temp_path):
-        os.remove(temp_path)
-    
-    if not data:
-        return jsonify({"error": "PDF se questions nahi nikal paye. Format check karein."}), 422
-
-    return jsonify(data)
+    if os.path.exists(temp_name):
+        os.remove(temp_name)
+        
+    if isinstance(result, dict) and "error" in result:
+        return jsonify(result), 422
+        
+    return jsonify(result)
 
 if __name__ == '__main__':
-    # Threaded=True se performance behtar hoti hai
     app.run(debug=True, port=5000)
