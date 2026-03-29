@@ -1,44 +1,54 @@
 from flask import Flask, render_template, request, jsonify
 import pdfplumber
 import re
+import os
 
 app = Flask(__name__)
 
-def extract_questions(pdf_path):
+# PDF se questions nikalne ka logic
+def extract_neet_questions(pdf_path):
     questions = []
-    with pdfplumber.open(pdf_path) as pdf:
-        full_text = ""
-        for page in pdf.pages:
-            full_text += page.extract_text() + "\n"
-
-    # Basic Regex: Yeh Q1, Q2 ya 1. 2. jaise patterns dhoondta hai
-    # Note: PDF ka format alag hone par regex badalna pad sakta hai
-    q_blocks = re.split(r'\n(?=\d+\.|\dQ\d+|Question \d+)', full_text)
-
-    for block in q_blocks:
-        lines = block.strip().split('\n')
-        if len(lines) >= 2:
-            question_text = lines[0]
-            options = [l for l in lines if re.match(r'^[A-D]\)|^\([a-d]\)', l.strip())]
-            if len(options) >= 4:
-                questions.append({
-                    "q": question_text,
-                    "options": options[:4],
-                    "ans": 0 # Default answer (A), isse baad mein manually update kar sakte hain
-                })
+    try:
+        with pdfplumber.open(pdf_path) as pdf:
+            text = ""
+            for page in pdf.pages:
+                text += page.extract_text() + "\n"
+        
+        # Regex: Yeh Q1. ya 1. jaise questions ko dhoondta hai
+        # Options A) B) C) D) ko bhi extract karta hai
+        blocks = re.split(r'\n(?=\d+[\.\)])', text) 
+        
+        for block in blocks:
+            lines = block.strip().split('\n')
+            if len(lines) >= 2:
+                q_text = lines[0]
+                opts = [l.strip() for l in lines if re.match(r'^[A-D][\)\.]', l.strip())]
+                
+                if len(opts) >= 4:
+                    questions.append({
+                        "q": q_text,
+                        "options": opts[:4],
+                        "ans": 0 # Default (Isse baad mein verify kar sakte hain)
+                    })
+    except Exception as e:
+        print(f"Error: {e}")
     return questions
 
 @app.route('/')
-def index():
+def home():
     return render_template('index.html')
 
 @app.route('/upload', methods=['POST'])
-def upload_file():
+def upload():
     if 'file' not in request.files:
-        return "No file", 400
+        return jsonify({"error": "No file"}), 400
+    
     file = request.files['file']
-    file.save("temp.pdf")
-    data = extract_questions("temp.pdf")
+    path = "temp_test.pdf"
+    file.save(path)
+    
+    data = extract_neet_questions(path)
+    os.remove(path) # Process ke baad delete kar do
     return jsonify(data)
 
 if __name__ == '__main__':
