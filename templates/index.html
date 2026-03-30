@@ -3,42 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEET Pro Portal</title>
+    <title>NEET Ultimate Prep</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --pw-blue: #1b10b1; --pw-light: #f0f2ff; --green: #28a745; --danger: #dc3545; --gray: #adb5bd; }
+        :root { --pw-blue: #1b10b1; --pw-light: #f0f2ff; --green: #28a745; --danger: #dc3545; --warning: #ffc107; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7fe; }
+        .dashboard { max-width: 800px; margin: 20px auto; padding: 15px; }
+        .subject-sec { background: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .chapter-btn { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s; }
+        .chapter-btn:hover { background: var(--pw-light); }
         
-        /* Dashboard */
-        .dashboard { max-width: 800px; margin: 20px auto; padding: 15px; text-align: center; }
-        .chapter-card { background: white; padding: 15px; margin: 10px 0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; }
-        
-        /* Test UI */
         #test-ui, #result-ui { display: none; min-height: 100vh; flex-direction: column; background: white; }
-        .header { padding: 10px 20px; border-bottom: 2px solid #ddd; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: white; z-index: 10; }
-        #timer { font-size: 1.2rem; font-weight: bold; border-radius: 5px; padding: 5px 10px; background: #eee; }
-        .timer-danger { background: var(--danger) !important; color: white; animation: blink 0.8s infinite; }
+        .header { padding: 10px 20px; border-bottom: 2px solid #ddd; display: flex; justify-content: space-between; align-items: center; sticky; top: 0; background: white; z-index: 10; }
+        #timer { font-size: 1.2rem; font-weight: bold; padding: 5px 10px; background: #eee; border-radius: 5px; }
+        .timer-red { background: var(--danger) !important; color: white; animation: blink 0.8s infinite; }
         @keyframes blink { 50% { opacity: 0.5; } }
 
-        .main-layout { display: flex; flex: 1; flex-direction: row; }
-        .q-area { flex: 3; padding: 20px; padding-bottom: 80px; }
+        .layout { display: flex; flex: 1; flex-direction: row; }
+        .q-area { flex: 3; padding: 20px; padding-bottom: 100px; }
         .sidebar { flex: 1; padding: 20px; border-left: 1px solid #ddd; background: #fafafa; }
-        
-        @media (max-width: 768px) { .main-layout { flex-direction: column; } .sidebar { border-left: none; order: 2; } }
+        @media (max-width: 768px) { .layout { flex-direction: column; } .sidebar { border-left: none; order: 2; } }
 
-        .opt { padding: 15px; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .opt { padding: 15px; border: 1px solid #ddd; margin: 10px 0; border-radius: 10px; cursor: pointer; }
         .opt.active { border: 2px solid var(--pw-blue); background: var(--pw-light); font-weight: bold; }
-        
         .palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 8px; }
         .dot { width: 40px; height: 40px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; border-radius: 5px; cursor: pointer; background: white; }
-        .dot.seen { background: #ffc107; color: white; border: none; } /* Seen but not answered */
-        .dot.saved { background: var(--green); color: white; border: none; } /* Answered */
+        .dot.seen { background: var(--warning); color: white; border: none; }
+        .dot.saved { background: var(--green); color: white; border: none; }
         
-        .footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #ddd; display: flex; justify-content: space-around; }
+        .footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #ddd; display: flex; justify-content: space-around; box-sizing: border-box; }
         .btn { padding: 12px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
-        /* Result Styles */
         .review-card { padding: 15px; margin: 10px 0; border-radius: 10px; border-left: 5px solid #ccc; }
         .correct { background: #d4edda; border-color: #28a745; }
         .wrong { background: #f8d7da; border-color: #dc3545; }
@@ -47,82 +42,81 @@
 <body>
 
 <div id="dash" class="dashboard">
-    <h2 style="color: var(--pw-blue);">NEET Study Center</h2>
-    <div class="chapter-card" onclick="loadTest('botany', 'cell_unit', 'botany')">
-        <span><i class="fas fa-leaf"></i> Cell: The Unit of Life (DPP 01)</span>
-        <i class="fas fa-chevron-right"></i>
-    </div>
-    </div>
+    <h2 style="color: var(--pw-blue); text-align:center;">NEET MASTER PORTAL</h2>
+    <div id="dash-content">Loading Tests...</div>
+</div>
 
 <div id="test-ui">
-    <div class="header">
-        <h3 id="test-title" style="margin:0;">Test</h3>
-        <div id="timer">00:00:00</div>
-    </div>
-    <div class="main-layout">
+    <div class="header"><h3 id="test-title" style="margin:0;">Test</h3><div id="timer">00:00:00</div></div>
+    <div class="layout">
         <div class="q-area">
-            <h4 id="q-label" style="color: #666;">Question 1</h4>
-            <div id="q-text" style="font-size: 1.2rem; margin-bottom: 20px;"></div>
+            <h4 id="q-label" style="color:#666;">Question</h4>
+            <div id="q-text" style="font-size:1.2rem; margin-bottom:20px; line-height:1.5;"></div>
             <div id="options-box"></div>
         </div>
-        <div class="sidebar">
-            <h4>Question Palette</h4>
-            <div class="palette" id="palette"></div>
-        </div>
+        <div class="sidebar"><h4>Palette</h4><div class="palette" id="palette"></div></div>
     </div>
     <div class="footer">
         <button class="btn" onclick="submitTest()" style="background:orange; color:white;">SUBMIT</button>
-        <button class="btn" onclick="nextQ()" style="background:var(--pw-blue); color:white; flex: 0.8;">SAVE & NEXT</button>
+        <button class="btn" onclick="nextQ()" style="background:var(--pw-blue); color:white; flex:0.7;">SAVE & NEXT</button>
     </div>
 </div>
 
-<div id="result-ui" style="padding: 20px;">
-    <h2 style="text-align:center;">Test Result</h2>
-    <div style="max-width: 300px; margin: auto;"><canvas id="scoreChart"></canvas></div>
-    <div id="final-score" style="text-align:center; font-size: 1.5rem; margin: 20px; font-weight:bold;"></div>
-    <hr>
-    <h3>Detailed Review</h3>
-    <div id="review-area"></div>
-    <button onclick="location.reload()" class="btn" style="width:100%; background:var(--pw-blue); color:white; margin-top:20px;">RETAKE TEST</button>
+<div id="result-ui" style="padding:20px;">
+    <h2 style="text-align:center;">Result Report</h2>
+    <div style="max-width:300px; margin:auto;"><canvas id="scoreChart"></canvas></div>
+    <div id="final-score" style="text-align:center; font-size:1.5rem; margin:20px; font-weight:bold;"></div>
+    <hr><h3>Review Questions</h3><div id="review-area"></div>
+    <button onclick="location.reload()" class="btn" style="width:100%; background:var(--pw-blue); color:white; margin-top:20px;">BACK TO DASHBOARD</button>
 </div>
 
 <script>
     let questions = [], current = 0, answers = [], status = [], timeLeft = 0, timerInterval;
 
-    async function loadTest(sub, ch, test) {
-        const res = await fetch(`/get_test/${sub}/${ch}/${test}`);
+    window.onload = async () => {
+        const res = await fetch('/get_config');
+        const config = await res.json();
+        let h = '';
+        for (const [sub, chapters] of Object.entries(config)) {
+            h += `<div class="subject-sec"><h3><i class="fas fa-book"></i> ${sub.toUpperCase()}</h3>`;
+            for (const [ch, tests] of Object.entries(chapters)) {
+                tests.forEach(t => {
+                    h += `<div class="chapter-btn" onclick="startTest('${sub}/${ch}/${t.file}')">
+                            <span>${t.name}</span><i class="fas fa-play-circle"></i>
+                          </div>`;
+                });
+            }
+            h += `</div>`;
+        }
+        document.getElementById('dash-content').innerHTML = h;
+    };
+
+    async function startTest(path) {
+        const res = await fetch(`/get_test/${path}`);
         questions = await res.json();
         answers = new Array(questions.length).fill(null);
-        status = new Array(questions.length).fill('unseen'); // unseen, seen, saved
-        
+        status = new Array(questions.length).fill('unseen');
         document.getElementById('dash').style.display = 'none';
         document.getElementById('test-ui').style.display = 'flex';
-        
         timeLeft = questions.length * 180;
-        startTimer();
+        timerInterval = setInterval(updateTimer, 1000);
         renderQ(0);
     }
 
-    function startTimer() {
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            let abs = Math.abs(timeLeft);
-            let h = Math.floor(abs/3600).toString().padStart(2,'0');
-            let m = Math.floor((abs%3600)/60).toString().padStart(2,'0');
-            let s = (abs%60).toString().padStart(2,'0');
-            const timerEl = document.getElementById('timer');
-            timerEl.innerText = (timeLeft < 0 ? '-' : '') + `${h}:${m}:${s}`;
-            if(timeLeft < 0) timerEl.classList.add('timer-danger');
-        }, 1000);
+    function updateTimer() {
+        timeLeft--;
+        let abs = Math.abs(timeLeft), h = Math.floor(abs/3600).toString().padStart(2,'0'), m = Math.floor((abs%3600)/60).toString().padStart(2,'0'), s = (abs%60).toString().padStart(2,'0');
+        const tel = document.getElementById('timer');
+        tel.innerText = (timeLeft < 0 ? '-' : '') + `${h}:${m}:${s}`;
+        if(timeLeft < 0) tel.classList.add('timer-red');
     }
 
     function renderQ(idx) {
         current = idx;
         if(status[idx] === 'unseen') status[idx] = 'seen';
         const q = questions[idx];
-        document.getElementById('q-label').innerText = `Question ${idx + 1} of ${questions.length}`;
+        document.getElementById('q-label').innerText = `Question ${idx+1} of ${questions.length}`;
         document.getElementById('q-text').innerText = q.q;
-        
         let h = '';
         q.options.forEach((o, i) => {
             let act = (answers[idx] === i) ? 'active' : '';
@@ -134,17 +128,13 @@
     }
 
     function pick(i) { answers[current] = i; renderQ(current); }
-
-    function nextQ() {
-        if(answers[current] !== null) status[current] = 'saved';
-        if(current < questions.length - 1) renderQ(current + 1);
-    }
+    function nextQ() { if(answers[current] !== null) status[current] = 'saved'; if(current < questions.length -1) renderQ(current+1); }
 
     function renderPalette() {
         let h = '';
         questions.forEach((_, i) => {
             let cls = (status[i] === 'saved') ? 'saved' : (status[i] === 'seen' ? 'seen' : '');
-            let border = (current === i) ? 'border: 3px solid var(--pw-blue);' : '';
+            let border = (current === i) ? 'border:3px solid var(--pw-blue);' : '';
             h += `<div class="dot ${cls}" style="${border}" onclick="renderQ(${i})">${i+1}</div>`;
         });
         document.getElementById('palette').innerHTML = h;
@@ -153,31 +143,19 @@
     function submitTest() {
         if(!confirm("Submit Test?")) return;
         clearInterval(timerInterval);
-        
         let correct = 0, wrong = 0, skipped = 0, reviewH = '';
         questions.forEach((q, i) => {
-            let u = answers[i], c = q.correct_ans;
-            let resCls = 'skipped';
+            let u = answers[i], c = q.correct_ans, resCls = 'skipped';
             if(u === c) { correct++; resCls = 'correct'; }
             else if(u === null) { skipped++; }
             else { wrong++; resCls = 'wrong'; }
-
-            reviewH += `<div class="review-card ${resCls}">
-                <p><strong>Q${i+1}:</strong> ${q.q}</p>
-                <p>Your: ${u!==null?q.options[u]:'Skipped'} | Correct: ${q.options[c]}</p>
-            </div>`;
+            reviewH += `<div class="review-card ${resCls}"><p><strong>Q${i+1}:</strong> ${q.q}</p><p>Your: ${u!==null?q.options[u]:'Skipped'} | Correct: ${q.options[c]}</p></div>`;
         });
-
         document.getElementById('test-ui').style.display = 'none';
         document.getElementById('result-ui').style.display = 'block';
-        document.getElementById('final-score').innerText = `Score: ${(correct*4)-(wrong*1)} / ${questions.length*4}`;
+        document.getElementById('final-score').innerText = `Score: ${(correct*4)-wrong} / ${questions.length*4}`;
         document.getElementById('review-area').innerHTML = reviewH;
-
-        new Chart(document.getElementById('scoreChart'), {
-            type: 'doughnut',
-            data: { labels: ['Correct', 'Wrong', 'Skipped'], 
-            datasets: [{ data: [correct, wrong, skipped], backgroundColor: ['#28a745', '#dc3545', '#ffc107'] }] }
-        });
+        new Chart(document.getElementById('scoreChart'), { type: 'doughnut', data: { labels: ['Correct', 'Wrong', 'Skipped'], datasets: [{ data: [correct, wrong, skipped], backgroundColor: ['#28a745', '#dc3545', '#ffc107'] }] } });
     }
 </script>
 </body>
