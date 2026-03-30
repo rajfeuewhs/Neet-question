@@ -1,1 +1,116 @@
-
+[
+  {
+    "id": 1,
+    "q": "Inanimate things have:",
+    "options": ["one cell", "two cells", "one or multiple cells", "no cell"],
+    "correct_ans": 3
+  },
+  {
+    "id": 2,
+    "q": "Which of the following is true?",
+    "options": ["Most of the organisms have single cell in their bodies", "Robert Hooke was the first person to describe a living cell", "Both", "None"],
+    "correct_ans": 3
+  },
+  {
+    "id": 3,
+    "q": "The detailed study of cell can be done by using which microscope?",
+    "options": ["Simple light microscope", "Compound light microscope", "Electron microscope", "All the above"],
+    "correct_ans": 2
+  },
+  {
+    "id": 4,
+    "q": "Who gave final shape to cell theory?",
+    "options": ["Virchow", "Schwann", "Schleiden", "Leeuwenhoek"],
+    "correct_ans": 0
+  },
+  {
+    "id": 5,
+    "q": "The new cells originate:",
+    "options": ["By bacterial fermentation", "From abiotic material", "From pre-existing cells", "Through regeneration of old cells"],
+    "correct_ans": 2
+  },
+  {
+    "id": 6,
+    "q": "Who was the first person to see cells under the microscope and give them a name?",
+    "options": ["Anton van Leeuwenhoek", "Robert Hooke", "Theodor Schwann", "Matthias Schleiden"],
+    "correct_ans": 1
+  },
+  {
+    "id": 7,
+    "q": "What is the meaning of Omnis cellula-e cellula?",
+    "options": ["All cells have a nucleus", "Cell is the basic unit of life", "Living things are composed of cells", "All cells arise from pre-existing cells"],
+    "correct_ans": 3
+  },
+  {
+    "id": 8,
+    "q": "Match Column I (A-Leeuwenhoek, B-Robert Brown, C-Schleiden, D-Schwann) with Column II (i-Described living cell, ii-Cell wall unique to plants, iii-Discovered nucleus, iv-Plants composed of cells).",
+    "options": ["A-i, B-iii, C-iv, D-ii", "A-i, B-iii, C-ii, D-iv", "A-iii, B-i, C-iv, D-ii", "A-i, B-iv, C-ii, D-iii"],
+    "correct_ans": 0
+  },
+  {
+    "id": 9,
+    "q": "Who proposed a modification in the cell theory?",
+    "options": ["Schleiden and Schwann", "Rudolf Virchow", "Robert Hooke", "Marcello Malpighi"],
+    "correct_ans": 1
+  },
+  {
+    "id": 10,
+    "q": "Unicellular organisms are:",
+    "options": ["Not capable of independent existence", "Not capable of independent existence but perform vital functions", "Capable of independent existence and perform essential vital functions", "Capable to lead independent existence but perform some functions"],
+    "correct_ans": 2
+  },
+  {
+    "id": 11,
+    "q": "Which of the following represents a typical plant cell?",
+    "options": ["Sieve tube cell", "Tracheid", "Onion peel cell", "All of the above"],
+    "correct_ans": 2
+  },
+  {
+    "id": 12,
+    "q": "Which of the cell is round and biconcave?",
+    "options": ["Mesophyll cell", "Tracheid", "RBC", "WBC"],
+    "correct_ans": 2
+  },
+  {
+    "id": 13,
+    "q": "Which of the following is largest isolated cell?",
+    "options": ["Neuron", "Ostrich egg", "WBC", "None"],
+    "correct_ans": 1
+  },
+  {
+    "id": 14,
+    "q": "Membrane bound organelles are absent in:",
+    "options": ["Prokaryotes", "Eukaryotes", "Yeast", "Fungi"],
+    "correct_ans": 0
+  },
+  {
+    "id": 15,
+    "q": "What is true about genetic material of a prokaryotic cell?",
+    "options": ["Lacks histones", "Not enveloped by nuclear membrane", "Composed of a single circular DNA molecule", "All of these"],
+    "correct_ans": 3
+  },
+  {
+    "id": 16,
+    "q": "Regarding Schwann: I. Plasma membrane reported, II. Cell wall is unique to plants, III. Bodies composed of cells. Select right option:",
+    "options": ["All are correct", "Only III is correct", "II and III are correct", "All are incorrect"],
+    "correct_ans": 0
+  },
+  {
+    "id": 17,
+    "q": "Arrange cells in ascending order of sizes: I. Mycoplasma, II. Ostrich egg, III. Human RBC, IV. Bacteria",
+    "options": ["I, II, III, IV", "I, IV, III, II", "II, IV, I, III", "IV, III, II, I"],
+    "correct_ans": 1
+  },
+  {
+    "id": 18,
+    "q": "The type of ribosomes found in prokaryotes is:",
+    "options": ["80 S type", "70 S type", "30 S type", "50 S type"],
+    "correct_ans": 1
+  },
+  {
+    "id": 19,
+    "q": "Which of the following is not true for a eukaryotic cell?",
+    "options": ["Cell wall is made up of peptidoglycans", "It has 80 S type ribosome in cytoplasm", "Mitochondria contain circular DNA", "Membrane bound organelles are present"],
+    "correct_ans": 0
+  }
+]s
