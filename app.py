@@ -4,8 +4,9 @@ import os
 
 app = Flask(__name__)
 
-# GitHub Repository ka base URL (Jahan aapki JSON files hain)
-GITHUB_BASE_URL = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/data/"
+# GitHub ka base URL jahan aapki JSON files hongi
+# Badlein: YOUR_USERNAME aur YOUR_REPO ko apne hisaab se
+GITHUB_BASE = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/data/"
 
 @app.route('/')
 def index():
@@ -13,12 +14,12 @@ def index():
 
 @app.route('/get_test/<category>')
 def get_test(category):
-    # Category can be: physics, chemistry, botany, zoology, test_180, test_720
     try:
-        response = requests.get(f"{GITHUB_BASE_URL}{category}.json")
+        # Subject wise JSON fetch karega (physics.json, botany.json etc.)
+        response = requests.get(f"{GITHUB_BASE}{category}.json")
         return jsonify(response.json())
     except Exception as e:
-        return jsonify({"error": str(e)}), 404
+        return jsonify({"error": "Data load nahi ho paya"}), 404
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=int(os.environ.get("PORT", 5000)))
