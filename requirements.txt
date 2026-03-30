@@ -1,4 +1,3 @@
 flask
-pdfplumber
-google-generativeai
+requests
 gunicorn
