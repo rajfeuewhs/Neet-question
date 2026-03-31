@@ -8,63 +8,79 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --pw-blue: #1b10b1; --pw-light: #f0f2ff; --green: #28a745; --danger: #dc3545; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7fe; padding-bottom: 50px; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7fe; }
+        
+        /* Sections */
+        .page-section { display: none; min-height: 100vh; width: 100%; }
+        .active-page { display: block !important; }
+
+        /* Dashboard Grid */
         .dashboard { max-width: 900px; margin: 20px auto; padding: 15px; text-align: center; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
-        .card { background: white; padding: 20px; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; }
-        .card i { font-size: 2rem; color: var(--pw-blue); margin-bottom: 10px; }
-        
-        #chapter-list { margin-top: 30px; display: none; text-align: left; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .ch-header { background: #f1f1f1; padding: 10px; font-weight: bold; border-radius: 5px; margin-top: 10px; color: #333; }
-        .test-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
-        .test-item:hover { color: var(--pw-blue); background: var(--pw-light); }
+        .card { background: white; padding: 25px; border-radius: 15px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; transition: 0.3s; }
+        .card:hover { transform: scale(1.03); border-color: var(--pw-blue); }
+        .card i { font-size: 2.5rem; color: var(--pw-blue); margin-bottom: 12px; }
 
-        #test-ui, #result-ui { display: none; min-height: 100vh; flex-direction: column; background: white; }
-        .header { padding: 10px 20px; border-bottom: 2px solid #ddd; display: flex; justify-content: space-between; align-items: center; background: white; position: sticky; top: 0; z-index: 100; }
-        #timer { font-size: 1.2rem; font-weight: bold; padding: 5px 15px; background: #eee; border-radius: 8px; }
-        .layout { display: flex; flex: 1; flex-direction: row; }
-        .q-area { flex: 3; padding: 20px; padding-bottom: 100px; }
+        /* Chapter Page */
+        .chapter-container { max-width: 800px; margin: auto; padding: 20px; }
+        .ch-header { background: #e9ecef; padding: 12px; font-weight: bold; border-radius: 8px; margin-top: 15px; color: #495057; border-left: 5px solid var(--pw-blue); }
+        .test-item { display: flex; justify-content: space-between; padding: 15px; background: white; margin: 5px 0; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+        .test-item:hover { background: var(--pw-light); }
+
+        /* Test UI */
+        .header { padding: 15px 20px; border-bottom: 2px solid #ddd; display: flex; justify-content: space-between; align-items: center; background: white; position: sticky; top: 0; z-index: 100; }
+        #timer { font-size: 1.2rem; font-weight: bold; color: var(--pw-blue); }
+        .layout { display: flex; flex-direction: row; flex: 1; }
+        .q-area { flex: 3; padding: 25px; padding-bottom: 120px; }
         .sidebar { flex: 1; padding: 20px; border-left: 1px solid #ddd; background: #fafafa; }
         @media (max-width: 768px) { .layout { flex-direction: column; } .sidebar { border-left: none; } }
         
-        .opt { padding: 15px; border: 1px solid #ddd; margin: 10px 0; border-radius: 10px; cursor: pointer; background: #fff; }
-        .opt.active { border: 2px solid var(--pw-blue); background: var(--pw-light); font-weight: bold; }
-        .palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 8px; }
-        .dot { width: 40px; height: 40px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; border-radius: 5px; cursor: pointer; }
+        .opt { padding: 18px; border: 1px solid #ddd; margin: 12px 0; border-radius: 12px; cursor: pointer; background: #fff; font-size: 1.05rem; }
+        .opt.active { border: 2.5px solid var(--pw-blue); background: var(--pw-light); font-weight: bold; }
+        .palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; }
+        .dot { width: 45px; height: 45px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; background: white; }
         .dot.saved { background: var(--green); color: white; border: none; }
+        
         .footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #ddd; display: flex; justify-content: space-around; box-sizing: border-box; }
-        .btn { padding: 12px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn { padding: 14px 30px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1rem; }
     </style>
 </head>
 <body>
 
-<div id="dash" class="dashboard">
-    <h2 style="color: var(--pw-blue);">NEET MASTER PORTAL</h2>
-    <div class="grid">
-        <div class="card" onclick="openSubject('physics')"><i class="fas fa-atom"></i><h3>Physics</h3></div>
-        <div class="card" onclick="openSubject('chemistry')"><i class="fas fa-flask"></i><h3>Chemistry</h3></div>
-        <div class="card" onclick="openSubject('botany')"><i class="fas fa-leaf"></i><h3>Botany</h3></div>
-        <div class="card" onclick="openSubject('zoology')"><i class="fas fa-dog"></i><h3>Zoology</h3></div>
-        <div class="card" onclick="openSubject('mock_180')"><i class="fas fa-file-alt"></i><h3>180 Test</h3></div>
-        <div class="card" onclick="openSubject('mock_720')"><i class="fas fa-trophy"></i><h3>720 Test</h3></div>
-    </div>
-
-    <div id="chapter-list">
-        <h3 id="sub-title">Chapters</h3>
-        <div id="list-content"></div>
-        <button onclick="document.getElementById('chapter-list').style.display='none'" style="margin-top:20px; color:blue; border:none; background:none; cursor:pointer;">← BACK</button>
+<div id="page-home" class="page-section active-page">
+    <div class="dashboard">
+        <h2 style="color: var(--pw-blue); margin-bottom: 30px;">NEET PREP MASTER</h2>
+        <div class="grid">
+            <div class="card" onclick="navigateTo('botany')"><i class="fas fa-leaf"></i><h3>Botany</h3></div>
+            <div class="card" onclick="navigateTo('zoology')"><i class="fas fa-dog"></i><h3>Zoology</h3></div>
+            <div class="card" onclick="navigateTo('physics')"><i class="fas fa-atom"></i><h3>Physics</h3></div>
+            <div class="card" onclick="navigateTo('chemistry')"><i class="fas fa-flask"></i><h3>Chemistry</h3></div>
+            <div class="card" onclick="navigateTo('mock_180')"><i class="fas fa-file-alt"></i><h3>180 Qs</h3></div>
+            <div class="card" onclick="navigateTo('mock_720')"><i class="fas fa-trophy"></i><h3>720 Qs</h3></div>
+        </div>
     </div>
 </div>
 
-<div id="test-ui">
-    <div class="header"><h3 id="test-title" style="margin:0;">Test</h3><div id="timer">00:00</div></div>
+<div id="page-chapters" class="page-section">
+    <div class="chapter-container">
+        <button onclick="showPage('page-home')" style="border:none; background:none; color:var(--pw-blue); font-weight:bold; cursor:pointer; margin-bottom:20px;"><i class="fas fa-arrow-left"></i> Home</button>
+        <h2 id="current-sub-name" style="text-transform: uppercase; color: var(--pw-blue);">Botany</h2>
+        <div id="chapter-content"></div>
+    </div>
+</div>
+
+<div id="page-test" class="page-section">
+    <div class="header">
+        <h3 id="test-title" style="margin:0; color:#333;">Test</h3>
+        <div id="timer">00:00</div>
+    </div>
     <div class="layout">
         <div class="q-area">
-            <h4 id="q-num" style="color:#666;">Question 1</h4>
-            <div id="q-text" style="font-size:1.2rem; margin-bottom:20px;"></div>
+            <h4 id="q-label" style="color:#666;">Question 1</h4>
+            <div id="q-text" style="font-size:1.25rem; margin-bottom:25px; line-height:1.6;"></div>
             <div id="options-box"></div>
         </div>
-        <div class="sidebar"><h4>Palette</h4><div class="palette" id="palette"></div></div>
+        <div class="sidebar"><h4>Progress</h4><div class="palette" id="palette"></div></div>
     </div>
     <div class="footer">
         <button class="btn" onclick="submitTest()" style="background:orange; color:white;">SUBMIT</button>
@@ -72,112 +88,153 @@
     </div>
 </div>
 
-<div id="result-ui" style="padding:20px; text-align:center;">
-    <h2>Report Card</h2>
-    <div style="max-width:300px; margin:auto;"><canvas id="myChart"></canvas></div>
-    <div id="score-val" style="font-size:1.5rem; margin:20px; font-weight:bold;"></div>
-    <div id="review-list" style="text-align:left; max-width:700px; margin:auto;"></div>
-    <button onclick="location.reload()" class="btn" style="width:100%; background:var(--pw-blue); color:white; margin-top:20px;">HOME</button>
+<div id="page-result" class="page-section" style="padding:40px; text-align:center; background:white;">
+    <h2 style="color:var(--pw-blue);">Test Analysis</h2>
+    <div style="max-width:320px; margin:auto;"><canvas id="resultChart"></canvas></div>
+    <div id="score-display" style="font-size:1.8rem; margin:25px; font-weight:bold;"></div>
+    <div id="review-list" style="text-align:left; max-width:800px; margin:25px auto; border-top:1px solid #eee; padding-top:20px;"></div>
+    <button onclick="location.reload()" class="btn" style="width:100%; background:var(--pw-blue); color:white;">Back to Home</button>
 </div>
 
 <script>
     let configData = {};
-    let questions = [], current = 0, userAns = [], status = [], timeLeft = 0, tInt;
+    let questions = [], currentIdx = 0, userAnswers = [], qStatus = [], timeLeft = 0, tInterval;
 
+    // Load Config from Flask
     window.onload = async () => {
         const res = await fetch('/get_config');
         configData = await res.json();
     };
 
-    function openSubject(sub) {
-        document.getElementById('sub-title').innerText = sub.toUpperCase();
-        const content = document.getElementById('list-content');
-        const chapters = configData[sub];
+    function showPage(pageId) {
+        document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active-page'));
+        document.getElementById(pageId).classList.add('active-page');
+        window.scrollTo(0,0);
+    }
+
+    function navigateTo(subject) {
+        document.getElementById('current-sub-name').innerText = subject;
+        const chapters = configData[subject];
         let html = '';
 
-        if (!chapters) {
-            html = "<p style='color:red;'>Coming soon!</p>";
+        if (!chapters || Object.keys(chapters).length === 0) {
+            html = "<div style='text-align:center; padding:50px; color:gray;'><h3>No tests available yet.</h3><p>We are adding content soon!</p></div>";
         } else {
-            for (const [ch, tests] of Object.entries(chapters)) {
-                html += `<div class="ch-header">${ch}</div>`;
+            for (const [chName, tests] of Object.entries(chapters)) {
+                html += `<div class="ch-header">${chName}</div>`;
                 if (tests.length === 0) {
-                    html += `<div style="padding:10px; color:gray; font-style:italic;">No any tests available</div>`;
+                    html += `<div style="padding:15px; color:#999; font-style:italic;">No any tests available</div>`;
                 } else {
                     tests.forEach(t => {
-                        html += `<div class="test-item" onclick="startTest('${t.file}')">
-                                    <span>${t.name}</span><i class="fas fa-play"></i>
+                        html += `<div class="test-item" onclick="startTest('${t.file}', '${t.name}')">
+                                    <span><b>${t.name}</b></span><i class="fas fa-play-circle" style="color:var(--green)"></i>
                                  </div>`;
                     });
                 }
             }
         }
-        content.innerHTML = html;
-        document.getElementById('chapter-list').style.display = 'block';
-        window.scrollTo(0, document.body.scrollHeight);
+        document.getElementById('chapter-content').innerHTML = html;
+        showPage('page-chapters');
     }
 
-    async function startTest(path) {
-        const res = await fetch(`/get_test/${path}`);
-        questions = await res.json();
-        userAns = new Array(questions.length).fill(null);
-        status = new Array(questions.length).fill('unseen');
-        document.getElementById('dash').style.display = 'none';
-        document.getElementById('test-ui').style.display = 'flex';
-        timeLeft = questions.length * 60;
-        tInt = setInterval(() => {
-            timeLeft--;
-            let m = Math.floor(Math.abs(timeLeft)/60), s = Math.abs(timeLeft)%60;
-            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
-        }, 1000);
-        renderQ(0);
+    async function startTest(filePath, testName) {
+        try {
+            const res = await fetch(`/get_test/${filePath}`);
+            questions = await res.json();
+            
+            if (!questions || questions.length === 0) {
+                alert("This test file is empty or missing on GitHub!");
+                return;
+            }
+
+            userAnswers = new Array(questions.length).fill(null);
+            qStatus = new Array(questions.length).fill('unseen');
+            document.getElementById('test-title').innerText = testName;
+            
+            showPage('page-test');
+            
+            timeLeft = questions.length * 60;
+            if(tInterval) clearInterval(tInterval);
+            tInterval = setInterval(updateTimer, 1000);
+            
+            renderQuestion(0);
+        } catch(e) {
+            alert("Error loading questions. Check file path in config.json");
+        }
     }
 
-    function renderQ(idx) {
-        current = idx;
+    function updateTimer() {
+        timeLeft--;
+        let m = Math.floor(Math.abs(timeLeft)/60), s = Math.abs(timeLeft)%60;
+        document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+    }
+
+    function renderQuestion(idx) {
+        currentIdx = idx;
         const q = questions[idx];
-        document.getElementById('q-num').innerText = `Question ${idx+1}`;
+        document.getElementById('q-label').innerText = `Question ${idx+1} of ${questions.length}`;
         document.getElementById('q-text').innerText = q.q;
+        
         let h = '';
-        q.options.forEach((o, i) => {
-            let act = (userAns[idx] === i) ? 'active' : '';
-            h += `<div class="opt ${act}" onclick="pick(${i})">${o}</div>`;
+        q.options.forEach((opt, i) => {
+            let active = (userAnswers[idx] === i) ? 'active' : '';
+            h += `<div class="opt ${active}" onclick="selectOption(${i})">${opt}</div>`;
         });
         document.getElementById('options-box').innerHTML = h;
         renderPalette();
     }
 
-    function pick(i) { userAns[current] = i; status[current] = 'saved'; renderQ(current); }
-    function nextQ() { if(current < questions.length - 1) renderQ(current + 1); }
+    function selectOption(i) {
+        userAnswers[currentIdx] = i;
+        qStatus[currentIdx] = 'saved';
+        renderQuestion(currentIdx);
+    }
+
+    function nextQ() {
+        if (currentIdx < questions.length - 1) renderQuestion(currentIdx + 1);
+    }
 
     function renderPalette() {
         let h = '';
         questions.forEach((_, i) => {
-            let cls = (status[i] === 'saved') ? 'saved' : '';
-            let b = (current === i) ? 'border:3px solid var(--pw-blue);' : '';
-            h += `<div class="dot ${cls}" style="${b}" onclick="renderQ(${i})">${i+1}</div>`;
+            let cls = (qStatus[i] === 'saved') ? 'saved' : '';
+            let style = (currentIdx === i) ? 'border:3px solid var(--pw-blue);' : '';
+            h += `<div class="dot ${cls}" style="${style}" onclick="renderQuestion(${i})">${i+1}</div>`;
         });
         document.getElementById('palette').innerHTML = h;
     }
 
     function submitTest() {
-        if(!confirm("Submit?")) return;
-        clearInterval(tInt);
-        let c = 0, w = 0, s = 0, rev = '';
+        if (!confirm("Confirm submission?")) return;
+        clearInterval(tInterval);
+        
+        let c = 0, w = 0, s = 0, reviewHtml = '';
         questions.forEach((q, i) => {
-            let u = userAns[i];
-            if(u === q.correct_ans) c++;
-            else if(u === null) s++;
+            let u = userAnswers[i];
+            let correct = q.correct_ans;
+            
+            if (u === correct) c++;
+            else if (u === null) s++;
             else w++;
-            rev += `<div style="padding:10px; margin:5px 0; border-radius:5px; background:#f9f9f9; border-left:5px solid ${u===q.correct_ans?'green':'red'};">
-                <p><strong>Q${i+1}:</strong> ${q.q}</p>
-                <p style="color:green;">Ans: ${q.options[q.correct_ans]}</p>
+
+            reviewHtml += `<div style="padding:15px; margin-bottom:10px; border-radius:8px; border-left:5px solid ${u===correct?'green':'red'}; background:#f8f9fa;">
+                <p><b>Q${i+1}:</b> ${q.q}</p>
+                <p style="color:green;"><b>Correct:</b> ${q.options[correct]}</p>
+                <p style="color:${u===correct?'green':'red'};"><b>Yours:</b> ${u!==null?q.options[u]:'Skipped'}</p>
             </div>`;
         });
-        document.getElementById('test-ui').style.display = 'none';
-        document.getElementById('result-ui').style.display = 'block';
-        document.getElementById('score-val').innerText = `Score: ${(c*4)-w}`;
-        document.getElementById('review-list').innerHTML = rev;
-        new Chart(document.getElementById('myChart'), { type: 'pie', data: { labels: ['Right', 'Wrong', 'Skip'], datasets: [{ data: [c, w, s], backgroundColor: ['#28a745', '#dc3545', '#ffc107'] }] } });
+
+        document.getElementById('score-display').innerText = `Your Score: ${(c*4)-w} / ${questions.length*4}`;
+        document.getElementById('review-list').innerHTML = reviewHtml;
+        showPage('page-result');
+
+        new Chart(document.getElementById('resultChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Right', 'Wrong', 'Skip'],
+                datasets: [{ data: [c, w, s], backgroundColor: ['#28a745', '#dc3545', '#ffc107'] }]
+            }
+        });
     }
 </script>
 </body>
