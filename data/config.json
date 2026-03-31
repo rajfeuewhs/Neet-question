@@ -16,7 +16,12 @@
     "Mechanical Properties of Fluids": [],
     "Thermal Properties of Matter": [],
     "Thermodynamics": [],
-    "Kinetic Theory": [],
+    "Kinetic Theory": [
+      {
+        "name": "DPP_01",
+        "file": "physics/Kinetic_Theory/DPP_01"
+      }
+    ],
     "Oscillations": [],
     "Waves": []
   },
