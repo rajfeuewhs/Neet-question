@@ -7,7 +7,7 @@ import time
 
 app = Flask(__name__)
 
-# GitHub Config - Ye Render Environment se uthayega
+# Render Environment se token uthayega
 GITHUB_TOKEN = os.environ.get("MY_GITHUB_TOKEN")
 REPO_OWNER = "rajfeuewhs"
 REPO_NAME = "Neet-question"
@@ -24,28 +24,21 @@ def admin():
 
 @app.route('/get_config')
 def get_config():
-    # Cache se bachne ke liye timestamp
     try:
         r = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
         return jsonify(r.json()) if r.status_code == 200 else jsonify({})
     except:
         return jsonify({})
 
-@app.route('/get_test/<path:p>')
-def get_test(p):
-    try:
-        r = requests.get(f"{RAW_BASE_URL}{p}.json?t={int(time.time())}")
-        return jsonify(r.json()) if r.status_code == 200 else jsonify([])
-    except:
-        return jsonify([])
-
 def github_upload(path, content, message):
     if not GITHUB_TOKEN:
         return None
     url = GITHUB_API_URL + path
-    headers = {"Authorization": f"token {GITHUB_TOKEN}", "Accept": "application/vnd.github.v3+json"}
-    
-    # SHA lena zaroori hai update ke liye
+    headers = {
+        "Authorization": f"token {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+    # SHA check for update
     r = requests.get(url, headers=headers)
     sha = r.json().get('sha') if r.status_code == 200 else None
     
@@ -61,7 +54,7 @@ def github_upload(path, content, message):
 def save_test():
     try:
         if not GITHUB_TOKEN:
-            return jsonify({"success": False, "message": "Token missing in Render!"})
+            return jsonify({"success": False, "message": "TOKEN MISSING: Render Environment check karein!"})
 
         data = request.json
         sub = data['subject']
@@ -69,40 +62,36 @@ def save_test():
         t_name = data['test_name'].strip()
         questions = data['questions']
         
-        # Path cleaning logic taaki website dhoond sake
+        # Path Correction
         safe_chap = chap.replace(':', '').replace(' ', '_').replace('__', '_')
         safe_name = t_name.replace(' ', '_')
         file_path = f"data/{sub}/{safe_chap}/{safe_name}.json"
         
-        # 1. DPP File Upload
+        # 1. DPP Upload
         res1 = github_upload(file_path, json.dumps(questions, indent=2), f"Add test: {t_name}")
         
         if not res1 or res1.status_code not in [200, 201]:
-            return jsonify({"success": False, "message": "GitHub File Upload Failed!"})
+            error_detail = res1.json().get('message') if res1 else "No Response from GitHub"
+            return jsonify({"success": False, "message": f"Upload Fail: {error_detail}"})
 
-        # 2. Config Update Logic (Forceful)
-        r_config = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
-        config_data = r_config.json() if r_config.status_code == 200 else {}
+        # 2. Config Update
+        r_conf = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
+        config_data = r_conf.json() if r_conf.status_code == 200 else {}
 
-        # Ensure keys exist
         if sub not in config_data: config_data[sub] = {}
         if chap not in config_data[sub]: config_data[sub][chap] = []
         
-        # Check if already exists
         exists = any(t['name'] == t_name for t in config_data[sub][chap])
-        
         if not exists:
             config_data[sub][chap].append({
                 "name": t_name,
                 "file": f"{sub}/{safe_chap}/{safe_name}"
             })
-            # Push updated config to GitHub
             github_upload("data/config.json", json.dumps(config_data, indent=2), f"Update config for {t_name}")
 
-        return jsonify({"success": True, "message": f"Success! {t_name} is now LIVE."})
+        return jsonify({"success": True, "message": "MAST! Upload aur Config dono update ho gaye."})
     except Exception as e:
-        return jsonify({"success": False, "message": str(e)})
+        return jsonify({"success": False, "message": f"System Error: {str(e)}"})
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
