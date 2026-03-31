@@ -1,0 +1,222 @@
+[
+  {
+    "q": "1. The alkane that can be oxidized to the corresponding alcohol by KMnO4 is, when:",
+    "options": ["R1 = H; R2 = H; R3 = H", "R1 = CH3; R2 = CH3; R3 = CH3", "R1 = CH3; R2 = H; R3 = H", "R1 = CH3; R2 = CH3; R3 = H"],
+    "correct_ans": 1
+  },
+  {
+    "q": "2. Identify the incorrect match regarding boiling point of isomeric pentanes:",
+    "options": ["n-pentane > isopentane > neopentane", "neopentane > isopentane > n-pentane", "isopentane > n-pentane > neopentane", "All are equal"],
+    "correct_ans": 0
+  },
+  {
+    "q": "3. Weight (g) of two moles of the organic compound obtained by heating sodium ethanoate with sodalime is:",
+    "options": ["16", "18", "32", "30"],
+    "correct_ans": 2
+  },
+  {
+    "q": "4. 1.0 g of H2 has same number of molecules as in:",
+    "options": ["14 g of N2", "16 g of CO", "18 g of H2O", "28 g of N2"],
+    "correct_ans": 0
+  },
+  {
+    "q": "5. Dihedral angle of least stable conformer of ethane is:",
+    "options": ["180°", "60°", "0°", "120°"],
+    "correct_ans": 2
+  },
+  {
+    "q": "6. Arrange following in increasing order of stability: (i) O, (ii) F, (iii) N, (iv) C, (v) Si",
+    "options": ["O < F < N < C < Si", "Si < C < N < O < F", "F < O < N < C < Si", "Si < C < O < N < F"],
+    "correct_ans": 2
+  },
+  {
+    "q": "7. Which of the following alkane cannot be made in good yield by Wurtz reaction?",
+    "options": ["2,3-Dimethylbutane", "n-Butane", "n-Heptane", "n-Hexane"],
+    "correct_ans": 2
+  },
+  {
+    "q": "8. The element expected to form largest ion to achieve the nearest noble gas configuration is:",
+    "options": ["F", "Na", "O", "N"],
+    "correct_ans": 3
+  },
+  {
+    "q": "9. With respect to conformers of ethane, which of the following statements is true?",
+    "options": ["Bond angles/lengths remain same", "Bond angle same, length changes", "Bond angle changes, length same", "Both change"],
+    "correct_ans": 0
+  },
+  {
+    "q": "10. The staggered conformation of ethane is more stable than eclipsed because:",
+    "options": ["More torsional strain", "No torsional strain", "Electrostatic repulsion", "None"],
+    "correct_ans": 1
+  },
+  {
+    "q": "11. The number of structural isomers possible from molecular formula C3H5Cl3 is:",
+    "options": ["4", "3", "5", "2"],
+    "correct_ans": 2
+  },
+  {
+    "q": "12. Baeyer's reagent is used for testing unsaturation, it is:",
+    "options": ["Acidic KMnO4", "Alkaline K2Cr2O7", "Cold dilute alkaline KMnO4", "Hot conc. KMnO4"],
+    "correct_ans": 2
+  },
+  {
+    "q": "13. In which case is number of molecules of water maximum?",
+    "options": ["18 mL water", "0.18 g water", "10^-3 mol water", "0.00224 L vapour"],
+    "correct_ans": 0
+  },
+  {
+    "q": "14. Which amongst the following compounds will show geometrical isomerism?",
+    "options": ["Pent-1-ene", "2-Methylprop-1-ene", "2,3-Dimethylbut-2-ene", "3,4-Dimethylhex-3-ene"],
+    "correct_ans": 3
+  },
+  {
+    "q": "15. The incorrect method for the synthesis of alkenes is:",
+    "options": ["Vicinal dihalides + Zn", "Alkynes + Na/NH3", "Alkyl halides + alc. KOH", "Alkyl halides + aq. KOH"],
+    "correct_ans": 3
+  },
+  {
+    "q": "16. 2-Methylbut-2-ene on ozonolysis gives:",
+    "options": ["Ethanal + Propanone", "Ethanal + Ethanal", "Propanone + Methanal", "Ethanal + Methanal"],
+    "correct_ans": 0
+  },
+  {
+    "q": "17. The major product of reaction of propene with HBr in presence of peroxide is:",
+    "options": ["2-Bromopropane", "1-Bromopropane", "1,2-Dibromopropane", "2-Bromopropene"],
+    "correct_ans": 1
+  },
+  {
+    "q": "18. An alkene on ozonolysis gives methanal as one of the products. Its structure is:",
+    "options": ["Prop-1-ene", "But-2-ene", "2-Methylprop-1-ene", "Both A and C"],
+    "correct_ans": 3
+  },
+  {
+    "q": "19. 2-Butyne on reduction with Lindlar's catalyst gives:",
+    "options": ["cis-But-2-ene", "trans-But-2-ene", "n-Butane", "But-1-ene"],
+    "correct_ans": 0
+  },
+  {
+    "q": "20. The compound that will react most readily with gaseous bromine is:",
+    "options": ["C4H10", "C2H4", "C3H6", "C2H2"],
+    "correct_ans": 3
+  },
+  {
+    "q": "21. Addition of HCl to propene in presence of peroxide gives:",
+    "options": ["1-Chloropropane", "2-Chloropropane", "No reaction", "1,2-Dichloropropane"],
+    "correct_ans": 1
+  },
+  {
+    "q": "22. Which of the following does not produce propene on reaction with HBr?",
+    "options": ["Prop-1-yne", "Cyclopropane", "Propan-1-ol", "Propan-2-ol"],
+    "correct_ans": 0
+  },
+  {
+    "q": "23. In which of the following molecules, all atoms are coplanar?",
+    "options": ["Ethane", "Ethene", "Ethyne", "Both B and C"],
+    "correct_ans": 3
+  },
+  {
+    "q": "24. Reaction of HBr with propene in absence of peroxide follows:",
+    "options": ["Markownikoff rule", "Anti-Markownikoff rule", "Free radical mechanism", "None"],
+    "correct_ans": 0
+  },
+  {
+    "q": "25. Which is the correct order of acidity?",
+    "options": ["CH3-CH3 > CH2=CH2 > CH≡CH", "CH≡CH > CH2=CH2 > CH3-CH3", "CH2=CH2 > CH≡CH > CH3-CH3", "CH≡CH > CH3-CH3 > CH2=CH2"],
+    "correct_ans": 1
+  },
+  {
+    "q": "26. Hex-1-yne reacts with NaNH2 to form a sodium salt. This shows:",
+    "options": ["Basic nature", "Acidic nature", "Neutral nature", "Amphoteric nature"],
+    "correct_ans": 1
+  },
+  {
+    "q": "27. Reaction of C6H5CH=CHCH3 with HBr produces:",
+    "options": ["C6H5CH(Br)CH2CH3", "C6H5CH2CH(Br)CH3", "C6H5CH2CH2CH2Br", "No reaction"],
+    "correct_ans": 0
+  },
+  {
+    "q": "28. Propyne + H2O (in presence of Hg2+/H+) gives:",
+    "options": ["Propanal", "Propanone", "Propan-1-ol", "Propan-2-ol"],
+    "correct_ans": 1
+  },
+  {
+    "q": "29. Number of sigma and pi bonds in pent-2-en-4-yne:",
+    "options": ["10s, 3p", "8s, 5p", "11s, 2p", "13s, 0p"],
+    "correct_ans": 0
+  },
+  {
+    "q": "30. Reagent used for conversion of But-2-yne to trans-But-2-ene:",
+    "options": ["Na/liq. NH3", "H2/Pd/C", "Lindlar's catalyst", "Zn/HCl"],
+    "correct_ans": 0
+  },
+  {
+    "q": "31. Liquid hydrocarbons can be converted to gaseous hydrocarbons by:",
+    "options": ["Oxidation", "Cracking", "Distillation", "Hydrolysis"],
+    "correct_ans": 1
+  },
+  {
+    "q": "32. Increasing order of acidity: (i) Ethane, (ii) Ethene, (iii) Ethyne, (iv) Propyne",
+    "options": ["i < ii < iv < iii", "iv < iii < ii < i", "i < ii < iii < iv", "iii < iv < ii < i"],
+    "correct_ans": 0
+  },
+  {
+    "q": "33. Which of the following is most reactive towards electrophilic substitution?",
+    "options": ["Benzene", "Toluene", "Nitrobenzene", "Chlorobenzene"],
+    "correct_ans": 1
+  },
+  {
+    "q": "34. Pair of electrons in CH3-C≡C: is present in:",
+    "options": ["sp orbital", "sp2 orbital", "sp3 orbital", "p orbital"],
+    "correct_ans": 0
+  },
+  {
+    "q": "35. Number of pi-electrons in anthracene is:",
+    "options": ["10", "14", "6", "12"],
+    "correct_ans": 1
+  },
+  {
+    "q": "36. Which is not an aromatic compound?",
+    "options": ["Benzene", "Cyclooctatetraene", "Naphthalene", "Anthracene"],
+    "correct_ans": 1
+  },
+  {
+    "q": "37. Benzene reacts with Cl2 in presence of FeCl3 to give:",
+    "options": ["Chlorobenzene", "Hexachlorobenzene", "BHC", "Benzyl chloride"],
+    "correct_ans": 0
+  },
+  {
+    "q": "38. Most reactive compound in nitration is:",
+    "options": ["Benzene", "Toluene", "Nitrobenzene", "Benzoic acid"],
+    "correct_ans": 1
+  },
+  {
+    "q": "39. Nitration of benzene is an example of:",
+    "options": ["Electrophilic substitution", "Nucleophilic substitution", "Free radical", "Addition"],
+    "correct_ans": 0
+  },
+  {
+    "q": "40. Toluene reacts with Cl2 in sunlight to give:",
+    "options": ["o-chlorotoluene", "p-chlorotoluene", "Benzyl chloride", "m-chlorotoluene"],
+    "correct_ans": 2
+  },
+  {
+    "q": "41. Which can be used as halide component for Friedel-Crafts reaction?",
+    "options": ["Chlorobenzene", "Bromobenzene", "Isopropyl chloride", "Chloroethene"],
+    "correct_ans": 2
+  },
+  {
+    "q": "42. Benzene + CH3Cl (in presence of AlCl3) gives:",
+    "options": ["Benzene", "Toluene", "Xylene", "Chlorobenzene"],
+    "correct_ans": 1
+  },
+  {
+    "q": "43. Product formed when benzene is treated with excess Cl2 in UV light:",
+    "options": ["Chlorobenzene", "BHC", "Hexachlorobenzene", "Benzyl chloride"],
+    "correct_ans": 1
+  },
+  {
+    "q": "44. Which compound will not undergo Friedel-Crafts reaction easily?",
+    "options": ["Nitrobenzene", "Toluene", "Xylene", "Cumene"],
+    "correct_ans": 0
+  }
+]
