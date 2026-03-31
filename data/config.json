@@ -1,6 +1,11 @@
 {
   "physics": {
-    "Units and Measurements": [{"name": "DPP 01", "file": "physics/units/dpp1"}],
+    "Units and Measurements": [
+      {
+        "name": "DPP 01",
+        "file": "physics/units/dpp1"
+      }
+    ],
     "Motion in a Straight Line": [],
     "Motion in a Plane": [],
     "Laws of Motion": [],
@@ -16,19 +21,74 @@
     "Waves": []
   },
   "chemistry": {
-    "Some Basic Concepts": [{"name": "DPP 01", "file": "chemistry/basic/Basic_Concepts"}],
-    "Structure of Atom": [{"name": "DPP 01", "file": "chemistry/atom/Structure_of_Atom"}],
-    "Classification of Elements": [{"name": "DPP 01", "file": "chemistry/periodicity/Periodicity"}],
-    "Chemical Bonding": [{"name": "DPP 01", "file": "chemistry/bonding/Chemical_Bonding"}],
-    "Thermodynamics": [{"name": "DPP 01", "file": "chemistry/thermo/Thermodynamics"}],
-    "Equilibrium": [{"name": "DPP 01", "file": "chemistry/equilibrium/Equilibrium"}],
-    "Redox Reactions": [{"name": "DPP 01", "file": "chemistry/redox/Redox_Reactions"}],
-    "Organic Chemistry Basic": [{"name": "DPP 01", "file": "chemistry/organic/Organic_Chemistry"}],
-    "Hydrocarbons": [{"name": "DPP 01", "file": "chemistry/hydrocarbons/Hydrocarbons"}],
-    "p-Block Elements": [{"name": "DPP 01", "file": "chemistry/pblock/p_Block"}]
+    "Some Basic Concepts": [
+      {
+        "name": "DPP 01",
+        "file": "chemistry/basic/Basic_Concepts"
+      }
+    ],
+    "Structure of Atom": [
+      {
+        "name": "DPP 01",
+        "file": "chemistry/atom/Structure_of_Atom"
+      }
+    ],
+    "Classification of Elements": [
+      {
+        "name": "DPP 01",
+        "file": "chemistry/periodicity/Periodicity"
+      }
+    ],
+    "Chemical Bonding": [
+      {
+        "name": "DPP 01",
+        "file": "chemistry/bonding/Chemical_Bonding"
+      }
+    ],
+    "Thermodynamics": [
+      {
+        "name": "DPP 01",
+        "file": "chemistry/thermo/Thermodynamics"
+      }
+    ],
+    "Equilibrium": [
+      {
+        "name": "DPP 01",
+        "file": "chemistry/equilibrium/Equilibrium"
+      }
+    ],
+    "Redox Reactions": [
+      {
+        "name": "DPP 01",
+        "file": "chemistry/redox/Redox_Reactions"
+      }
+    ],
+    "Organic Chemistry Basic": [
+      {
+        "name": "DPP 01",
+        "file": "chemistry/organic/Organic_Chemistry"
+      }
+    ],
+    "Hydrocarbons": [
+      {
+        "name": "DPP 01",
+        "file": "chemistry/hydrocarbons/Hydrocarbons"
+      }
+    ],
+    "p-Block Elements": [
+      {
+        "name": "DPP 01",
+        "file": "chemistry/pblock/p_Block"
+      }
+    ]
   },
   "botany": {
-    "Cell: The Unit of Life": [{"name": "DPP 01", "file": "botany/cell_unit/dpp1"}],
+    "Cell: The Unit of Life": [
+      {
+        "name": "DPP 01",
+        "file": "botany/cell_unit/dpp1"
+      }
+    ],
     "Biological Classification": [],
     "Plant Kingdom": [],
     "Morphology of Flowering Plants": [],
@@ -39,7 +99,12 @@
     "Plant Growth and Development": []
   },
   "zoology": {
-    "Animal Kingdom": [],
+    "Animal Kingdom": [
+      {
+        "name": "DPP_01",
+        "file": "zoology/Animal_Kingdom/DPP_01"
+      }
+    ],
     "Structural Organisation in Animals": [],
     "Biomolecules": [],
     "Breathing and Exchange of Gases": [],
