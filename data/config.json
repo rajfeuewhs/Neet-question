@@ -48,6 +48,10 @@
       {
         "name": "DPP 01",
         "file": "chemistry/bonding/Chemical_Bonding"
+      },
+      {
+        "name": "DPP_01",
+        "file": "chemistry/Chemical_Bonding/DPP_01"
       }
     ],
     "Thermodynamics": [
