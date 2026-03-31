@@ -68,7 +68,7 @@
             <h2 style="color: var(--pw-blue); margin-top: 0;">Test Instructions</h2>
             <hr>
             <div class="rule-item"><i class="fas fa-question-circle" style="color:var(--pw-blue)"></i> <span id="ins-q-count">0</span> Questions</div>
-            <div class="rule-item"><i class="fas fa-clock" style="color:orange"></i> <span id="ins-time">0</span> Minutes Total</div>
+            <div class="rule-item"><i class="fas fa-clock" style="color:orange"></i> <span id="ins-time">0</span> Minutes</div>
             <div style="display: flex; gap: 15px; margin-top: 30px;">
                 <button class="btn" onclick="goBack()" style="background:#eee; flex:1;">BACK</button>
                 <button class="btn" onclick="actuallyStartTest()" style="background:var(--pw-blue); color:white; flex:2;">START TEST</button>
@@ -89,16 +89,16 @@
         <h2>Analysis Report</h2>
         <div style="max-width: 250px; margin: auto;"><canvas id="resultChart"></canvas></div>
         <div id="score-summary" style="font-size: 1.5rem; margin: 20px;"></div>
-        <div id="review-content" style="text-align: left;"></div>
         <button onclick="location.reload()" class="btn" style="background:var(--pw-blue); color:white; width:100%;">HOME</button>
     </div>
 </div>
 
 <script>
     let config = {}, questions = [], cur = 0, answers = [], status = [], curSub = "", timeLeft = 0, tInt, pageStack = ['page-home'];
+    let pendingFile = "", pendingName = "";
 
     window.onload = async () => {
-        const res = await fetch('/get_config?t=' + Date.now()); // Cache refresh
+        const res = await fetch('/get_config?t=' + Date.now());
         config = await res.json();
     };
 
@@ -106,7 +106,6 @@
         document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active-page'));
         document.getElementById(id).classList.add('active-page');
         if(push && pageStack[pageStack.length-1] !== id) pageStack.push(id);
-        window.scrollTo(0,0);
     }
 
     function goBack() { if (pageStack.length > 1) { pageStack.pop(); showPage(pageStack[pageStack.length - 1], false); } }
@@ -130,15 +129,15 @@
 
     async function loadInstructions(path, name) {
         try {
-            // Path dynamic loading fix
+            // '/get_test/' ke saath path fetch karega
             const res = await fetch(`/get_test/${path}?t=${Date.now()}`);
             questions = await res.json();
-            if(questions.length > 0) {
+            if(questions && questions.length > 0) {
                 document.getElementById('ins-q-count').innerText = questions.length;
                 document.getElementById('ins-time').innerText = questions.length;
                 pendingFile = path; pendingName = name;
                 showPage('page-instructions');
-            } else { alert("Test khali hai!"); }
+            } else { alert("Test khali hai ya nahi mila!"); }
         } catch(e) { alert("Error loading test!"); }
     }
 
@@ -147,6 +146,7 @@
         status = new Array(questions.length).fill('unseen');
         document.getElementById('t-name').innerText = pendingName;
         timeLeft = questions.length * 60;
+        if(tInt) clearInterval(tInt);
         tInt = setInterval(() => {
             timeLeft--;
             let m = Math.floor(Math.abs(timeLeft)/60), s = Math.abs(timeLeft)%60;
