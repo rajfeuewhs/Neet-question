@@ -1,0 +1,147 @@
+[
+  {
+    "q": "1. Match List I with List II (Molecule vs bonds):",
+    "options": [
+      "A-III, B-IV, C-II, D-I",
+      "A-III, B-IV, C-I, D-II",
+      "A-I, B-IV, C-II, D-III",
+      "A-IV, B-III, C-II, D-I"
+    ],
+    "correct_ans": 0
+  },
+  {
+    "q": "2. Number of σ bonds, π bonds and lone pair in pyridine:",
+    "options": ["12, 2, 1", "11, 2, 0", "12, 3, 0", "11, 3, 1"],
+    "correct_ans": 3
+  },
+  {
+    "q": "3. Which molecule represents hybridisation sp2, sp2, sp, sp?",
+    "options": [
+      "HC≡C–C≡CH",
+      "CH2=CH–C≡CH",
+      "CH3–CH=CH–CH3",
+      "CH2=CH–CH=CH2"
+    ],
+    "correct_ans": 1
+  },
+  {
+    "q": "4. Which species has equal number of σ and π bonds?",
+    "options": ["(CN)2", "CH2(CN)2", "HCO3-", "XeO4"],
+    "correct_ans": 0
+  },
+  {
+    "q": "5. Enolic form of ethyl acetoacetate has:",
+    "options": [
+      "9σ and 2π",
+      "9σ and 1π",
+      "18σ and 2π",
+      "16σ and 1π"
+    ],
+    "correct_ans": 0
+  },
+  {
+    "q": "6. Total number of π bond electrons in given structure:",
+    "options": ["12", "16", "4", "8"],
+    "correct_ans": 0
+  },
+  {
+    "q": "7. Correct IUPAC name of compound:",
+    "options": [
+      "4-ethyl-1-fluoro-2-nitrobenzene",
+      "4-ethyl-1-fluoro-6-nitrobenzene",
+      "3-ethyl-6-fluoro-1-nitrobenzene",
+      "1-ethyl-4-fluoro-3-nitrobenzene"
+    ],
+    "correct_ans": 0
+  },
+  {
+    "q": "8. C6H14 with two tertiary carbons:",
+    "options": [
+      "2,3-dimethylbutane",
+      "2,2-dimethylbutane",
+      "n-hexane",
+      "2-methylpentane"
+    ],
+    "correct_ans": 0
+  },
+  {
+    "q": "9. Hybridization of C1 and C2:",
+    "options": [
+      "sp3, sp3",
+      "sp2, sp3",
+      "sp2, sp2",
+      "sp3, sp2"
+    ],
+    "correct_ans": 2
+  },
+  {
+    "q": "10. Correct IUPAC name:",
+    "options": [
+      "6-bromo-4-methyl-2-chlorohexan-4-ol",
+      "1-bromo-5-chloro-4-methylhexan-3-ol",
+      "6-bromo-2-chloro-4-methylhexan-4-ol",
+      "1-bromo-4-methyl-5-chlorohexan-3-ol"
+    ],
+    "correct_ans": 2
+  },
+  {
+    "q": "11. Structure of 2,6-dimethyl-dec-4-ene:",
+    "options": ["a", "b", "c", "d"],
+    "correct_ans": 3
+  },
+  {
+    "q": "12. IUPAC name of compound:",
+    "options": [
+      "3-keto-2-methylhex-5-enal",
+      "3-keto-2-methylhex-4-enal",
+      "5-formylhex-2-en-3-one",
+      "5-methyl-4-oxohex-2-en-5-al"
+    ],
+    "correct_ans": 2
+  },
+  {
+    "q": "13. Structure of isobutyl group:",
+    "options": ["a", "b", "c", "d"],
+    "correct_ans": 3
+  },
+  {
+    "q": "15. Compound showing metamerism:",
+    "options": ["C3H8O", "C3H6O", "C4H10O", "C5H12"],
+    "correct_ans": 2
+  },
+  {
+    "q": "16. Which shows tautomerism:",
+    "options": [
+      "III only",
+      "I and III",
+      "I and II",
+      "II and III"
+    ],
+    "correct_ans": 1
+  },
+  {
+    "q": "17. Stability of carbocation due to:",
+    "options": [
+      "-I effect",
+      "Electromeric effect",
+      "Hyperconjugation",
+      "Mesomeric effect"
+    ],
+    "correct_ans": 2
+  },
+  {
+    "q": "18. Most stable carbocation:",
+    "options": ["a", "b", "c", "d"],
+    "correct_ans": 2
+  },
+  {
+    "q": "19. Inductive vs electromeric effect statement:",
+    "options": [
+      "Both correct",
+      "Only I correct",
+      "Only II correct",
+      "Both incorrect"
+    ],
+    "correct_ans": 0
+  }
+]
