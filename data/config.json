@@ -1,13 +1,32 @@
-"botany": {
+{
+  "physics": {
+    "Units and Measurements": [{"name": "DPP 01", "file": "physics/units/dpp1"}],
+    "Motion in a Straight Line": []
+  },
+  "chemistry": {
+    "Some Basic Concepts": []
+  },
+  "botany": {
     "Cell: The Unit of Life": [
       {
         "name": "DPP 01", 
-        "file": "cell-unit/dpp1" 
+        "file": "botany/cell_unit/dpp1"
       },
       {
         "name": "PYQs (NEET)", 
-        "file": "cell-unit/pyq"
+        "file": "botany/cell_unit/pyq"
       }
     ],
-    ...
+    "Biological Classification": [],
+    "Plant Kingdom": []
+  },
+  "zoology": {
+    "Animal Kingdom": []
+  },
+  "mock_180": {
+    "Full Syllabus Mock": []
+  },
+  "mock_720": {
+    "Grand NEET Mock": []
   }
+}
