@@ -6,7 +6,7 @@ import os
 
 app = Flask(__name__)
 
-# GitHub Config (Token check kar lena sahi hai ya nahi)
+# GitHub Config
 GITHUB_TOKEN = "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"
 REPO_OWNER = "rajfeuewhs"
 REPO_NAME = "Neet-question"
@@ -51,19 +51,26 @@ def save_test():
     chap = data['chapter'].strip()
     t_name = data['test_name'].strip()
     questions = data['questions']
+    
     file_path = f"data/{sub}/{chap.replace(' ', '_')}/{t_name.replace(' ', '_')}.json"
     github_upload(file_path, json.dumps(questions, indent=2), f"Add test: {t_name}")
     
     config_path = "data/config.json"
     r_config = requests.get(RAW_BASE_URL + "config.json")
     config_data = r_config.json() if r_config.status_code == 200 else {}
+
     if sub not in config_data: config_data[sub] = {}
     if chap not in config_data[sub]: config_data[sub][chap] = []
+    
     exists = any(t['name'] == t_name for t in config_data[sub][chap])
     if not exists:
-        config_data[sub][chap].append({"name": t_name, "file": f"{sub}/{chap.replace(' ', '_')}/{t_name.replace(' ', '_')}"})
+        config_data[sub][chap].append({
+            "name": t_name,
+            "file": f"{sub}/{chap.replace(' ', '_')}/{t_name.replace(' ', '_')}"
+        })
         github_upload(config_path, json.dumps(config_data, indent=2), f"Update config for {t_name}")
-    return jsonify({"success": True, "message": "Test Live Ho Gaya!"})
+
+    return jsonify({"success": True, "message": "Test Live!"})
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
