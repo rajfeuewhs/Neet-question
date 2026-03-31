@@ -2,71 +2,180 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel - NEET Prep</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - NEET Master Control</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7fe; padding: 20px; }
-        .box { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
-        h2 { color: #1b10b1; text-align: center; }
-        label { font-weight: bold; display: block; margin-top: 15px; }
-        select, input, textarea { width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
-        .btn { background: #1b10b1; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 1rem; }
-        .btn:hover { background: #150b8a; }
+        :root { --pw-blue: #1b10b1; --bg: #f4f7fe; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+        .admin-container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        h2 { color: var(--pw-blue); text-align: center; margin-bottom: 30px; }
+        
+        .setup-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 30px; background: #f9faff; padding: 20px; border-radius: 15px; border: 1px solid #e0e6ff; }
+        label { font-weight: bold; font-size: 0.9rem; color: #444; }
+        select, input { width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+
+        .question-box { background: #fff; border: 2px solid #eee; padding: 20px; border-radius: 15px; margin-bottom: 20px; position: relative; }
+        .question-box h4 { margin-top: 0; color: var(--pw-blue); }
+        .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .correct-select { margin-top: 15px; background: #eefff2; border-color: #28a745; }
+
+        .actions { display: flex; gap: 15px; margin-top: 20px; position: sticky; bottom: 20px; background: rgba(255,255,255,0.9); padding: 15px; border-radius: 50px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); }
+        .btn { flex: 1; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-add { background: #e0e6ff; color: var(--pw-blue); }
+        .btn-submit { background: var(--pw-blue); color: white; }
+        .btn:disabled { background: #ccc; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2>🚀 Add New Test (DPP)</h2>
-        
-        <label>Subject:</label>
-        <select id="subject">
-            <option value="physics">Physics</option>
-            <option value="chemistry">Chemistry</option>
-            <option value="botany">Botany</option>
-            <option value="zoology">Zoology</option>
-        </select>
 
-        <label>Chapter Name (e.g. hydrocarbons):</label>
-        <input type="text" id="chapter" placeholder="Chapter ka naam likhein">
+<div class="admin-container">
+    <h2>🚀 Admin Question Builder</h2>
 
-        <label>DPP Name (e.g. DPP_01):</label>
-        <input type="text" id="test_name" placeholder="DPP 01, DPP 02 etc.">
-
-        <label>Paste JSON Code:</label>
-        <textarea id="json_data" rows="10" placeholder='[{"q": "...", "options": [...], "correct_ans": 0}]'></textarea>
-
-        <button class="btn" onclick="uploadData()">UPLOAD TO GITHUB</button>
+    <div class="setup-grid">
+        <div>
+            <label>Subject</label>
+            <select id="sub-select" onchange="updateChapters()">
+                <option value="">--Select--</option>
+                <option value="physics">Physics</option>
+                <option value="chemistry">Chemistry</option>
+                <option value="botany">Botany</option>
+                <option value="zoology">Zoology</option>
+            </select>
+        </div>
+        <div>
+            <label>Chapter</label>
+            <select id="chap-select">
+                <option value="">Pehle Subject Chunein</option>
+            </select>
+        </div>
+        <div>
+            <label>DPP Name</label>
+            <input type="text" id="dpp-name" placeholder="e.g. DPP_01">
+        </div>
     </div>
 
-    <script>
-        async function uploadData() {
-            const btn = document.querySelector('.btn');
-            const data = {
-                subject: document.getElementById('subject').value,
-                chapter: document.getElementById('chapter').value,
-                test_name: document.getElementById('test_name').value,
-                questions: JSON.parse(document.getElementById('json_data').value)
-            };
+    <div id="questions-list">
+        <div class="question-box" data-id="1">
+            <h4>Question #1</h4>
+            <input type="text" class="q-text" placeholder="Sawale likhein...">
+            <div class="opt-grid">
+                <input type="text" class="opt-0" placeholder="Option A">
+                <input type="text" class="opt-1" placeholder="Option B">
+                <input type="text" class="opt-2" placeholder="Option C">
+                <input type="text" class="opt-3" placeholder="Option D">
+            </div>
+            <select class="correct-select">
+                <option value="0">Option A is Correct</option>
+                <option value="1">Option B is Correct</option>
+                <option value="2">Option C is Correct</option>
+                <option value="3">Option D is Correct</option>
+            </select>
+        </div>
+    </div>
 
-            if(!data.chapter || !data.test_name || !data.questions) return alert("Sab bhariye!");
-            
-            btn.innerText = "Uploading...";
-            btn.disabled = true;
+    <div class="actions">
+        <button class="btn btn-add" onclick="addNewQuestion()">+ Add More Question</button>
+        <button class="btn btn-submit" id="submit-btn" onclick="collectAndUpload()">🚀 UPLOAD ALL TO LIVE</button>
+    </div>
+</div>
 
-            try {
-                const res = await fetch('/save_test', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                const result = await res.json();
-                alert(result.message);
-            } catch(e) {
-                alert("Error: JSON format check karein!");
-            } finally {
-                btn.innerText = "UPLOAD TO GITHUB";
-                btn.disabled = false;
-            }
+<script>
+    let config = {};
+    let qCount = 1;
+
+    // Load Config on start
+    window.onload = async () => {
+        const res = await fetch('/get_config');
+        config = await res.json();
+    };
+
+    function updateChapters() {
+        const sub = document.getElementById('sub-select').value;
+        const chapDrop = document.getElementById('chap-select');
+        chapDrop.innerHTML = "";
+        if(sub && config[sub]) {
+            Object.keys(config[sub]).forEach(ch => {
+                let op = document.createElement('option');
+                op.value = ch; op.innerText = ch;
+                chapDrop.appendChild(op);
+            });
         }
-    </script>
+    }
+
+    function addNewQuestion() {
+        qCount++;
+        const html = `
+        <div class="question-box" data-id="${qCount}">
+            <h4>Question #${qCount}</h4>
+            <input type="text" class="q-text" placeholder="Sawal likhein...">
+            <div class="opt-grid">
+                <input type="text" class="opt-0" placeholder="Option A">
+                <input type="text" class="opt-1" placeholder="Option B">
+                <input type="text" class="opt-2" placeholder="Option C">
+                <input type="text" class="opt-3" placeholder="Option D">
+            </div>
+            <select class="correct-select">
+                <option value="0">Option A is Correct</option>
+                <option value="1">Option B is Correct</option>
+                <option value="2">Option C is Correct</option>
+                <option value="3">Option D is Correct</option>
+            </select>
+        </div>`;
+        document.getElementById('questions-list').insertAdjacentHTML('beforeend', html);
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    async function collectAndUpload() {
+        const sub = document.getElementById('sub-select').value;
+        const chap = document.getElementById('chap-select').value;
+        const dpp = document.getElementById('dpp-name').value;
+        const btn = document.getElementById('submit-btn');
+
+        if(!sub || !chap || !dpp) return alert("Pehle Subject, Chapter aur DPP name bhariye!");
+
+        const questionsData = [];
+        document.querySelectorAll('.question-box').forEach(box => {
+            questionsData.push({
+                q: box.querySelector('.q-text').value,
+                options: [
+                    box.querySelector('.opt-0').value,
+                    box.querySelector('.opt-1').value,
+                    box.querySelector('.opt-2').value,
+                    box.querySelector('.opt-3').value
+                ],
+                correct_ans: parseInt(box.querySelector('.correct-select').value)
+            });
+        });
+
+        // Basic Validation
+        if(questionsData.some(q => !q.q || q.options.some(o => !o))) {
+            return alert("Saare sawal aur options bharna zaroori hai!");
+        }
+
+        btn.disabled = true;
+        btn.innerText = "Processing & Uploading...";
+
+        try {
+            const res = await fetch('/save_test', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    subject: sub,
+                    chapter: chap,
+                    test_name: dpp,
+                    questions: questionsData
+                })
+            });
+            const resJson = await res.json();
+            alert(resJson.message);
+            if(resJson.success) location.reload();
+        } catch(e) {
+            alert("Upload fail ho gaya. Internet check karein.");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "🚀 UPLOAD ALL TO LIVE";
+        }
+    }
+</script>
 </body>
 </html>
