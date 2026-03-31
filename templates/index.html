@@ -3,39 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEET Prep Portal</title>
+    <title>NEET Prep Master</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --pw-blue: #1b10b1; --pw-light: #f0f2ff; --green: #28a745; --danger: #dc3545; --warning: #ffc107; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7fe; }
-        .page-section { display: none; min-height: 100vh; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7fe; overflow-x: hidden; }
+        .page-section { display: none; min-height: 100vh; width: 100%; }
         .active-page { display: block !important; }
-        .container { max-width: 800px; margin: auto; padding: 20px; }
+        .container { max-width: 800px; margin: auto; padding: 20px; box-sizing: border-box; }
+        
+        /* Navigation & Cards */
+        .nav-header { display: flex; align-items: center; padding: 10px 0; gap: 15px; }
+        .back-link { color: var(--pw-blue); cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 5px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; text-align: center; }
-        .card { background: white; padding: 25px; border-radius: 15px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; transition: 0.3s; }
+        .card { background: white; padding: 25px; border-radius: 15px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; }
         .item-row { display: flex; justify-content: space-between; padding: 15px; background: white; margin: 8px 0; border-radius: 10px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-weight: bold; }
-        .header { padding: 15px 20px; border-bottom: 2px solid #ddd; display: flex; justify-content: space-between; align-items: center; background: white; position: sticky; top: 0; z-index: 100; }
+
+        /* Instruction Box */
+        .info-box { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-top: 20px; }
+        .rule-item { display: flex; align-items: center; gap: 10px; margin: 15px 0; font-size: 1.1rem; }
+
+        /* Timer Blinking Animation */
+        @keyframes pulse-red {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .timer-late { color: var(--danger) !important; animation: pulse-red 1s infinite; font-size: 1.4rem !important; }
+
+        /* Late Pop-up */
+        #late-popup {
+            position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%);
+            background: var(--danger); color: white; padding: 20px 40px; border-radius: 50px;
+            font-weight: bold; font-size: 1.2rem; z-index: 1000; box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            display: none;
+        }
+
+        /* Test UI Layout */
+        .test-header { padding: 15px 20px; border-bottom: 2px solid #ddd; display: flex; justify-content: space-between; align-items: center; background: white; position: sticky; top: 0; z-index: 100; }
         .layout { display: flex; flex-direction: row; }
         .q-area { flex: 3; padding: 25px; padding-bottom: 120px; }
         .sidebar { flex: 1; padding: 20px; border-left: 1px solid #ddd; background: #fafafa; }
         @media (max-width: 768px) { .layout { flex-direction: column; } .sidebar { border-left: none; } }
+        
         .opt { padding: 18px; border: 1px solid #ddd; margin: 12px 0; border-radius: 12px; cursor: pointer; background: #fff; }
         .opt.active { border: 2.5px solid var(--pw-blue); background: var(--pw-light); font-weight: bold; }
         .dot { width: 40px; height: 40px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; margin: 2px; }
         .dot.saved { background: var(--green); color: white; border: none; }
+        
         .footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #ddd; display: flex; justify-content: space-around; box-sizing: border-box; }
         .btn { padding: 14px 30px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .review-card { padding: 15px; margin: 15px 0; border-radius: 12px; border-left: 6px solid #ccc; background: white; }
-        .res-correct { border-color: var(--green); } .res-wrong { border-color: var(--danger); } .res-skipped { border-color: var(--warning); }
-        .q-img { max-width: 100%; height: auto; margin: 15px 0; border-radius: 8px; border: 1px solid #ddd; }
+        .q-img { max-width: 100%; height: auto; margin: 15px 0; border-radius: 10px; }
     </style>
 </head>
 <body>
 
+<div id="late-popup">⚠️ YOU ARE LATE! Submit Now</div>
+
 <div id="page-home" class="page-section active-page">
     <div class="container" style="text-align: center;">
-        <h2 style="color: var(--pw-blue); margin-bottom: 30px;">NEET PREP MASTER</h2>
+        <h2 style="color: var(--pw-blue); margin-top: 20px;">NEET PREP MASTER</h2>
         <div class="grid">
             <div class="card" onclick="openSubject('physics')"><i class="fas fa-atom" style="font-size: 2.5rem; color: var(--pw-blue);"></i><h3>Physics</h3></div>
             <div class="card" onclick="openSubject('chemistry')"><i class="fas fa-flask" style="font-size: 2.5rem; color: var(--pw-blue);"></i><h3>Chemistry</h3></div>
@@ -47,35 +75,53 @@
 
 <div id="page-chapters" class="page-section">
     <div class="container">
-        <button onclick="showPage('page-home')" style="border:none; background:none; color:var(--pw-blue); cursor:pointer; font-weight:bold;">← Home</button>
-        <h2 id="sub-title">Subject</h2>
+        <div class="nav-header"><div class="back-link" onclick="goBack()"><i class="fas fa-arrow-left"></i> Home</div></div>
+        <h2 id="sub-title" style="text-transform: uppercase; color: var(--pw-blue);">Subject</h2>
         <div id="chapter-list-content"></div>
     </div>
 </div>
 
 <div id="page-dpps" class="page-section">
     <div class="container">
-        <button onclick="showPage('page-chapters')" style="border:none; background:none; color:var(--pw-blue); cursor:pointer; font-weight:bold;">← Chapters</button>
+        <div class="nav-header"><div class="back-link" onclick="goBack()"><i class="fas fa-arrow-left"></i> Chapters</div></div>
         <h2 id="chapter-title-display">Chapter Name</h2>
         <div id="dpp-list-content"></div>
     </div>
 </div>
 
+<div id="page-instructions" class="page-section">
+    <div class="container">
+        <div class="info-box">
+            <h2 style="color: var(--pw-blue); margin-top: 0;">Test Instructions</h2>
+            <hr>
+            <div class="rule-item"><i class="fas fa-question-circle" style="color:var(--pw-blue)"></i> <span id="ins-q-count">0</span> Questions</div>
+            <div class="rule-item"><i class="fas fa-clock" style="color:orange"></i> <span id="ins-time">0</span> Minutes Total</div>
+            <div class="rule-item"><i class="fas fa-check-circle" style="color:green"></i> +4 Marks for Correct Answer</div>
+            <div class="rule-item"><i class="fas fa-times-circle" style="color:red"></i> -1 Mark for Wrong Answer</div>
+            
+            <div style="display: flex; gap: 15px; margin-top: 30px;">
+                <button class="btn" onclick="goBack()" style="background:#eee; flex:1;">BACK</button>
+                <button class="btn" onclick="actuallyStartTest()" style="background:var(--pw-blue); color:white; flex:2;">START TEST</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="page-test" class="page-section">
-    <div class="header">
-        <h3 id="t-name" style="margin:0;">Test</h3>
-        <div id="timer" style="font-weight: bold; font-size: 1.2rem; color: var(--danger);">00:00</div>
+    <div class="test-header">
+        <h3 id="t-name" style="margin:0; font-size: 0.9rem; max-width: 50%;">Test</h3>
+        <div id="timer" style="font-weight: bold; font-size: 1.2rem; color: #333;">00:00</div>
     </div>
     <div class="layout">
         <div class="q-area">
-            <h4 id="q-idx" style="color: #666;">Question 1</h4>
+            <h4 id="q-idx" style="color: #666; margin-top: 0;">Question 1</h4>
             <div id="q-container">
                 <div id="q-txt" style="font-size:1.2rem; margin-bottom: 10px;"></div>
                 <div id="q-img-box"></div>
             </div>
             <div id="opts"></div>
         </div>
-        <div class="sidebar"><h4>Question Palette</h4><div id="palette" style="display:flex; flex-wrap:wrap;"></div></div>
+        <div class="sidebar"><h4>Palette</h4><div id="palette" style="display:flex; flex-wrap:wrap;"></div></div>
     </div>
     <div class="footer">
         <button class="btn" onclick="submitTest()" style="background:orange; color:white;">SUBMIT</button>
@@ -84,38 +130,44 @@
 </div>
 
 <div id="page-res" class="page-section">
-    <div class="container" style="text-align: center;">
-        <h2 style="color: var(--pw-blue);">Test Analysis Report</h2>
-        <div style="max-width: 300px; margin: auto;"><canvas id="resultChart"></canvas></div>
-        <div id="score-summary" style="margin: 20px 0; font-size: 1.5rem; font-weight: bold;"></div>
-        <hr>
-        <h3 style="text-align: left;">Detailed Review</h3>
-        <div id="review-content" style="text-align: left;"></div>
-        <button onclick="location.reload()" class="btn" style="background:var(--pw-blue); color:white; width: 100%; margin-top: 20px;">EXIT</button>
+    <div class="container">
+        <div class="nav-header"><div class="back-link" onclick="openSubject(curSub)"><i class="fas fa-arrow-left"></i> Subject Page</div></div>
+        <div style="text-align: center;">
+            <h2>Analysis Report</h2>
+            <div style="max-width: 250px; margin: auto;"><canvas id="resultChart"></canvas></div>
+            <div id="score-summary" style="margin: 20px 0; font-size: 1.5rem; font-weight: bold;"></div>
+            <hr>
+            <div id="review-content" style="text-align: left;"></div>
+            <button onclick="location.reload()" class="btn" style="background:var(--pw-blue); color:white; width: 100%; margin-top: 20px;">HOME</button>
+        </div>
     </div>
 </div>
 
 <script>
     let config = {}, questions = [], cur = 0, answers = [], status = [], curSub = "", timeLeft = 0, tInt;
+    let pageStack = ['page-home'];
+    let lateAlertShown = false; //
 
     window.onload = async () => {
         const res = await fetch('/get_config');
         config = await res.json();
+        window.history.pushState({page: 'home'}, "");
+        window.onpopstate = () => { if (pageStack.length > 1) { goBack(); window.history.pushState({page: 'back'}, ""); } };
     };
 
-    function showPage(id) {
+    function showPage(id, push = true) {
         document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active-page'));
         document.getElementById(id).classList.add('active-page');
+        if(push && pageStack[pageStack.length-1] !== id) pageStack.push(id);
         window.scrollTo(0,0);
     }
 
+    function goBack() { if (pageStack.length > 1) { pageStack.pop(); showPage(pageStack[pageStack.length - 1], false); } }
+
     function openSubject(s) {
-        curSub = s;
-        document.getElementById('sub-title').innerText = s.toUpperCase();
+        curSub = s; document.getElementById('sub-title').innerText = s.toUpperCase();
         let html = '';
-        for (const chName in config[s]) {
-            html += `<div class="item-row" onclick="openDPPs('${chName}')"><span>${chName}</span><i class="fas fa-chevron-right"></i></div>`;
-        }
+        for (const chName in config[s]) html += `<div class="item-row" onclick="openDPPs('${chName}')"><span>${chName}</span><i class="fas fa-chevron-right"></i></div>`;
         document.getElementById('chapter-list-content').innerHTML = html;
         showPage('page-chapters');
     }
@@ -123,65 +175,66 @@
     function openDPPs(ch) {
         document.getElementById('chapter-title-display').innerText = ch;
         const tests = config[curSub][ch];
-        let html = '';
-        if (!tests || tests.length === 0) {
-            html = "<p style='color:gray; padding:20px;'>No any tests available</p>";
-        } else {
-            tests.forEach(t => {
-                html += `<div class="item-row" onclick="startTest('${t.file}', '${t.name}')"><span>${t.name}</span><i class="fas fa-play-circle" style="color:green"></i></div>`;
-            });
-        }
+        let html = tests.length === 0 ? "<p>No tests</p>" : "";
+        tests.forEach(t => html += `<div class="item-row" onclick="loadInstructions('${t.file}', '${t.name}')"><span>${t.name}</span><i class="fas fa-play-circle" style="color:green"></i></div>`);
         document.getElementById('dpp-list-content').innerHTML = html;
         showPage('page-dpps');
     }
 
-    async function startTest(path, name) {
+    let pendingFile = "", pendingName = "";
+    async function loadInstructions(path, name) {
         const res = await fetch(`/get_test/${path}`);
         questions = await res.json();
+        document.getElementById('ins-q-count').innerText = questions.length;
+        document.getElementById('ins-time').innerText = questions.length;
+        pendingFile = path; pendingName = name;
+        showPage('page-instructions');
+    }
+
+    function actuallyStartTest() {
         answers = new Array(questions.length).fill(null);
         status = new Array(questions.length).fill('unseen');
-        document.getElementById('t-name').innerText = name;
-        
-        // Timer Logic: 1 Minute per question
-        timeLeft = questions.length * 1 * 60; 
+        document.getElementById('t-name').innerText = pendingName;
+        timeLeft = questions.length * 60; // 1 Min per Q
+        lateAlertShown = false;
+        document.getElementById('timer').classList.remove('timer-late');
         if(tInt) clearInterval(tInt);
-        tInt = setInterval(() => {
-            if (timeLeft <= 0) { clearInterval(tInt); submitTest(); return; }
-            timeLeft--;
-            let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
-            document.getElementById('timer').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-        }, 1000);
-        
+        tInt = setInterval(updateTimer, 1000);
         showPage('page-test');
         render(0);
     }
 
+    function updateTimer() {
+        timeLeft--;
+        let absTime = Math.abs(timeLeft);
+        let m = Math.floor(absTime / 60), s = absTime % 60;
+        let sign = timeLeft < 0 ? "-" : ""; // Overtime indicator
+        
+        const timerEl = document.getElementById('timer');
+        timerEl.innerText = `${sign}${m}:${s < 10 ? '0' : ''}${s}`;
+
+        // Late Logic
+        if (timeLeft < 0) {
+            timerEl.classList.add('timer-late');
+            if (!lateAlertShown) {
+                const pop = document.getElementById('late-popup');
+                pop.style.display = 'block';
+                setTimeout(() => { pop.style.display = 'none'; }, 3000);
+                lateAlertShown = true;
+            }
+        }
+    }
+
     function render(i) {
         cur = i; const q = questions[i];
-        document.getElementById('q-idx').innerText = `Question ${i+1} of ${questions.length}`;
+        document.getElementById('q-idx').innerText = `Question ${i+1}`;
         document.getElementById('q-txt').innerText = q.q;
-        
-        // Image support
-        const imgBox = document.getElementById('q-img-box');
-        if(q.img) {
-            imgBox.innerHTML = `<img src="${q.img}" class="q-img">`;
-        } else {
-            imgBox.innerHTML = '';
-        }
-
+        document.getElementById('q-img-box').innerHTML = q.img ? `<img src="${q.img}" class="q-img">` : '';
         let h = '';
-        q.options.forEach((o, idx) => {
-            let act = (answers[i] === idx) ? 'active' : '';
-            h += `<div class="opt ${act}" onclick="pick(${idx})">${o}</div>`;
-        });
+        q.options.forEach((o, idx) => h += `<div class="opt ${answers[i]===idx?'active':''}" onclick="pick(${idx})">${o}</div>`);
         document.getElementById('opts').innerHTML = h;
-        
         let p = '';
-        questions.forEach((_, idx) => {
-            let cls = (status[idx] === 'saved') ? 'saved' : '';
-            let b = (cur === idx) ? 'border:3px solid blue;' : '';
-            p += `<div class="dot ${cls}" style="${b}" onclick="render(${idx})">${idx+1}</div>`;
-        });
+        questions.forEach((_, idx) => p += `<div class="dot ${status[idx]==='saved'?'saved':''}" style="${cur===idx?'border:3px solid blue;':''}" onclick="render(${idx})">${idx+1}</div>`);
         document.getElementById('palette').innerHTML = p;
     }
 
@@ -192,27 +245,21 @@
         if(!confirm("Are you sure?")) return;
         clearInterval(tInt);
         let correct = 0, wrong = 0, skipped = 0, reviewHtml = '';
-        
         questions.forEach((q, i) => {
-            let userPick = answers[i], actual = q.correct_ans, cls = 'res-skipped';
+            let userPick = answers[i], actual = q.correct_ans;
             if (userPick === null) skipped++;
-            else if (userPick === actual) { correct++; cls = 'res-correct'; }
-            else { wrong++; cls = 'res-wrong'; }
-
-            reviewHtml += `<div class="review-card ${cls}"><p><b>Q${i+1}:</b> ${q.q}</p><p style="color:green">Sahi Answer: ${q.options[actual]}</p><p style="color:${userPick === actual ? 'green' : 'red'}">Aapka Answer: ${userPick !== null ? q.options[userPick] : 'Skipped'}</p></div>`;
+            else if (userPick === actual) correct++;
+            else wrong++;
+            reviewHtml += `<div style="padding:10px; margin-bottom:10px; background:#fff; border-radius:10px; border-left:5px solid ${userPick===actual?'green':'red'}">
+                <b>Q${i+1}:</b> ${q.q}<br>
+                <span style="color:green">Correct: ${q.options[actual]}</span><br>
+                <span style="color:${userPick===actual?'green':'red'}">Your: ${userPick!==null?q.options[userPick]:'Skipped'}</span>
+            </div>`;
         });
-
         document.getElementById('score-summary').innerHTML = `Score: ${(correct*4)-wrong} / ${questions.length*4}`;
         document.getElementById('review-content').innerHTML = reviewHtml;
         showPage('page-res');
-        
-        new Chart(document.getElementById('resultChart'), {
-            type: 'pie',
-            data: {
-                labels: ['Right', 'Wrong', 'Skipped'],
-                datasets: [{ data: [correct, wrong, skipped], backgroundColor: ['#28a745', '#dc3545', '#ffc107'] }]
-            }
-        });
+        new Chart(document.getElementById('resultChart'), { type: 'pie', data: { labels: ['Right', 'Wrong', 'Skipped'], datasets: [{ data: [correct, wrong, skipped], backgroundColor: ['#28a745', '#dc3545', '#ffc107'] }] } });
     }
 </script>
 </body>
