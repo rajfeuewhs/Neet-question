@@ -7,13 +7,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --pw-blue: #1b10b1; --pw-light: #f0f2ff; --green: #28a745; --danger: #dc3545; }
+        :root { --pw-blue: #1b10b1; --pw-light: #f0f2ff; --green: #28a745; --danger: #dc3545; --warning: #ffc107; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7fe; }
         .page-section { display: none; min-height: 100vh; }
         .active-page { display: block !important; }
         .container { max-width: 800px; margin: auto; padding: 20px; }
-        .dashboard { text-align: center; margin-top: 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; text-align: center; }
         .card { background: white; padding: 25px; border-radius: 15px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; }
         .item-row { display: flex; justify-content: space-between; padding: 15px; background: white; margin: 8px 0; border-radius: 10px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-weight: bold; }
         .header { padding: 15px 20px; border-bottom: 2px solid #ddd; display: flex; justify-content: space-between; align-items: center; background: white; position: sticky; top: 0; z-index: 100; }
@@ -23,29 +22,35 @@
         @media (max-width: 768px) { .layout { flex-direction: column; } .sidebar { border-left: none; } }
         .opt { padding: 18px; border: 1px solid #ddd; margin: 12px 0; border-radius: 12px; cursor: pointer; background: #fff; }
         .opt.active { border: 2.5px solid var(--pw-blue); background: var(--pw-light); font-weight: bold; }
-        .dot { width: 45px; height: 45px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; margin: 2px; }
+        .dot { width: 40px; height: 40px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; margin: 2px; }
         .dot.saved { background: var(--green); color: white; border: none; }
-        .footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #ddd; display: flex; justify-content: space-around; }
+        .footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #ddd; display: flex; justify-content: space-around; box-sizing: border-box; }
         .btn { padding: 14px 30px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        
+        /* Result Styles */
+        .review-card { padding: 15px; margin: 15px 0; border-radius: 12px; border-left: 6px solid #ccc; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .res-correct { border-color: var(--green); background: #f0fff4; }
+        .res-wrong { border-color: var(--danger); background: #fff5f5; }
+        .res-skipped { border-color: var(--warning); background: #fffdf0; }
     </style>
 </head>
 <body>
 
 <div id="page-home" class="page-section active-page">
-    <div class="container dashboard">
-        <h2 style="color: var(--pw-blue);">NEET PREP MASTER</h2>
+    <div class="container" style="text-align: center;">
+        <h2 style="color: var(--pw-blue); margin-bottom: 30px;">NEET PREP MASTER</h2>
         <div class="grid">
-            <div class="card" onclick="openSubject('physics')"><i class="fas fa-atom"></i><h3>Physics</h3></div>
-            <div class="card" onclick="openSubject('chemistry')"><i class="fas fa-flask"></i><h3>Chemistry</h3></div>
-            <div class="card" onclick="openSubject('botany')"><i class="fas fa-leaf"></i><h3>Botany</h3></div>
-            <div class="card" onclick="openSubject('zoology')"><i class="fas fa-dog"></i><h3>Zoology</h3></div>
+            <div class="card" onclick="openSubject('physics')"><i class="fas fa-atom" style="font-size: 2.5rem; color: var(--pw-blue);"></i><h3>Physics</h3></div>
+            <div class="card" onclick="openSubject('chemistry')"><i class="fas fa-flask" style="font-size: 2.5rem; color: var(--pw-blue);"></i><h3>Chemistry</h3></div>
+            <div class="card" onclick="openSubject('botany')"><i class="fas fa-leaf" style="font-size: 2.5rem; color: var(--pw-blue);"></i><h3>Botany</h3></div>
+            <div class="card" onclick="openSubject('zoology')"><i class="fas fa-dog" style="font-size: 2.5rem; color: var(--pw-blue);"></i><h3>Zoology</h3></div>
         </div>
     </div>
 </div>
 
 <div id="page-chapters" class="page-section">
     <div class="container">
-        <button onclick="showPage('page-home')" style="border:none; background:none; color:var(--pw-blue); cursor:pointer; font-weight:bold;">← Back to Home</button>
+        <button onclick="showPage('page-home')" style="border:none; background:none; color:var(--pw-blue); cursor:pointer; font-weight:bold;">← Home</button>
         <h2 id="sub-title">Subject</h2>
         <div id="chapter-list-content"></div>
     </div>
@@ -53,31 +58,45 @@
 
 <div id="page-dpps" class="page-section">
     <div class="container">
-        <button onclick="showPage('page-chapters')" style="border:none; background:none; color:var(--pw-blue); cursor:pointer; font-weight:bold;">← Back to Chapters</button>
+        <button onclick="showPage('page-chapters')" style="border:none; background:none; color:var(--pw-blue); cursor:pointer; font-weight:bold;">← Chapters</button>
         <h2 id="chapter-title-display">Chapter Name</h2>
         <div id="dpp-list-content"></div>
     </div>
 </div>
 
 <div id="page-test" class="page-section">
-    <div class="header"><h3 id="t-name">Test</h3><div id="timer">00:00</div></div>
+    <div class="header">
+        <h3 id="t-name" style="margin:0;">Test</h3>
+        <div id="timer" style="font-weight: bold; font-size: 1.2rem; color: var(--danger);">00:00</div>
+    </div>
     <div class="layout">
-        <div class="q-area"><h4 id="q-idx">Q1</h4><div id="q-txt" style="font-size:1.2rem;"></div><div id="opts"></div></div>
-        <div class="sidebar"><h4>Palette</h4><div id="palette" style="display:flex; flex-wrap:wrap;"></div></div>
+        <div class="q-area">
+            <h4 id="q-idx" style="color: #666;">Question 1</h4>
+            <div id="q-txt" style="font-size:1.2rem; margin-bottom: 20px;"></div>
+            <div id="opts"></div>
+        </div>
+        <div class="sidebar"><h4>Question Palette</h4><div id="palette" style="display:flex; flex-wrap:wrap;"></div></div>
     </div>
     <div class="footer">
-        <button class="btn" onclick="submitTest()" style="background:orange; color:white;">SUBMIT</button>
+        <button class="btn" onclick="submitTest()" style="background:orange; color:white;">SUBMIT TEST</button>
         <button class="btn" onclick="nextQ()" style="background:var(--pw-blue); color:white; flex:0.7;">SAVE & NEXT</button>
     </div>
 </div>
 
-<div id="page-res" class="page-section" style="text-align:center; padding:40px;">
-    <h2>Analysis</h2><div id="score" style="font-size:2rem; font-weight:bold;"></div>
-    <button onclick="location.reload()" class="btn" style="background:var(--pw-blue); color:white; margin-top:20px;">Exit</button>
+<div id="page-res" class="page-section">
+    <div class="container" style="text-align: center;">
+        <h2 style="color: var(--pw-blue);">Test Analysis Report</h2>
+        <div style="max-width: 300px; margin: auto;"><canvas id="resultChart"></canvas></div>
+        <div id="score-summary" style="margin: 20px 0; font-size: 1.5rem; font-weight: bold;"></div>
+        <hr>
+        <h3 style="text-align: left;">Detailed Review</h3>
+        <div id="review-content" style="text-align: left;"></div>
+        <button onclick="location.reload()" class="btn" style="background:var(--pw-blue); color:white; width: 100%; margin-top: 20px;">BACK TO HOME</button>
+    </div>
 </div>
 
 <script>
-    let config = {}, questions = [], cur = 0, answers = [], status = [], curSub = "";
+    let config = {}, questions = [], cur = 0, answers = [], status = [], curSub = "", timeLeft = 0, tInt;
 
     window.onload = async () => {
         const res = await fetch('/get_config');
@@ -87,6 +106,7 @@
     function showPage(id) {
         document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active-page'));
         document.getElementById(id).classList.add('active-page');
+        window.scrollTo(0,0);
     }
 
     function openSubject(s) {
@@ -104,7 +124,7 @@
         document.getElementById('chapter-title-display').innerText = ch;
         const tests = config[curSub][ch];
         let html = '';
-        if (tests.length === 0) {
+        if (!tests || tests.length === 0) {
             html = "<p style='color:gray; padding:20px;'>No any tests available</p>";
         } else {
             tests.forEach(t => {
@@ -121,13 +141,26 @@
         answers = new Array(questions.length).fill(null);
         status = new Array(questions.length).fill('unseen');
         document.getElementById('t-name').innerText = name;
+        
+        // Timer Logic: 3 Minutes per question
+        timeLeft = questions.length * 3 * 60; 
+        if(tInt) clearInterval(tInt);
+        tInt = setInterval(updateTimer, 1000);
+        
         showPage('page-test');
         render(0);
     }
 
+    function updateTimer() {
+        if (timeLeft <= 0) { submitTest(); return; }
+        timeLeft--;
+        let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+        document.getElementById('timer').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
     function render(i) {
         cur = i; const q = questions[i];
-        document.getElementById('q-idx').innerText = `Question ${i+1}`;
+        document.getElementById('q-idx').innerText = `Question ${i+1} of ${questions.length}`;
         document.getElementById('q-txt').innerText = q.q;
         let h = '';
         q.options.forEach((o, idx) => {
@@ -135,6 +168,7 @@
             h += `<div class="opt ${act}" onclick="pick(${idx})">${o}</div>`;
         });
         document.getElementById('opts').innerHTML = h;
+        
         let p = '';
         questions.forEach((_, idx) => {
             let cls = (status[idx] === 'saved') ? 'saved' : '';
@@ -146,14 +180,61 @@
 
     function pick(idx) { answers[cur] = idx; status[cur] = 'saved'; render(cur); }
     function nextQ() { if(cur < questions.length - 1) render(cur + 1); }
+
     function submitTest() {
-        let c = 0, w = 0;
+        if(!confirm("Are you sure you want to submit the test?")) return;
+        clearInterval(tInt);
+        
+        let correct = 0, wrong = 0, skipped = 0, reviewHtml = '';
+        
         questions.forEach((q, i) => {
-            if(answers[i] === q.correct_ans) c++;
-            else if(answers[i] !== null) w++;
+            let userPick = answers[i];
+            let actual = q.correct_ans;
+            let statusClass = '';
+
+            if (userPick === null) {
+                skipped++;
+                statusClass = 'res-skipped';
+            } else if (userPick === actual) {
+                correct++;
+                statusClass = 'res-correct';
+            } else {
+                wrong++;
+                statusClass = 'res-wrong';
+            }
+
+            reviewHtml += `
+                <div class="review-card ${statusClass}">
+                    <p><strong>Q${i+1}:</strong> ${q.q}</p>
+                    <p style="color: var(--green);"><strong>Sahi Answer:</strong> ${q.options[actual]}</p>
+                    <p style="color: ${userPick === actual ? 'var(--green)' : 'var(--danger)'};">
+                        <strong>Aapka Answer:</strong> ${userPick !== null ? q.options[userPick] : 'Skipped'}
+                    </p>
+                </div>`;
         });
-        document.getElementById('score').innerText = `Score: ${(c*4)-w}`;
+
+        // NEET Scoring: +4 for Correct, -1 for Wrong
+        let totalScore = (correct * 4) - (wrong * 1);
+        document.getElementById('score-summary').innerHTML = `
+            <div style="color: var(--pw-blue);">Total Score: ${totalScore} / ${questions.length * 4}</div>
+            <div style="font-size: 1rem; color: #666; margin-top: 5px;">
+                Correct: ${correct} | Wrong: ${wrong} | Skipped: ${skipped}
+            </div>`;
+        
+        document.getElementById('review-content').innerHTML = reviewHtml;
         showPage('page-res');
+
+        // Graph Logic
+        new Chart(document.getElementById('resultChart'), {
+            type: 'pie',
+            data: {
+                labels: ['Correct', 'Wrong', 'Skipped'],
+                datasets: [{
+                    data: [correct, wrong, skipped],
+                    backgroundColor: ['#28a745', '#dc3545', '#ffc107']
+                }]
+            }
+        });
     }
 </script>
 </body>
