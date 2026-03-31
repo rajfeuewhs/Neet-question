@@ -1,84 +1,13 @@
-{
-  "physics": {
-    "Units and Measurements": [{"name": "DPP 01", "file": "physics/units/dpp1"}],
-    "Motion in a Straight Line": [],
-    "Motion in a Plane": [],
-    "Laws of Motion": [],
-    "Work, Energy and Power": [],
-    "System of Particles": [],
-    "Gravitation": [],
-    "Properties of Solids & Fluids": [],
-    "Thermodynamics": [],
-    "Oscillations and Waves": [],
-    "Electrostatics": [],
-    "Current Electricity": [],
-    "Magnetic Effects": [],
-    "Optics": [],
-    "Modern Physics": []
-  },
-  "chemistry": {
-    "Some Basic Concepts": [],
-    "Structure of Atom": [],
-    "Classification of Elements": [],
-    "Chemical Bonding": [],
-    "States of Matter": [],
-    "Thermodynamics": [],
-    "Equilibrium": [],
-    "Redox Reactions": [],
-    "Organic Chemistry Basic": [],
-    "Hydrocarbons": [],
-    "Solutions": [],
-    "Electrochemistry": [],
-    "Chemical Kinetics": [],
-    "P-Block Elements": [],
-    "D and F Block": [],
-    "Coordination Compounds": [],
-    "Aldehydes and Ketones": []
-  },
-  "botany": {
+"botany": {
     "Cell: The Unit of Life": [
       {
         "name": "DPP 01", 
-        "file": "cell-unit/dpp1"
+        "file": "cell-unit/dpp1" 
       },
       {
         "name": "PYQs (NEET)", 
         "file": "cell-unit/pyq"
       }
     ],
-    "Biological Classification": [],
-    "Plant Kingdom": [],
-    "Morphology of Flowering Plants": [],
-    "Anatomy of Flowering Plants": [],
-    "Cell Cycle & Division": [],
-    "Photosynthesis": [],
-    "Respiration in Plants": [],
-    "Plant Growth": [],
-    "Sexual Reproduction in Plants": [],
-    "Genetics - Principles": [],
-    "Molecular Basis": [],
-    "Ecosystem": []
-  },
-  "zoology": {
-    "Animal Kingdom": [],
-    "Structural Organisation": [],
-    "Biomolecules": [],
-    "Breathing & Exchange": [],
-    "Body Fluids": [],
-    "Excretory Products": [],
-    "Locomotion & Movement": [],
-    "Neural Control": [],
-    "Chemical Coordination": [],
-    "Human Reproduction": [],
-    "Reproductive Health": [],
-    "Evolution": [],
-    "Human Health & Disease": [],
-    "Biotechnology": []
-  },
-  "mock_180": {
-    "Full Syllabus Mock": []
-  },
-  "mock_720": {
-    "Grand NEET Mock": []
+    ...
   }
-}
