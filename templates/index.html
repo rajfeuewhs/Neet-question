@@ -11,11 +11,11 @@
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7fe; }
         .page-section { display: none; min-height: 100vh; }
         .active-page { display: block !important; }
-        .dashboard { max-width: 900px; margin: 20px auto; padding: 15px; text-align: center; }
+        .container { max-width: 800px; margin: auto; padding: 20px; }
+        .dashboard { text-align: center; margin-top: 20px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
         .card { background: white; padding: 25px; border-radius: 15px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; }
-        .ch-header { background: #e9ecef; padding: 12px; font-weight: bold; border-radius: 8px; margin-top: 15px; border-left: 5px solid var(--pw-blue); }
-        .test-item { display: flex; justify-content: space-between; padding: 15px; background: white; margin: 5px 0; border-radius: 8px; cursor: pointer; }
+        .item-row { display: flex; justify-content: space-between; padding: 15px; background: white; margin: 8px 0; border-radius: 10px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-weight: bold; }
         .header { padding: 15px 20px; border-bottom: 2px solid #ddd; display: flex; justify-content: space-between; align-items: center; background: white; position: sticky; top: 0; z-index: 100; }
         .layout { display: flex; flex-direction: row; }
         .q-area { flex: 3; padding: 25px; padding-bottom: 120px; }
@@ -32,7 +32,7 @@
 <body>
 
 <div id="page-home" class="page-section active-page">
-    <div class="dashboard">
+    <div class="container dashboard">
         <h2 style="color: var(--pw-blue);">NEET PREP MASTER</h2>
         <div class="grid">
             <div class="card" onclick="openSubject('physics')"><i class="fas fa-atom"></i><h3>Physics</h3></div>
@@ -44,10 +44,18 @@
 </div>
 
 <div id="page-chapters" class="page-section">
-    <div style="max-width:800px; margin:auto; padding:20px;">
-        <button onclick="showPage('page-home')" style="border:none; background:none; color:var(--pw-blue); cursor:pointer; font-weight:bold;">← Home</button>
+    <div class="container">
+        <button onclick="showPage('page-home')" style="border:none; background:none; color:var(--pw-blue); cursor:pointer; font-weight:bold;">← Back to Home</button>
         <h2 id="sub-title">Subject</h2>
-        <div id="list-content"></div>
+        <div id="chapter-list-content"></div>
+    </div>
+</div>
+
+<div id="page-dpps" class="page-section">
+    <div class="container">
+        <button onclick="showPage('page-chapters')" style="border:none; background:none; color:var(--pw-blue); cursor:pointer; font-weight:bold;">← Back to Chapters</button>
+        <h2 id="chapter-title-display">Chapter Name</h2>
+        <div id="dpp-list-content"></div>
     </div>
 </div>
 
@@ -64,13 +72,12 @@
 </div>
 
 <div id="page-res" class="page-section" style="text-align:center; padding:40px;">
-    <h2>Result</h2>
-    <div id="score" style="font-size:2rem; font-weight:bold;"></div>
+    <h2>Analysis</h2><div id="score" style="font-size:2rem; font-weight:bold;"></div>
     <button onclick="location.reload()" class="btn" style="background:var(--pw-blue); color:white; margin-top:20px;">Exit</button>
 </div>
 
 <script>
-    let config = {}, questions = [], cur = 0, answers = [], status = [], timer;
+    let config = {}, questions = [], cur = 0, answers = [], status = [], curSub = "";
 
     window.onload = async () => {
         const res = await fetch('/get_config');
@@ -83,23 +90,34 @@
     }
 
     function openSubject(s) {
+        curSub = s;
         document.getElementById('sub-title').innerText = s.toUpperCase();
         let html = '';
-        for (const [ch, tests] of Object.entries(config[s])) {
-            html += `<div class="ch-header">${ch}</div>`;
-            if (tests.length === 0) html += `<div style="padding:10px; color:gray;">No tests available</div>`;
-            else tests.forEach(t => {
-                html += `<div class="test-item" onclick="startTest('${t.file}', '${t.name}')"><span>${t.name}</span><i class="fas fa-play-circle"></i></div>`;
+        for (const chName in config[s]) {
+            html += `<div class="item-row" onclick="openDPPs('${chName}')"><span>${chName}</span><i class="fas fa-chevron-right"></i></div>`;
+        }
+        document.getElementById('chapter-list-content').innerHTML = html;
+        showPage('page-chapters');
+    }
+
+    function openDPPs(ch) {
+        document.getElementById('chapter-title-display').innerText = ch;
+        const tests = config[curSub][ch];
+        let html = '';
+        if (tests.length === 0) {
+            html = "<p style='color:gray; padding:20px;'>No any tests available</p>";
+        } else {
+            tests.forEach(t => {
+                html += `<div class="item-row" onclick="startTest('${t.file}', '${t.name}')"><span>${t.name}</span><i class="fas fa-play-circle" style="color:green"></i></div>`;
             });
         }
-        document.getElementById('list-content').innerHTML = html;
-        showPage('page-chapters');
+        document.getElementById('dpp-list-content').innerHTML = html;
+        showPage('page-dpps');
     }
 
     async function startTest(path, name) {
         const res = await fetch(`/get_test/${path}`);
         questions = await res.json();
-        if (questions.error) { alert("File nahi mili GitHub par!"); return; }
         answers = new Array(questions.length).fill(null);
         status = new Array(questions.length).fill('unseen');
         document.getElementById('t-name').innerText = name;
