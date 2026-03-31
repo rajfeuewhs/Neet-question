@@ -1,124 +1,70 @@
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin - Bulk JSON Upload</title>
-    <style>
-        :root { --pw-blue: #1b10b1; --bg: #f4f7fe; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .setup-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; background: #f9faff; padding: 15px; border-radius: 12px; }
-        .dpp-block { border: 2px dashed #cbd5e1; padding: 20px; border-radius: 15px; margin-bottom: 20px; background: #fff; }
-        label { font-weight: bold; display: block; margin-bottom: 5px; color: #444; }
-        select, input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        textarea { font-family: monospace; font-size: 13px; background: #2d3436; color: #fab1a0; margin-top: 10px; }
-        .actions { display: flex; gap: 15px; margin-top: 20px; }
-        .btn { flex: 1; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .btn-add { background: #e0e6ff; color: var(--pw-blue); }
-        .btn-submit { background: var(--pw-blue); color: white; }
-    </style>
-</head>
-<body>
+from flask import Flask, render_template, jsonify, request
+import requests
+import base64
+import json
+import os
 
-<div class="container">
-    <h2>🚀 Bulk DPP Uploader</h2>
+app = Flask(__name__)
 
-    <div class="setup-row">
-        <div>
-            <label>Subject</label>
-            <select id="sub-select" onchange="updateChapters()">
-                <option value="">--Select--</option>
-                <option value="physics">Physics</option>
-                <option value="chemistry">Chemistry</option>
-                <option value="botany">Botany</option>
-                <option value="zoology">Zoology</option>
-            </select>
-        </div>
-        <div>
-            <label>Chapter</label>
-            <select id="chap-select"><option value="">Pehle Subject Chunein</option></select>
-        </div>
-    </div>
+# GitHub Config (Token check kar lena sahi hai ya nahi)
+GITHUB_TOKEN = "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"
+REPO_OWNER = "rajfeuewhs"
+REPO_NAME = "Neet-question"
+GITHUB_API_URL = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/"
+RAW_BASE_URL = f"https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/main/data/"
 
-    <div id="dpp-list">
-        <div class="dpp-block">
-            <label>DPP Name</label>
-            <input type="text" class="dpp-name" placeholder="e.g. DPP_01">
-            <textarea class="dpp-json" rows="8" placeholder="Yahan apna JSON Code paste karein..."></textarea>
-        </div>
-    </div>
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-    <div class="actions">
-        <button class="btn btn-add" onclick="addMoreDPP()">+ Add One More DPP</button>
-        <button class="btn btn-submit" id="main-btn" onclick="uploadAll()">🚀 UPLOAD ALL TO LIVE</button>
-    </div>
-</div>
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')
 
-<script>
-    let config = {};
-    window.onload = async () => { config = await (await fetch('/get_config')).json(); };
+@app.route('/get_config')
+def get_config():
+    r = requests.get(f"{RAW_BASE_URL}config.json")
+    return jsonify(r.json()) if r.status_code == 200 else jsonify({})
 
-    function updateChapters() {
-        const sub = document.getElementById('sub-select').value;
-        const chapDrop = document.getElementById('chap-select');
-        chapDrop.innerHTML = "";
-        if(sub && config[sub]) {
-            Object.keys(config[sub]).forEach(ch => {
-                let op = document.createElement('option'); op.value = ch; op.innerText = ch;
-                chapDrop.appendChild(op);
-            });
-        }
+@app.route('/get_test/<path:p>')
+def get_test(p):
+    r = requests.get(f"{RAW_BASE_URL}{p}.json")
+    return jsonify(r.json()) if r.status_code == 200 else jsonify([])
+
+def github_upload(path, content, message):
+    url = GITHUB_API_URL + path
+    headers = {"Authorization": f"token {GITHUB_TOKEN}", "Accept": "application/vnd.github.v3+json"}
+    r = requests.get(url, headers=headers)
+    sha = r.json().get('sha') if r.status_code == 200 else None
+    payload = {
+        "message": message,
+        "content": base64.b64encode(content.encode()).decode(),
+        "branch": "main"
     }
+    if sha: payload["sha"] = sha
+    return requests.put(url, headers=headers, json=payload)
 
-    function addMoreDPP() {
-        const html = `
-        <div class="dpp-block">
-            <label>DPP Name</label>
-            <input type="text" class="dpp-name" placeholder="e.g. DPP_02">
-            <textarea class="dpp-json" rows="8" placeholder="Agla JSON Code paste karein..."></textarea>
-        </div>`;
-        document.getElementById('dpp-list').insertAdjacentHTML('beforeend', html);
-    }
+@app.route('/save_test', methods=['POST'])
+def save_test():
+    data = request.json
+    sub = data['subject']
+    chap = data['chapter'].strip()
+    t_name = data['test_name'].strip()
+    questions = data['questions']
+    file_path = f"data/{sub}/{chap.replace(' ', '_')}/{t_name.replace(' ', '_')}.json"
+    github_upload(file_path, json.dumps(questions, indent=2), f"Add test: {t_name}")
+    
+    config_path = "data/config.json"
+    r_config = requests.get(RAW_BASE_URL + "config.json")
+    config_data = r_config.json() if r_config.status_code == 200 else {}
+    if sub not in config_data: config_data[sub] = {}
+    if chap not in config_data[sub]: config_data[sub][chap] = []
+    exists = any(t['name'] == t_name for t in config_data[sub][chap])
+    if not exists:
+        config_data[sub][chap].append({"name": t_name, "file": f"{sub}/{chap.replace(' ', '_')}/{t_name.replace(' ', '_')}"})
+        github_upload(config_path, json.dumps(config_data, indent=2), f"Update config for {t_name}")
+    return jsonify({"success": True, "message": "Test Live Ho Gaya!"})
 
-    async function uploadAll() {
-        const sub = document.getElementById('sub-select').value;
-        const chap = document.getElementById('chap-select').value;
-        const btn = document.getElementById('main-btn');
-        const blocks = document.querySelectorAll('.dpp-block');
-
-        if(!sub || !chap) return alert("Subject aur Chapter chunein!");
-
-        btn.disabled = true;
-        btn.innerText = "Uploading... Please Wait";
-
-        try {
-            for (let block of blocks) {
-                const name = block.querySelector('.dpp-name').value;
-                const jsonText = block.querySelector('.dpp-json').value;
-
-                if(!name || !jsonText) continue;
-
-                const res = await fetch('/save_test', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        subject: sub,
-                        chapter: chap,
-                        test_name: name,
-                        questions: JSON.parse(jsonText)
-                    })
-                });
-                console.log(`${name} upload status check complete.`);
-            }
-            alert("Saare DPPs Live ho gaye hain!");
-            location.reload();
-        } catch(e) {
-            alert("Error: JSON format check karein ya internet check karein.");
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "🚀 UPLOAD ALL TO LIVE";
-        }
-    }
-</script>
-</body>
-</html>
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
