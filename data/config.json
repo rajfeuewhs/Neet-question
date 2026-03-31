@@ -37,8 +37,14 @@
   },
   "botany": {
     "Cell: The Unit of Life": [
-      {"name": "DPP 01", "file": "botany/cell_unit/botany"},
-      {"name": "PYQs (NEET)", "file": "botany/cell_unit/pyq"}
+      {
+        "name": "DPP 01", 
+        "file": "cell-unit/dpp1"
+      },
+      {
+        "name": "PYQs (NEET)", 
+        "file": "cell-unit/pyq"
+      }
     ],
     "Biological Classification": [],
     "Plant Kingdom": [],
