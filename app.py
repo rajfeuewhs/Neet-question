@@ -7,8 +7,7 @@ import time
 
 app = Flask(__name__)
 
-# GitHub Configuration - Ab ye Environment se Secret uthayega
-# Yaad se Render ke Environment tab mein 'MY_GITHUB_TOKEN' add kar dena
+# GitHub Config - Ye Render Environment se uthayega
 GITHUB_TOKEN = os.environ.get("MY_GITHUB_TOKEN")
 REPO_OWNER = "rajfeuewhs"
 REPO_NAME = "Neet-question"
@@ -25,7 +24,7 @@ def admin():
 
 @app.route('/get_config')
 def get_config():
-    # Cache refresh ke liye timestamp
+    # Cache se bachne ke liye timestamp
     try:
         r = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
         return jsonify(r.json()) if r.status_code == 200 else jsonify({})
@@ -43,14 +42,10 @@ def get_test(p):
 def github_upload(path, content, message):
     if not GITHUB_TOKEN:
         return None
-        
     url = GITHUB_API_URL + path
-    headers = {
-        "Authorization": f"token {GITHUB_TOKEN}",
-        "Accept": "application/vnd.github.v3+json"
-    }
+    headers = {"Authorization": f"token {GITHUB_TOKEN}", "Accept": "application/vnd.github.v3+json"}
     
-    # Check if file exists to get SHA (For updates)
+    # SHA lena zaroori hai update ke liye
     r = requests.get(url, headers=headers)
     sha = r.json().get('sha') if r.status_code == 200 else None
     
@@ -60,14 +55,13 @@ def github_upload(path, content, message):
         "branch": "main"
     }
     if sha: payload["sha"] = sha
-    
     return requests.put(url, headers=headers, json=payload)
 
 @app.route('/save_test', methods=['POST'])
 def save_test():
     try:
         if not GITHUB_TOKEN:
-            return jsonify({"success": False, "message": "Token missing in Render Environment!"})
+            return jsonify({"success": False, "message": "Token missing in Render!"})
 
         data = request.json
         sub = data['subject']
@@ -75,35 +69,37 @@ def save_test():
         t_name = data['test_name'].strip()
         questions = data['questions']
         
-        # 1. DPP JSON file upload
-        safe_chap = chap.replace(' ', '_')
+        # Path cleaning logic taaki website dhoond sake
+        safe_chap = chap.replace(':', '').replace(' ', '_').replace('__', '_')
         safe_name = t_name.replace(' ', '_')
         file_path = f"data/{sub}/{safe_chap}/{safe_name}.json"
         
+        # 1. DPP File Upload
         res1 = github_upload(file_path, json.dumps(questions, indent=2), f"Add test: {t_name}")
         
         if not res1 or res1.status_code not in [200, 201]:
-            msg = res1.json().get('message') if res1 else "Upload Failed"
-            return jsonify({"success": False, "message": f"GitHub Error: {msg}"})
+            return jsonify({"success": False, "message": "GitHub File Upload Failed!"})
 
-        # 2. Config update logic
+        # 2. Config Update Logic (Forceful)
         r_config = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
         config_data = r_config.json() if r_config.status_code == 200 else {}
 
+        # Ensure keys exist
         if sub not in config_data: config_data[sub] = {}
         if chap not in config_data[sub]: config_data[sub][chap] = []
         
-        # Check for duplicates
+        # Check if already exists
         exists = any(t['name'] == t_name for t in config_data[sub][chap])
+        
         if not exists:
             config_data[sub][chap].append({
                 "name": t_name,
                 "file": f"{sub}/{safe_chap}/{safe_name}"
             })
-            # Final config upload
+            # Push updated config to GitHub
             github_upload("data/config.json", json.dumps(config_data, indent=2), f"Update config for {t_name}")
 
-        return jsonify({"success": True, "message": "Mubarak Ho! Test Live Ho Gaya."})
+        return jsonify({"success": True, "message": f"Success! {t_name} is now LIVE."})
     except Exception as e:
         return jsonify({"success": False, "message": str(e)})
 
