@@ -6,11 +6,12 @@ import os
 
 app = Flask(__name__)
 
-# GitHub Details
+# GitHub Config
 GITHUB_TOKEN = "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"
 REPO_OWNER = "rajfeuewhs"
 REPO_NAME = "Neet-question"
-GITHUB_BASE = f"https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/main/data/"
+GITHUB_API_URL = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/"
+RAW_BASE_URL = f"https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/main/data/"
 
 @app.route('/')
 def index():
@@ -22,53 +23,64 @@ def admin():
 
 @app.route('/get_config')
 def get_config():
-    try:
-        r = requests.get(f"{GITHUB_BASE}config.json", timeout=10)
-        return jsonify(r.json())
-    except:
-        return jsonify({"error": "Config not found"}), 404
+    r = requests.get(f"{RAW_BASE_URL}config.json")
+    return jsonify(r.json()) if r.status_code == 200 else jsonify({})
 
 @app.route('/get_test/<path:p>')
 def get_test(p):
-    try:
-        r = requests.get(f"{GITHUB_BASE}{p}.json", timeout=10)
-        return jsonify(r.json())
-    except:
-        return jsonify([])
+    r = requests.get(f"{RAW_BASE_URL}{p}.json")
+    return jsonify(r.json()) if r.status_code == 200 else jsonify([])
+
+def github_upload(path, content, message):
+    url = GITHUB_API_URL + path
+    headers = {"Authorization": f"token {GITHUB_TOKEN}", "Accept": "application/vnd.github.v3+json"}
+    
+    # Check if file exists to get SHA (for updates)
+    r = requests.get(url, headers=headers)
+    sha = r.json().get('sha') if r.status_code == 200 else None
+    
+    payload = {
+        "message": message,
+        "content": base64.b64encode(content.encode()).decode(),
+        "branch": "main"
+    }
+    if sha: payload["sha"] = sha
+    
+    return requests.put(url, headers=headers, json=payload)
 
 @app.route('/save_test', methods=['POST'])
 def save_test():
     data = request.json
-    subject = data['subject']
-    chapter = data['chapter'].replace(" ", "_")
-    test_name = data['test_name'].replace(" ", "_")
+    sub = data['subject']
+    chap = data['chapter'].strip()
+    t_name = data['test_name'].strip()
     questions = data['questions']
     
-    # Path: data/subject/chapter/test.json
-    path = f"data/{subject}/{chapter}/{test_name}.json"
-    url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{path}"
+    # 1. Save Test JSON
+    file_path = f"data/{sub}/{chap.replace(' ', '_')}/{t_name.replace(' ', '_')}.json"
+    res1 = github_upload(file_path, json.dumps(questions, indent=2), f"Add test: {t_name}")
     
-    headers = {
-        "Authorization": f"token {GITHUB_TOKEN}",
-        "Accept": "application/vnd.github.v3+json"
-    }
+    if res1.status_code not in [200, 201]:
+        return jsonify({"success": False, "message": "Test file upload failed"})
 
-    # JSON ko sundar format mein badalna
-    content_str = json.dumps(questions, indent=2)
-    encoded_content = base64.b64encode(content_str.encode()).decode()
+    # 2. Auto-Update config.json
+    config_path = "data/config.json"
+    r_config = requests.get(RAW_BASE_URL + "config.json")
+    config_data = r_config.json() if r_config.status_code == 200 else {}
 
-    payload = {
-        "message": f"Admin: Added {test_name} to {chapter}",
-        "content": encoded_content
-    }
-
-    # GitHub par file upload karna
-    r = requests.put(url, headers=headers, json=payload)
+    if sub not in config_data: config_data[sub] = {}
+    if chap not in config_data[sub]: config_data[sub][chap] = []
     
-    if r.status_code in [200, 201]:
-        return jsonify({"success": True, "message": "Test Live Ho Gaya Hai!"})
-    else:
-        return jsonify({"success": False, "message": r.json().get('message', 'Upload Failed')})
+    # Check if already exists to avoid duplicates
+    exists = any(t['name'] == t_name for t in config_data[sub][chap])
+    if not exists:
+        config_data[sub][chap].append({
+            "name": t_name,
+            "file": f"{sub}/{chap.replace(' ', '_')}/{t_name.replace(' ', '_')}"
+        })
+        github_upload(config_path, json.dumps(config_data, indent=2), f"Update config for {t_name}")
+
+    return jsonify({"success": True, "message": "Test Live Ho Gaya Aur Config Update Ho Gayi!"})
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
