@@ -82,6 +82,10 @@
       {
         "name": "DPP 01",
         "file": "chemistry/hydrocarbons/Hydrocarbons"
+      },
+      {
+        "name": "DPP_01",
+        "file": "chemistry/Hydrocarbons/DPP_01"
       }
     ],
     "p-Block Elements": [
