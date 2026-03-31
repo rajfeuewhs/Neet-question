@@ -7,8 +7,9 @@ import time
 
 app = Flask(__name__)
 
-# GitHub Configuration
-GITHUB_TOKEN = "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"
+# GitHub Configuration - Ab ye Environment se Secret uthayega
+# Yaad se Render ke Environment tab mein 'MY_GITHUB_TOKEN' add kar dena
+GITHUB_TOKEN = os.environ.get("MY_GITHUB_TOKEN")
 REPO_OWNER = "rajfeuewhs"
 REPO_NAME = "Neet-question"
 GITHUB_API_URL = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/"
@@ -25,22 +26,31 @@ def admin():
 @app.route('/get_config')
 def get_config():
     # Cache refresh ke liye timestamp
-    r = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
-    return jsonify(r.json()) if r.status_code == 200 else jsonify({})
+    try:
+        r = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
+        return jsonify(r.json()) if r.status_code == 200 else jsonify({})
+    except:
+        return jsonify({})
 
 @app.route('/get_test/<path:p>')
 def get_test(p):
-    r = requests.get(f"{RAW_BASE_URL}{p}.json?t={int(time.time())}")
-    return jsonify(r.json()) if r.status_code == 200 else jsonify([])
+    try:
+        r = requests.get(f"{RAW_BASE_URL}{p}.json?t={int(time.time())}")
+        return jsonify(r.json()) if r.status_code == 200 else jsonify([])
+    except:
+        return jsonify([])
 
 def github_upload(path, content, message):
+    if not GITHUB_TOKEN:
+        return None
+        
     url = GITHUB_API_URL + path
     headers = {
         "Authorization": f"token {GITHUB_TOKEN}",
         "Accept": "application/vnd.github.v3+json"
     }
     
-    # Check if file exists to get SHA (Very Important for updates)
+    # Check if file exists to get SHA (For updates)
     r = requests.get(url, headers=headers)
     sha = r.json().get('sha') if r.status_code == 200 else None
     
@@ -56,6 +66,9 @@ def github_upload(path, content, message):
 @app.route('/save_test', methods=['POST'])
 def save_test():
     try:
+        if not GITHUB_TOKEN:
+            return jsonify({"success": False, "message": "Token missing in Render Environment!"})
+
         data = request.json
         sub = data['subject']
         chap = data['chapter'].strip()
@@ -63,15 +76,15 @@ def save_test():
         questions = data['questions']
         
         # 1. DPP JSON file upload
-        # Folder structure match logic
         safe_chap = chap.replace(' ', '_')
         safe_name = t_name.replace(' ', '_')
         file_path = f"data/{sub}/{safe_chap}/{safe_name}.json"
         
         res1 = github_upload(file_path, json.dumps(questions, indent=2), f"Add test: {t_name}")
         
-        if res1.status_code not in [200, 201]:
-            return jsonify({"success": False, "message": f"GitHub File Error: {res1.json().get('message')}"})
+        if not res1 or res1.status_code not in [200, 201]:
+            msg = res1.json().get('message') if res1 else "Upload Failed"
+            return jsonify({"success": False, "message": f"GitHub Error: {msg}"})
 
         # 2. Config update logic
         r_config = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
