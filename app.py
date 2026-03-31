@@ -11,7 +11,7 @@ GITHUB_BASE = "https://raw.githubusercontent.com/rajfeuewhs/Neet-question/main/d
 def index():
     return render_template('index.html')
 
-# Config file fetch karne ke liye
+# Config file fetch karne ke liye (Dashboard ke liye)
 @app.route('/get_config')
 def get_config():
     try:
@@ -20,10 +20,11 @@ def get_config():
     except:
         return jsonify({"error": "Config not found"}), 404
 
-# Specific test fetch karne ke liye
+# Specific test file fetch karne ke liye
 @app.route('/get_test/<path:test_path>')
 def get_test(test_path):
     try:
+        # test_path = "botany/cell_unit/dpp1"
         response = requests.get(f"{GITHUB_BASE}{test_path}.json")
         return jsonify(response.json())
     except:
