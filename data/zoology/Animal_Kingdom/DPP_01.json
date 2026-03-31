@@ -1,0 +1,152 @@
+[
+  {
+    "q": "1. Cellular level of organisation is found in:",
+    "options": [
+      "Coelenterates",
+      "Porifera",
+      "Annelida",
+      "Chordata"
+    ],
+    "correct_ans": 1
+  },
+  {
+    "q": "2. Tissue level of organisation is seen in:",
+    "options": [
+      "Porifera",
+      "Cnidaria",
+      "Platyhelminthes",
+      "Arthropoda"
+    ],
+    "correct_ans": 1
+  },
+  {
+    "q": "3. Organ level of organisation starts from:",
+    "options": [
+      "Cnidaria",
+      "Porifera",
+      "Platyhelminthes",
+      "Mollusca"
+    ],
+    "correct_ans": 2
+  },
+  {
+    "q": "4. Incomplete digestive system is found in:",
+    "options": [
+      "Annelida",
+      "Platyhelminthes",
+      "Arthropoda",
+      "Chordata"
+    ],
+    "correct_ans": 1
+  },
+  {
+    "q": "5. Closed circulatory system is found in:",
+    "options": [
+      "Arthropoda",
+      "Mollusca",
+      "Annelida",
+      "Aschelminthes"
+    ],
+    "correct_ans": 2
+  },
+  {
+    "q": "6. Radial symmetry is seen in:",
+    "options": [
+      "Annelida",
+      "Arthropoda",
+      "Cnidaria",
+      "Mollusca"
+    ],
+    "correct_ans": 2
+  },
+  {
+    "q": "7. Bilateral symmetry is seen in:",
+    "options": [
+      "Porifera",
+      "Cnidaria",
+      "Annelida",
+      "Ctenophora"
+    ],
+    "correct_ans": 2
+  },
+  {
+    "q": "8. Diploblastic animals have:",
+    "options": [
+      "Two germ layers",
+      "Three germ layers",
+      "No germ layer",
+      "Four germ layers"
+    ],
+    "correct_ans": 0
+  },
+  {
+    "q": "9. Triploblastic animals include:",
+    "options": [
+      "Cnidaria",
+      "Porifera",
+      "Platyhelminthes",
+      "Sponges"
+    ],
+    "correct_ans": 2
+  },
+  {
+    "q": "10. True coelom is lined by:",
+    "options": [
+      "Endoderm",
+      "Ectoderm",
+      "Mesoderm",
+      "Mesoglea"
+    ],
+    "correct_ans": 2
+  },
+  {
+    "q": "11. Pseudocoelom is found in:",
+    "options": [
+      "Annelida",
+      "Aschelminthes",
+      "Mollusca",
+      "Echinodermata"
+    ],
+    "correct_ans": 1
+  },
+  {
+    "q": "12. Acoelomate animals include:",
+    "options": [
+      "Annelida",
+      "Platyhelminthes",
+      "Arthropoda",
+      "Chordata"
+    ],
+    "correct_ans": 1
+  },
+  {
+    "q": "13. Metamerism is seen in:",
+    "options": [
+      "Mollusca",
+      "Annelida",
+      "Porifera",
+      "Cnidaria"
+    ],
+    "correct_ans": 1
+  },
+  {
+    "q": "14. Notochord is present in:",
+    "options": [
+      "Non-chordates",
+      "Chordates",
+      "Porifera",
+      "Cnidaria"
+    ],
+    "correct_ans": 1
+  },
+  {
+    "q": "15. Open circulatory system is found in:",
+    "options": [
+      "Annelida",
+      "Chordata",
+      "Arthropoda",
+      "Echinodermata"
+    ],
+    "correct_ans": 2
+  }
+]
