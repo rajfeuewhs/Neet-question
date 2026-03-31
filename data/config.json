@@ -1,10 +1,15 @@
 {
+  "physics": {},
+  "chemistry": {},
   "botany": {
     "cell_unit": [
       {
         "name": "Cell Unit - DPP 01", 
-        "file": "dpp1"
+        "file": "botany/cell_unit/dpp1"
       }
     ]
-  }
+  },
+  "zoology": {},
+  "mock_180": {},
+  "mock_720": {}
 }
