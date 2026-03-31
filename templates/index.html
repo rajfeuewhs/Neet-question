@@ -13,18 +13,15 @@
         .active-page { display: block !important; }
         .container { max-width: 800px; margin: auto; padding: 20px; box-sizing: border-box; }
         
-        /* Navigation & Cards */
         .nav-header { display: flex; align-items: center; padding: 10px 0; gap: 15px; }
         .back-link { color: var(--pw-blue); cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 5px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; text-align: center; }
         .card { background: white; padding: 25px; border-radius: 15px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; }
         .item-row { display: flex; justify-content: space-between; padding: 15px; background: white; margin: 8px 0; border-radius: 10px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-weight: bold; }
 
-        /* Instruction Box */
         .info-box { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-top: 20px; }
         .rule-item { display: flex; align-items: center; gap: 10px; margin: 15px 0; font-size: 1.1rem; }
 
-        /* Timer Blinking Animation */
         @keyframes pulse-red {
             0% { transform: scale(1); opacity: 1; }
             50% { transform: scale(1.1); opacity: 0.7; }
@@ -32,7 +29,6 @@
         }
         .timer-late { color: var(--danger) !important; animation: pulse-red 1s infinite; font-size: 1.4rem !important; }
 
-        /* Late Pop-up */
         #late-popup {
             position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%);
             background: var(--danger); color: white; padding: 20px 40px; border-radius: 50px;
@@ -40,7 +36,6 @@
             display: none;
         }
 
-        /* Test UI Layout */
         .test-header { padding: 15px 20px; border-bottom: 2px solid #ddd; display: flex; justify-content: space-between; align-items: center; background: white; position: sticky; top: 0; z-index: 100; }
         .layout { display: flex; flex-direction: row; }
         .q-area { flex: 3; padding: 25px; padding-bottom: 120px; }
@@ -98,7 +93,6 @@
             <div class="rule-item"><i class="fas fa-clock" style="color:orange"></i> <span id="ins-time">0</span> Minutes Total</div>
             <div class="rule-item"><i class="fas fa-check-circle" style="color:green"></i> +4 Marks for Correct Answer</div>
             <div class="rule-item"><i class="fas fa-times-circle" style="color:red"></i> -1 Mark for Wrong Answer</div>
-            
             <div style="display: flex; gap: 15px; margin-top: 30px;">
                 <button class="btn" onclick="goBack()" style="background:#eee; flex:1;">BACK</button>
                 <button class="btn" onclick="actuallyStartTest()" style="background:var(--pw-blue); color:white; flex:2;">START TEST</button>
@@ -131,7 +125,7 @@
 
 <div id="page-res" class="page-section">
     <div class="container">
-        <div class="nav-header"><div class="back-link" onclick="openSubject(curSub)"><i class="fas fa-arrow-left"></i> Subject Page</div></div>
+        <div class="nav-header"><div class="back-link" onclick="backToSubject()"><i class="fas fa-arrow-left"></i> Subject Page</div></div>
         <div style="text-align: center;">
             <h2>Analysis Report</h2>
             <div style="max-width: 250px; margin: auto;"><canvas id="resultChart"></canvas></div>
@@ -145,8 +139,8 @@
 
 <script>
     let config = {}, questions = [], cur = 0, answers = [], status = [], curSub = "", timeLeft = 0, tInt;
-    let pageStack = ['page-home'];
-    let lateAlertShown = false; //
+    let pageStack = ['page-home']; //
+    let lateAlertShown = false;
 
     window.onload = async () => {
         const res = await fetch('/get_config');
@@ -172,6 +166,11 @@
         showPage('page-chapters');
     }
 
+    function backToSubject() { //
+        pageStack = ['page-home']; 
+        openSubject(curSub); 
+    }
+
     function openDPPs(ch) {
         document.getElementById('chapter-title-display').innerText = ch;
         const tests = config[curSub][ch];
@@ -195,7 +194,7 @@
         answers = new Array(questions.length).fill(null);
         status = new Array(questions.length).fill('unseen');
         document.getElementById('t-name').innerText = pendingName;
-        timeLeft = questions.length * 60; // 1 Min per Q
+        timeLeft = questions.length * 60; //
         lateAlertShown = false;
         document.getElementById('timer').classList.remove('timer-late');
         if(tInt) clearInterval(tInt);
@@ -208,13 +207,10 @@
         timeLeft--;
         let absTime = Math.abs(timeLeft);
         let m = Math.floor(absTime / 60), s = absTime % 60;
-        let sign = timeLeft < 0 ? "-" : ""; // Overtime indicator
-        
+        let sign = timeLeft < 0 ? "-" : ""; 
         const timerEl = document.getElementById('timer');
         timerEl.innerText = `${sign}${m}:${s < 10 ? '0' : ''}${s}`;
-
-        // Late Logic
-        if (timeLeft < 0) {
+        if (timeLeft < 0) { //
             timerEl.classList.add('timer-late');
             if (!lateAlertShown) {
                 const pop = document.getElementById('late-popup');
