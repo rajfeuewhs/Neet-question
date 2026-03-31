@@ -7,7 +7,7 @@ import os
 app = Flask(__name__)
 
 # GitHub Config
-GITHUB_TOKEN = "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"
+GITHUB_TOKEN = "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"
 REPO_OWNER = "rajfeuewhs"
 REPO_NAME = "Neet-question"
 GITHUB_API_URL = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/"
