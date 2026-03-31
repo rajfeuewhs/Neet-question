@@ -26,12 +26,9 @@
         .dot.saved { background: var(--green); color: white; border: none; }
         .footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #ddd; display: flex; justify-content: space-around; box-sizing: border-box; }
         .btn { padding: 14px 30px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        
-        /* Result Styles */
-        .review-card { padding: 15px; margin: 15px 0; border-radius: 12px; border-left: 6px solid #ccc; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .res-correct { border-color: var(--green); background: #f0fff4; }
-        .res-wrong { border-color: var(--danger); background: #fff5f5; }
-        .res-skipped { border-color: var(--warning); background: #fffdf0; }
+        .review-card { padding: 15px; margin: 15px 0; border-radius: 12px; border-left: 6px solid #ccc; background: white; }
+        .res-correct { border-color: var(--green); } .res-wrong { border-color: var(--danger); } .res-skipped { border-color: var(--warning); }
+        .q-img { max-width: 100%; height: auto; margin: 15px 0; border-radius: 8px; border: 1px solid #ddd; }
     </style>
 </head>
 <body>
@@ -72,26 +69,26 @@
     <div class="layout">
         <div class="q-area">
             <h4 id="q-idx" style="color: #666;">Question 1</h4>
-            <div id="q-txt" style="font-size:1.2rem; margin-bottom: 20px;"></div>
+            <div id="q-container">
+                <div id="q-txt" style="font-size:1.2rem; margin-bottom: 10px;"></div>
+                <div id="q-img-box"></div> </div>
             <div id="opts"></div>
         </div>
-        <div class="sidebar"><h4>Question Palette</h4><div id="palette" style="display:flex; flex-wrap:wrap;"></div></div>
+        <div class="sidebar"><h4>Palette</h4><div id="palette" style="display:flex; flex-wrap:wrap;"></div></div>
     </div>
     <div class="footer">
-        <button class="btn" onclick="submitTest()" style="background:orange; color:white;">SUBMIT TEST</button>
+        <button class="btn" onclick="submitTest()" style="background:orange; color:white;">SUBMIT</button>
         <button class="btn" onclick="nextQ()" style="background:var(--pw-blue); color:white; flex:0.7;">SAVE & NEXT</button>
     </div>
 </div>
 
 <div id="page-res" class="page-section">
     <div class="container" style="text-align: center;">
-        <h2 style="color: var(--pw-blue);">Test Analysis Report</h2>
+        <h2>Report Card</h2>
         <div style="max-width: 300px; margin: auto;"><canvas id="resultChart"></canvas></div>
         <div id="score-summary" style="margin: 20px 0; font-size: 1.5rem; font-weight: bold;"></div>
-        <hr>
-        <h3 style="text-align: left;">Detailed Review</h3>
         <div id="review-content" style="text-align: left;"></div>
-        <button onclick="location.reload()" class="btn" style="background:var(--pw-blue); color:white; width: 100%; margin-top: 20px;">BACK TO HOME</button>
+        <button onclick="location.reload()" class="btn" style="background:var(--pw-blue); color:white; width: 100%;">HOME</button>
     </div>
 </div>
 
@@ -141,27 +138,31 @@
         answers = new Array(questions.length).fill(null);
         status = new Array(questions.length).fill('unseen');
         document.getElementById('t-name').innerText = name;
-        
-        // Timer Logic: 3 Minutes per question
-        timeLeft = questions.length * 3 * 60; 
+        timeLeft = questions.length * 3 * 60; // 3 min per Q
         if(tInt) clearInterval(tInt);
-        tInt = setInterval(updateTimer, 1000);
-        
+        tInt = setInterval(() => {
+            if (timeLeft <= 0) { submitTest(); return; }
+            timeLeft--;
+            let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+            document.getElementById('timer').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+        }, 1000);
         showPage('page-test');
         render(0);
     }
 
-    function updateTimer() {
-        if (timeLeft <= 0) { submitTest(); return; }
-        timeLeft--;
-        let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
-        document.getElementById('timer').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-    }
-
     function render(i) {
         cur = i; const q = questions[i];
-        document.getElementById('q-idx').innerText = `Question ${i+1} of ${questions.length}`;
+        document.getElementById('q-idx').innerText = `Question ${i+1}`;
         document.getElementById('q-txt').innerText = q.q;
+        
+        // Image logic: Check if "img" exists in JSON
+        const imgBox = document.getElementById('q-img-box');
+        if(q.img) {
+            imgBox.innerHTML = `<img src="${q.img}" class="q-img">`;
+        } else {
+            imgBox.innerHTML = '';
+        }
+
         let h = '';
         q.options.forEach((o, idx) => {
             let act = (answers[i] === idx) ? 'active' : '';
@@ -182,59 +183,21 @@
     function nextQ() { if(cur < questions.length - 1) render(cur + 1); }
 
     function submitTest() {
-        if(!confirm("Are you sure you want to submit the test?")) return;
+        if(!confirm("Submit?")) return;
         clearInterval(tInt);
-        
         let correct = 0, wrong = 0, skipped = 0, reviewHtml = '';
-        
         questions.forEach((q, i) => {
-            let userPick = answers[i];
-            let actual = q.correct_ans;
-            let statusClass = '';
+            let userPick = answers[i], actual = q.correct_ans, cls = 'res-skipped';
+            if (userPick === null) skipped++;
+            else if (userPick === actual) { correct++; cls = 'res-correct'; }
+            else { wrong++; cls = 'res-wrong'; }
 
-            if (userPick === null) {
-                skipped++;
-                statusClass = 'res-skipped';
-            } else if (userPick === actual) {
-                correct++;
-                statusClass = 'res-correct';
-            } else {
-                wrong++;
-                statusClass = 'res-wrong';
-            }
-
-            reviewHtml += `
-                <div class="review-card ${statusClass}">
-                    <p><strong>Q${i+1}:</strong> ${q.q}</p>
-                    <p style="color: var(--green);"><strong>Sahi Answer:</strong> ${q.options[actual]}</p>
-                    <p style="color: ${userPick === actual ? 'var(--green)' : 'var(--danger)'};">
-                        <strong>Aapka Answer:</strong> ${userPick !== null ? q.options[userPick] : 'Skipped'}
-                    </p>
-                </div>`;
+            reviewHtml += `<div class="review-card ${cls}"><p><b>Q${i+1}:</b> ${q.q}</p><p style="color:green">Correct: ${q.options[actual]}</p></div>`;
         });
-
-        // NEET Scoring: +4 for Correct, -1 for Wrong
-        let totalScore = (correct * 4) - (wrong * 1);
-        document.getElementById('score-summary').innerHTML = `
-            <div style="color: var(--pw-blue);">Total Score: ${totalScore} / ${questions.length * 4}</div>
-            <div style="font-size: 1rem; color: #666; margin-top: 5px;">
-                Correct: ${correct} | Wrong: ${wrong} | Skipped: ${skipped}
-            </div>`;
-        
+        document.getElementById('score-summary').innerHTML = `Score: ${(correct*4)-wrong} / ${questions.length*4}`;
         document.getElementById('review-content').innerHTML = reviewHtml;
         showPage('page-res');
-
-        // Graph Logic
-        new Chart(document.getElementById('resultChart'), {
-            type: 'pie',
-            data: {
-                labels: ['Correct', 'Wrong', 'Skipped'],
-                datasets: [{
-                    data: [correct, wrong, skipped],
-                    backgroundColor: ['#28a745', '#dc3545', '#ffc107']
-                }]
-            }
-        });
+        new Chart(document.getElementById('resultChart'), { type: 'pie', data: { labels: ['R', 'W', 'S'], datasets: [{ data: [correct, wrong, skipped], backgroundColor: ['#28a745', '#dc3545', '#ffc107'] }] } });
     }
 </script>
 </body>
