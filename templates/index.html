@@ -10,39 +10,36 @@
         :root { --pw-blue: #1b10b1; --pw-light: #f0f2ff; --green: #28a745; --danger: #dc3545; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7fe; }
         
-        /* Sections */
+        /* Pages hiding logic */
         .page-section { display: none; min-height: 100vh; width: 100%; }
         .active-page { display: block !important; }
 
-        /* Dashboard Grid */
+        /* Home Grid */
         .dashboard { max-width: 900px; margin: 20px auto; padding: 15px; text-align: center; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
         .card { background: white; padding: 25px; border-radius: 15px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; transition: 0.3s; }
-        .card:hover { transform: scale(1.03); border-color: var(--pw-blue); }
         .card i { font-size: 2.5rem; color: var(--pw-blue); margin-bottom: 12px; }
 
-        /* Chapter Page */
+        /* Chapter List Page */
         .chapter-container { max-width: 800px; margin: auto; padding: 20px; }
-        .ch-header { background: #e9ecef; padding: 12px; font-weight: bold; border-radius: 8px; margin-top: 15px; color: #495057; border-left: 5px solid var(--pw-blue); }
-        .test-item { display: flex; justify-content: space-between; padding: 15px; background: white; margin: 5px 0; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
-        .test-item:hover { background: var(--pw-light); }
+        .ch-header { background: #e9ecef; padding: 12px; font-weight: bold; border-radius: 8px; margin-top: 15px; border-left: 5px solid var(--pw-blue); }
+        .test-item { display: flex; justify-content: space-between; padding: 15px; background: white; margin: 5px 0; border-radius: 8px; cursor: pointer; }
 
         /* Test UI */
-        .header { padding: 15px 20px; border-bottom: 2px solid #ddd; display: flex; justify-content: space-between; align-items: center; background: white; position: sticky; top: 0; z-index: 100; }
-        #timer { font-size: 1.2rem; font-weight: bold; color: var(--pw-blue); }
+        .header { padding: 15px 20px; border-bottom: 2px solid #ddd; display: flex; justify-content: space-between; align-items: center; background: white; sticky; top: 0; z-index: 100; }
         .layout { display: flex; flex-direction: row; flex: 1; }
         .q-area { flex: 3; padding: 25px; padding-bottom: 120px; }
         .sidebar { flex: 1; padding: 20px; border-left: 1px solid #ddd; background: #fafafa; }
         @media (max-width: 768px) { .layout { flex-direction: column; } .sidebar { border-left: none; } }
         
-        .opt { padding: 18px; border: 1px solid #ddd; margin: 12px 0; border-radius: 12px; cursor: pointer; background: #fff; font-size: 1.05rem; }
+        .opt { padding: 18px; border: 1px solid #ddd; margin: 12px 0; border-radius: 12px; cursor: pointer; background: #fff; }
         .opt.active { border: 2.5px solid var(--pw-blue); background: var(--pw-light); font-weight: bold; }
         .palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; }
-        .dot { width: 45px; height: 45px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; background: white; }
+        .dot { width: 45px; height: 45px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; }
         .dot.saved { background: var(--green); color: white; border: none; }
         
         .footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #ddd; display: flex; justify-content: space-around; box-sizing: border-box; }
-        .btn { padding: 14px 30px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+        .btn { padding: 14px 30px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -51,34 +48,32 @@
     <div class="dashboard">
         <h2 style="color: var(--pw-blue); margin-bottom: 30px;">NEET PREP MASTER</h2>
         <div class="grid">
-            <div class="card" onclick="navigateTo('botany')"><i class="fas fa-leaf"></i><h3>Botany</h3></div>
-            <div class="card" onclick="navigateTo('zoology')"><i class="fas fa-dog"></i><h3>Zoology</h3></div>
-            <div class="card" onclick="navigateTo('physics')"><i class="fas fa-atom"></i><h3>Physics</h3></div>
-            <div class="card" onclick="navigateTo('chemistry')"><i class="fas fa-flask"></i><h3>Chemistry</h3></div>
-            <div class="card" onclick="navigateTo('mock_180')"><i class="fas fa-file-alt"></i><h3>180 Qs</h3></div>
-            <div class="card" onclick="navigateTo('mock_720')"><i class="fas fa-trophy"></i><h3>720 Qs</h3></div>
+            <div class="card" onclick="goToSubject('botany')"><i class="fas fa-leaf"></i><h3>Botany</h3></div>
+            <div class="card" onclick="goToSubject('zoology')"><i class="fas fa-dog"></i><h3>Zoology</h3></div>
+            <div class="card" onclick="goToSubject('physics')"><i class="fas fa-atom"></i><h3>Physics</h3></div>
+            <div class="card" onclick="goToSubject('chemistry')"><i class="fas fa-flask"></i><h3>Chemistry</h3></div>
         </div>
     </div>
 </div>
 
 <div id="page-chapters" class="page-section">
     <div class="chapter-container">
-        <button onclick="showPage('page-home')" style="border:none; background:none; color:var(--pw-blue); font-weight:bold; cursor:pointer; margin-bottom:20px;"><i class="fas fa-arrow-left"></i> Home</button>
-        <h2 id="current-sub-name" style="text-transform: uppercase; color: var(--pw-blue);">Botany</h2>
-        <div id="chapter-content"></div>
+        <button onclick="showPage('page-home')" style="border:none; background:none; color:var(--pw-blue); cursor:pointer; font-weight:bold; margin-bottom:15px;">← Back to Home</button>
+        <h2 id="sub-title" style="text-transform: uppercase; color: var(--pw-blue);">Botany</h2>
+        <div id="chapter-list-content"></div>
     </div>
 </div>
 
 <div id="page-test" class="page-section">
     <div class="header">
-        <h3 id="test-title" style="margin:0; color:#333;">Test</h3>
+        <h3 id="test-name-head" style="margin:0;">Test</h3>
         <div id="timer">00:00</div>
     </div>
     <div class="layout">
         <div class="q-area">
-            <h4 id="q-label" style="color:#666;">Question 1</h4>
-            <div id="q-text" style="font-size:1.25rem; margin-bottom:25px; line-height:1.6;"></div>
-            <div id="options-box"></div>
+            <h4 id="q-count" style="color:#666;">Question 1</h4>
+            <div id="q-body" style="font-size:1.25rem; margin-bottom:25px;"></div>
+            <div id="options-container"></div>
         </div>
         <div class="sidebar"><h4>Progress</h4><div class="palette" id="palette"></div></div>
     </div>
@@ -88,153 +83,102 @@
     </div>
 </div>
 
-<div id="page-result" class="page-section" style="padding:40px; text-align:center; background:white;">
-    <h2 style="color:var(--pw-blue);">Test Analysis</h2>
-    <div style="max-width:320px; margin:auto;"><canvas id="resultChart"></canvas></div>
-    <div id="score-display" style="font-size:1.8rem; margin:25px; font-weight:bold;"></div>
-    <div id="review-list" style="text-align:left; max-width:800px; margin:25px auto; border-top:1px solid #eee; padding-top:20px;"></div>
-    <button onclick="location.reload()" class="btn" style="width:100%; background:var(--pw-blue); color:white;">Back to Home</button>
+<div id="page-result" class="page-section" style="padding:40px; text-align:center;">
+    <h2>Analysis</h2>
+    <div style="max-width:300px; margin:auto;"><canvas id="chart"></canvas></div>
+    <div id="score-val" style="font-size:1.8rem; margin:20px; font-weight:bold;"></div>
+    <button onclick="location.reload()" class="btn" style="width:100%; background:var(--pw-blue); color:white;">Home</button>
 </div>
 
 <script>
-    let configData = {};
-    let questions = [], currentIdx = 0, userAnswers = [], qStatus = [], timeLeft = 0, tInterval;
+    let config = {};
+    let questions = [], current = 0, userAns = [], status = [], timeLeft = 0, tInt;
 
-    // Load Config from Flask
     window.onload = async () => {
         const res = await fetch('/get_config');
-        configData = await res.json();
+        config = await res.json();
     };
 
-    function showPage(pageId) {
+    function showPage(id) {
         document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active-page'));
-        document.getElementById(pageId).classList.add('active-page');
-        window.scrollTo(0,0);
+        document.getElementById(id).classList.add('active-page');
     }
 
-    function navigateTo(subject) {
-        document.getElementById('current-sub-name').innerText = subject;
-        const chapters = configData[subject];
+    function goToSubject(sub) {
+        document.getElementById('sub-title').innerText = sub;
+        const chapters = config[sub];
         let html = '';
-
-        if (!chapters || Object.keys(chapters).length === 0) {
-            html = "<div style='text-align:center; padding:50px; color:gray;'><h3>No tests available yet.</h3><p>We are adding content soon!</p></div>";
-        } else {
-            for (const [chName, tests] of Object.entries(chapters)) {
-                html += `<div class="ch-header">${chName}</div>`;
-                if (tests.length === 0) {
-                    html += `<div style="padding:15px; color:#999; font-style:italic;">No any tests available</div>`;
-                } else {
-                    tests.forEach(t => {
-                        html += `<div class="test-item" onclick="startTest('${t.file}', '${t.name}')">
-                                    <span><b>${t.name}</b></span><i class="fas fa-play-circle" style="color:var(--green)"></i>
-                                 </div>`;
-                    });
-                }
+        for (const [ch, tests] of Object.entries(chapters)) {
+            html += `<div class="ch-header">${ch}</div>`;
+            if (tests.length === 0) {
+                html += `<div style="padding:10px; color:gray;">No any tests available</div>`;
+            } else {
+                tests.forEach(t => {
+                    html += `<div class="test-item" onclick="loadTest('${t.file}', '${t.name}')">
+                                <span>${t.name}</span><i class="fas fa-play-circle"></i>
+                             </div>`;
+                });
             }
         }
-        document.getElementById('chapter-content').innerHTML = html;
+        document.getElementById('chapter-list-content').innerHTML = html;
         showPage('page-chapters');
     }
 
-    async function startTest(filePath, testName) {
-        try {
-            const res = await fetch(`/get_test/${filePath}`);
-            questions = await res.json();
-            
-            if (!questions || questions.length === 0) {
-                alert("This test file is empty or missing on GitHub!");
-                return;
-            }
-
-            userAnswers = new Array(questions.length).fill(null);
-            qStatus = new Array(questions.length).fill('unseen');
-            document.getElementById('test-title').innerText = testName;
-            
-            showPage('page-test');
-            
-            timeLeft = questions.length * 60;
-            if(tInterval) clearInterval(tInterval);
-            tInterval = setInterval(updateTimer, 1000);
-            
-            renderQuestion(0);
-        } catch(e) {
-            alert("Error loading questions. Check file path in config.json");
-        }
+    async function loadTest(path, name) {
+        const res = await fetch(`/get_test/${path}`);
+        questions = await res.json();
+        userAns = new Array(questions.length).fill(null);
+        status = new Array(questions.length).fill('unseen');
+        document.getElementById('test-name-head').innerText = name;
+        showPage('page-test');
+        timeLeft = questions.length * 60;
+        tInt = setInterval(() => {
+            timeLeft--;
+            let m = Math.floor(Math.abs(timeLeft)/60), s = Math.abs(timeLeft)%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+        }, 1000);
+        render(0);
     }
 
-    function updateTimer() {
-        timeLeft--;
-        let m = Math.floor(Math.abs(timeLeft)/60), s = Math.abs(timeLeft)%60;
-        document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
-    }
-
-    function renderQuestion(idx) {
-        currentIdx = idx;
+    function render(idx) {
+        current = idx;
         const q = questions[idx];
-        document.getElementById('q-label').innerText = `Question ${idx+1} of ${questions.length}`;
-        document.getElementById('q-text').innerText = q.q;
-        
+        document.getElementById('q-count').innerText = `Question ${idx+1}`;
+        document.getElementById('q-body').innerText = q.q;
         let h = '';
-        q.options.forEach((opt, i) => {
-            let active = (userAnswers[idx] === i) ? 'active' : '';
-            h += `<div class="opt ${active}" onclick="selectOption(${i})">${opt}</div>`;
+        q.options.forEach((o, i) => {
+            let act = (userAns[idx] === i) ? 'active' : '';
+            h += `<div class="opt ${act}" onclick="pick(${i})">${o}</div>`;
         });
-        document.getElementById('options-box').innerHTML = h;
-        renderPalette();
+        document.getElementById('options-container').innerHTML = h;
+        drawPalette();
     }
 
-    function selectOption(i) {
-        userAnswers[currentIdx] = i;
-        qStatus[currentIdx] = 'saved';
-        renderQuestion(currentIdx);
-    }
+    function pick(i) { userAns[current] = i; status[current] = 'saved'; render(current); }
+    function nextQ() { if(current < questions.length - 1) render(current + 1); }
 
-    function nextQ() {
-        if (currentIdx < questions.length - 1) renderQuestion(currentIdx + 1);
-    }
-
-    function renderPalette() {
+    function drawPalette() {
         let h = '';
         questions.forEach((_, i) => {
-            let cls = (qStatus[i] === 'saved') ? 'saved' : '';
-            let style = (currentIdx === i) ? 'border:3px solid var(--pw-blue);' : '';
-            h += `<div class="dot ${cls}" style="${style}" onclick="renderQuestion(${i})">${i+1}</div>`;
+            let cls = (status[i] === 'saved') ? 'saved' : '';
+            let b = (current === i) ? 'border:3px solid var(--pw-blue);' : '';
+            h += `<div class="dot ${cls}" style="${b}" onclick="render(${i})">${i+1}</div>`;
         });
         document.getElementById('palette').innerHTML = h;
     }
 
     function submitTest() {
-        if (!confirm("Confirm submission?")) return;
-        clearInterval(tInterval);
-        
-        let c = 0, w = 0, s = 0, reviewHtml = '';
+        if(!confirm("Submit?")) return;
+        clearInterval(tInt);
+        let c = 0, w = 0, s = 0;
         questions.forEach((q, i) => {
-            let u = userAnswers[i];
-            let correct = q.correct_ans;
-            
-            if (u === correct) c++;
-            else if (u === null) s++;
+            if(userAns[i] === q.correct_ans) c++;
+            else if(userAns[i] === null) s++;
             else w++;
-
-            reviewHtml += `<div style="padding:15px; margin-bottom:10px; border-radius:8px; border-left:5px solid ${u===correct?'green':'red'}; background:#f8f9fa;">
-                <p><b>Q${i+1}:</b> ${q.q}</p>
-                <p style="color:green;"><b>Correct:</b> ${q.options[correct]}</p>
-                <p style="color:${u===correct?'green':'red'};"><b>Yours:</b> ${u!==null?q.options[u]:'Skipped'}</p>
-            </div>`;
         });
-
-        document.getElementById('score-display').innerText = `Your Score: ${(c*4)-w} / ${questions.length*4}`;
-        document.getElementById('review-list').innerHTML = reviewHtml;
+        document.getElementById('score-val').innerText = `Score: ${(c*4)-w}`;
         showPage('page-result');
-
-        new Chart(document.getElementById('resultChart'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Right', 'Wrong', 'Skip'],
-                datasets: [{ data: [c, w, s], backgroundColor: ['#28a745', '#dc3545', '#ffc107'] }]
-            }
-        });
+        new Chart(document.getElementById('chart'), { type: 'pie', data: { labels: ['Right', 'Wrong', 'Skip'], datasets: [{ data: [c, w, s], backgroundColor: ['#28a745', '#dc3545', '#ffc107'] }] } });
     }
 </script>
 </body>
