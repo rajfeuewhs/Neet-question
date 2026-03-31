@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - NEET Prep</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7fe; padding: 20px; }
+        .box { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        h2 { color: #1b10b1; text-align: center; }
+        label { font-weight: bold; display: block; margin-top: 15px; }
+        select, input, textarea { width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        .btn { background: #1b10b1; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 1rem; }
+        .btn:hover { background: #150b8a; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>🚀 Add New Test (DPP)</h2>
+        
+        <label>Subject:</label>
+        <select id="subject">
+            <option value="physics">Physics</option>
+            <option value="chemistry">Chemistry</option>
+            <option value="botany">Botany</option>
+            <option value="zoology">Zoology</option>
+        </select>
+
+        <label>Chapter Name (e.g. hydrocarbons):</label>
+        <input type="text" id="chapter" placeholder="Chapter ka naam likhein">
+
+        <label>DPP Name (e.g. DPP_01):</label>
+        <input type="text" id="test_name" placeholder="DPP 01, DPP 02 etc.">
+
+        <label>Paste JSON Code:</label>
+        <textarea id="json_data" rows="10" placeholder='[{"q": "...", "options": [...], "correct_ans": 0}]'></textarea>
+
+        <button class="btn" onclick="uploadData()">UPLOAD TO GITHUB</button>
+    </div>
+
+    <script>
+        async function uploadData() {
+            const btn = document.querySelector('.btn');
+            const data = {
+                subject: document.getElementById('subject').value,
+                chapter: document.getElementById('chapter').value,
+                test_name: document.getElementById('test_name').value,
+                questions: JSON.parse(document.getElementById('json_data').value)
+            };
+
+            if(!data.chapter || !data.test_name || !data.questions) return alert("Sab bhariye!");
+            
+            btn.innerText = "Uploading...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/save_test', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                alert(result.message);
+            } catch(e) {
+                alert("Error: JSON format check karein!");
+            } finally {
+                btn.innerText = "UPLOAD TO GITHUB";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
