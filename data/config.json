@@ -57,6 +57,11 @@
       {
         "name": "DPP_02",
         "file": "chemistry/Chemical_Bonding/DPP_02"
+      },
+      {
+        "name": "Dpp 8",
+        "file": "chemistry/Chemical_Bonding/Dpp_8",
+        "unlock_at": ""
       }
     ],
     "Thermodynamics": [
