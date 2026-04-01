@@ -111,23 +111,9 @@
     "Breathing and Exchange of Gases": [],
     "Body Fluids and Circulation": [],
     "Excretory Products and Their Elimination": [],
-    "Locomotion and Movement": [
-      {
-        "name": "aaits 1",
-        "file": "zoology/Locomotion_and_Movement/aaits_1",
-        "unlock_at": ""
-      }
-    ],
+    "Locomotion and Movement": [],
     "Neural Control and Coordination": [],
     "Chemical Coordination and Integration": []
   },
-  "kinf": {
-    "AAITS": [
-      {
-        "name": "aaits 1",
-        "file": "kinf/AAITS/aaits_1",
-        "unlock_at": ""
-      }
-    ]
-  }
+  "kinf": {}
 }
