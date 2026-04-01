@@ -7,7 +7,7 @@ import time
 
 app = Flask(__name__)
 
-# Render Secrets
+# Render Environment Variables
 GITHUB_TOKEN = os.environ.get("MY_GITHUB_TOKEN")
 REPO_OWNER = "rajfeuewhs"
 REPO_NAME = "Neet-question"
@@ -52,27 +52,26 @@ def github_upload(path, content, message):
 def save_test():
     try:
         data = request.json
-        sub = data['subject'].lower()
+        sub = data['subject'].lower().strip()
         chap = data['chapter'].strip()
         t_name = data['test_name'].strip()
         questions = data['questions']
-        unlock_at = data.get('unlock_at', "") # Naya scheduling field
+        unlock_at = data.get('unlock_at', "") # Scheduling logic
 
         safe_chap = chap.replace(' ', '_').replace(':', '').replace('__', '_')
         safe_name = t_name.replace(' ', '_')
         file_path = f"data/{sub}/{safe_chap}/{safe_name}.json"
         
-        # 1. Upload Questions
+        # 1. Questions Upload
         github_upload(file_path, json.dumps(questions, indent=2), f"Add test: {t_name}")
         
-        # 2. Update Config
+        # 2. Config Sync
         r_conf = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
         config_data = r_conf.json() if r_conf.status_code == 200 else {}
 
         if sub not in config_data: config_data[sub] = {}
         if chap not in config_data[sub]: config_data[sub][chap] = []
         
-        # Update if exists, else add
         found = False
         for t in config_data[sub][chap]:
             if t['name'] == t_name:
