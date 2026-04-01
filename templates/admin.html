@@ -1,180 +1,25 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Master Admin Panel</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        body { font-family: sans-serif; padding: 15px; background: #f4f7fe; }
-        .box { background: white; padding: 20px; border-radius: 12px; max-width: 600px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .tabs { display: flex; gap: 5px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 10px; cursor: pointer; border: none; border-radius: 8px; background: #ddd; font-weight: bold; }
-        .tab-btn.active { background: #1b10b1; color: white; }
-        input, select, textarea { width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
-        .collapsible { background: #1b10b1; color: white; cursor: pointer; padding: 10px; width: 100%; border: none; text-align: left; margin-top: 8px; border-radius: 5px; display: flex; justify-content: space-between; }
-        .content { display: none; padding: 5px 15px; border-left: 2px solid #1b10b1; background: #fafafa; }
-        .del-btn { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.7rem; }
-    </style>
-</head>
-<body>
-    <div class="box">
-        <div class="tabs">
-            <button class="tab-btn active" id="btn-up" onclick="showTab('upload')">UPLOAD</button>
-            <button class="tab-btn" id="btn-mn" onclick="showTab('manage')">MANAGE/DELETE</button>
-        </div>
-
-        <div id="upload-sec">
-            <h3 style="color:#1b10b1">🚀 Upload System</h3>
-            
-            <label>Choose Subject:</label>
-            <select id="sub" onchange="loadChapters(this.value)">
-                <option value="">-- Select Subject --</option>
-                <option value="physics">Physics</option>
-                <option value="chemistry">Chemistry</option>
-                <option value="botany">Botany</option>
-                <option value="zoology">Zoology</option>
-                <option value="custom">-- Add New Subject --</option>
-            </select>
-            <input type="text" id="custom-sub" placeholder="Enter New Subject Name" style="display:none;">
-
-            <label>Choose Chapter:</label>
-            <select id="chap-select" onchange="checkNewChap(this.value)">
-                <option value="">-- Select Chapter --</option>
-            </select>
-            <input type="text" id="new-chap-input" placeholder="Enter New Chapter Name" style="display:none;">
-
-            <div id="existing-tests-info" style="font-size: 0.8rem; color: #666; margin-bottom: 10px;"></div>
-
-            <label>Test Name:</label>
-            <input type="text" id="tname" placeholder="DPP 01 / Full Test">
-            
-            <label>Unlock Time:</label>
-            <input type="datetime-local" id="unlock">
-            
-            <textarea id="jsondata" rows="5" placeholder="Paste JSON Questions..."></textarea>
-            <button onclick="upload()" id="up-btn">UPLOAD & PUBLISH</button>
-        </div>
-
-        <div id="manage-sec" style="display:none;">
-            <h3 style="color:#1b10b1">🛠️ Manage (Dropbox View)</h3>
-            <div id="manage-tree">Loading...</div>
-        </div>
-    </div>
-
-    <script>
-        let fullConfig = {};
-
-        window.onload = async () => {
-            const res = await fetch('/get_config?t=' + Date.now());
-            fullConfig = await res.json();
-        };
-
-        function showTab(t) {
-            document.getElementById('upload-sec').style.display = t=='upload'?'block':'none';
-            document.getElementById('manage-sec').style.display = t=='manage'?'block':'none';
-            document.getElementById('btn-up').classList.toggle('active', t=='upload');
-            document.getElementById('btn-mn').classList.toggle('active', t=='manage');
-            if(t=='manage') renderManageTree();
-        }
-
-        // Upload Logic: Chapter Auto-Load
-        function loadChapters(sub) {
-            document.getElementById('custom-sub').style.display = (sub === 'custom') ? 'block' : 'none';
-            const chapSelect = document.getElementById('chap-select');
-            chapSelect.innerHTML = '<option value="">-- Select Chapter --</option>';
-            
-            if(fullConfig[sub]) {
-                for(let chap in fullConfig[sub]) {
-                    let opt = document.createElement('option');
-                    opt.value = chap; opt.innerText = chap;
-                    chapSelect.appendChild(opt);
-                }
-            }
-            let newOpt = document.createElement('option');
-            newOpt.value = "new"; newOpt.innerText = "-- Add New Chapter --";
-            chapSelect.appendChild(newOpt);
-        }
-
-        function checkNewChap(val) {
-            document.getElementById('new-chap-input').style.display = (val === 'new') ? 'block' : 'none';
-            const sub = document.getElementById('sub').value;
-            const info = document.getElementById('existing-tests-info');
-            if(val !== "new" && fullConfig[sub] && fullConfig[sub][val]) {
-                const count = fullConfig[sub][val].length;
-                info.innerText = `Iss chapter mein pehle se ${count} test(s) hain.`;
-            } else { info.innerText = ""; }
-        }
-
-        async function upload() {
-            const btn = document.getElementById('up-btn');
-            const sub = document.getElementById('sub').value === 'custom' ? document.getElementById('custom-sub').value : document.getElementById('sub').value;
-            const chap = document.getElementById('chap-select').value === 'new' ? document.getElementById('new-chap-input').value : document.getElementById('chap-select').value;
-            
-            if(!sub || !chap) return alert("Subject aur Chapter bhariye!");
-
-            const data = {
-                subject: sub, chapter: chap,
-                test_name: document.getElementById('tname').value,
-                unlock_at: document.getElementById('unlock').value,
-                questions: JSON.parse(document.getElementById('jsondata').value)
-            };
-
-            btn.disabled = true; btn.innerText = "Processing...";
-            const res = await fetch('/save_test', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data)
-            });
-            const r = await res.json();
-            alert(r.success ? "Success!" : "Error");
-            location.reload();
-        }
-
-        // Manage/Delete Logic: Dropbox Style
-        async function renderManageTree() {
-            const res = await fetch('/get_config?t=' + Date.now());
-            fullConfig = await res.json();
-            let h = '';
-            for (let s in fullConfig) {
-                h += `<button class="collapsible" onclick="toggleDisplay('sub-${s}')">📁 ${s.toUpperCase()} <span onclick="event.stopPropagation(); handleDelete({subject:'${s}', target:'subject'})" style="background:red; padding:2px 5px; font-size:10px; border-radius:3px;">DEL</span></button>
-                <div id="sub-${s}" class="content">`;
-                for (let c in fullConfig[s]) {
-                    const cId = `chap-${s}-${c.replace(/\s+/g, '_')}`;
-                    h += `<div style="display:flex; justify-content:space-between; align-items:center; background:#eee; margin-top:5px; padding:8px; border-radius:5px; cursor:pointer;" onclick="toggleDisplay('${cId}')">
-                        <b>📖 ${c}</b>
-                        <button class="del-btn" style="background:orange;" onclick="event.stopPropagation(); handleDelete({subject:'${s}', chapter:'${c}', target:'chapter'})">Del Chap</button>
-                    </div>
-                    <div id="${cId}" class="content">`;
-                    fullConfig[s][c].forEach(t => {
-                        h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:8px; border-bottom:1px solid #ddd;">
-                            <span>📄 ${t.name}</span>
-                            <button class="del-btn" onclick="handleDelete({subject:'${s}', chapter:'${c}', test_name:'${t.name}', target:'test'})">Delete</button>
-                        </div>`;
-                    });
-                    h += `</div>`;
-                }
-                h += `</div>`;
-            }
-            document.getElementById('manage-tree').innerHTML = h || "No Data.";
-        }
-
-        function toggleDisplay(id) {
-            let el = document.getElementById(id);
-            el.style.display = (el.style.display === "block") ? "none" : "block";
-        }
-
-        async function handleDelete(p) {
-            if(!confirm(`Kya aap is ${p.target} ko delete karna chahte hain?`)) return;
-            const res = await fetch('/delete_item', { 
-                method: 'POST', 
-                headers: {'Content-Type': 'application/json'}, 
-                body: JSON.stringify(p) 
-            });
-            const r = await res.json();
-            if(r.success) {
-                alert("Deleted!");
-                renderManageTree();
-            }
-        }
-    </script>
-</body>
-</html>
+<script>
+async function upload() {
+    const btn = document.querySelector('button');
+    // ... baki data gathering code wahi ...
+    
+    btn.disabled = true;
+    btn.innerText = "GitHub Syncing (Wait 10s)...";
+    
+    const res = await fetch('/save_test', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+    
+    const r = await res.json();
+    if(r.success) {
+        alert("Upload Successful! Website par 10-20 seconds mein dikhne lagega.");
+        // Force refresh public config after 2 seconds
+        setTimeout(() => { location.reload(); }, 2000);
+    } else {
+        alert("Error: " + r.message);
+        btn.disabled = false;
+    }
+}
+</script>
