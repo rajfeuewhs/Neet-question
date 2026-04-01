@@ -52,6 +52,11 @@
       {
         "name": "DPP 01",
         "file": "chemistry/thermo/Thermodynamics"
+      },
+      {
+        "name": "dpp_03",
+        "file": "chemistry/Thermodynamics/dpp_03",
+        "unlock_at": ""
       }
     ],
     "Equilibrium": [
@@ -127,5 +132,13 @@
       }
     ]
   },
-  "180": {}
+  "180": {
+    "e": [
+      {
+        "name": "e",
+        "file": "180/e/e",
+        "unlock_at": ""
+      }
+    ]
+  }
 }
