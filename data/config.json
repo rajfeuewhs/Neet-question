@@ -109,5 +109,22 @@
     "Neural Control and Coordination": [],
     "Chemical Coordination and Integration": []
   },
-  "180": {}
+  "180": {
+    "AAITS2": [
+      {
+        "name": "aaits 1",
+        "file": "180/AAITS2/aaits_1",
+        "unlock_at": ""
+      }
+    ]
+  },
+  "kinf": {
+    "AAITS": [
+      {
+        "name": "aaits 1",
+        "file": "kinf/AAITS/aaits_1",
+        "unlock_at": ""
+      }
+    ]
+  }
 }
