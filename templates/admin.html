@@ -1,129 +1,72 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>NEET Admin Master</title>
+    <title>Master Admin Panel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { font-family: sans-serif; padding: 15px; background: #f4f7fe; }
-        .box { background: white; padding: 20px; border-radius: 12px; max-width: 600px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .tabs { display: flex; gap: 5px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 10px; cursor: pointer; border: none; border-radius: 8px; background: #ddd; font-weight: bold; }
-        .tab-btn.active { background: #1b10b1; color: white; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
-        .collapsible { background: #1b10b1; color: white; cursor: pointer; padding: 12px; width: 100%; border: none; text-align: left; margin-top: 8px; border-radius: 5px; display: flex; justify-content: space-between; }
-        .content { display: none; padding: 5px 15px; border-left: 2px solid #1b10b1; background: #fafafa; }
-        .item-box { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
-        .del-btn { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.7rem; }
+        body { font-family: sans-serif; padding: 20px; background: #f0f2f5; }
+        .box { background: white; padding: 20px; border-radius: 10px; max-width: 500px; margin: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        input, select, textarea { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; border-radius: 5px; border: 1px solid #ccc; }
+        button { width: 100%; padding: 12px; background: #1b10b1; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="box">
-        <div class="tabs">
-            <button class="tab-btn active" id="btn-up" onclick="showTab('upload')">UPLOAD</button>
-            <button class="tab-btn" id="btn-mn" onclick="showTab('manage')">MANAGE DATA</button>
-        </div>
+        <h2>🚀 Admin Control</h2>
+        
+        <label>Subject:</label>
+        <select id="sub" onchange="checkCustom(this.value)">
+            <option value="physics">Physics</option>
+            <option value="chemistry">Chemistry</option>
+            <option value="botany">Botany</option>
+            <option value="zoology">Zoology</option>
+            <option value="custom">-- Add New Subject --</option>
+        </select>
+        <input type="text" id="custom-sub" placeholder="Enter New Subject Name (e.g. AIITS)" style="display:none;">
 
-        <div id="upload-sec">
-            <h3 style="color:#1b10b1">Upload Test</h3>
-            <select id="sub-select" onchange="checkNew(this, 'custom-sub')">
-                <option value="physics">Physics</option>
-                <option value="chemistry">Chemistry</option>
-                <option value="botany">Botany</option>
-                <option value="zoology">Zoology</option>
-                <option value="new">-- Add New Subject (e.g. 720 Exam) --</option>
-            </select>
-            <input type="text" id="custom-sub" placeholder="Enter New Subject Name" style="display:none;">
+        <label>Chapter Name:</label>
+        <input type="text" id="chap" placeholder="Chapter Name">
 
-            <input type="text" id="chap-name" placeholder="Chapter Name (Naya hai toh likh dein)">
-            <input type="text" id="t-name" placeholder="Test Name (DPP 01 / Full Test)">
-            <label style="font-size:0.8rem">Unlock At (Optional):</label>
-            <input type="datetime-local" id="unlock">
-            <textarea id="json-data" rows="6" placeholder="Paste Questions JSON here..."></textarea>
-            <button onclick="saveTest()" style="width:100%; padding:15px; background:#1b10b1; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">PUBLISH TEST</button>
-        </div>
+        <label>DPP/Test Name:</label>
+        <input type="text" id="tname" placeholder="DPP 01 / Full Test 01">
 
-        <div id="manage-sec" style="display:none;">
-            <h3 style="color:#1b10b1">Manage Items</h3>
-            <div id="manage-tree">Loading...</div>
-        </div>
+        <label>Unlock Time (Optional):</label>
+        <input type="datetime-local" id="unlock">
+
+        <label>JSON Data (Questions):</label>
+        <textarea id="jsondata" rows="5" placeholder="Paste JSON here..."></textarea>
+
+        <button onclick="upload()">UPLOAD & SCHEDULE</button>
+        <p id="msg"></p>
     </div>
 
     <script>
-        function showTab(t) {
-            document.getElementById('upload-sec').style.display = (t=='upload')?'block':'none';
-            document.getElementById('manage-sec').style.display = (t=='manage')?'block':'none';
-            document.getElementById('btn-up').className = t=='upload'?'tab-btn active':'tab-btn';
-            document.getElementById('btn-mn').className = t=='manage'?'tab-btn active':'tab-btn';
-            if(t=='manage') loadManage();
+        function checkCustom(val) {
+            document.getElementById('custom-sub').style.display = (val === 'custom') ? 'block' : 'none';
         }
 
-        function checkNew(el, targetId) {
-            document.getElementById(targetId).style.display = (el.value === 'new') ? 'block' : 'none';
-        }
+        async function upload() {
+            const btn = document.querySelector('button');
+            const sub = document.getElementById('sub').value;
+            const finalSub = (sub === 'custom') ? document.getElementById('custom-sub').value : sub;
+            
+            const data = {
+                subject: finalSub,
+                chapter: document.getElementById('chap').value,
+                test_name: document.getElementById('tname').value,
+                unlock_at: document.getElementById('unlock').value,
+                questions: JSON.parse(document.getElementById('jsondata').value)
+            };
 
-        async function saveTest() {
-            const sub = document.getElementById('sub-select').value;
-            const finalSub = (sub === 'new') ? document.getElementById('custom-sub').value : sub;
-            const chap = document.getElementById('chap-name').value;
-            const tname = document.getElementById('t-name').value;
-            const jsonText = document.getElementById('json-data').value;
-
-            if(!finalSub || !chap || !tname || !jsonText) return alert("Sari fields bhariye!");
-
-            try {
-                const data = {
-                    subject: finalSub, chapter: chap, test_name: tname,
-                    unlock_at: document.getElementById('unlock').value,
-                    questions: JSON.parse(jsonText)
-                };
-                const res = await fetch('/save_test', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(data)
-                });
-                const r = await res.json();
-                if(r.success) { alert("Test Uploaded!"); location.reload(); }
-            } catch(e) { alert("JSON format galat hai!"); }
-        }
-
-        async function loadManage() {
-            const res = await fetch('/get_config?t=' + Date.now());
-            const config = await res.json();
-            let html = '';
-            for (let s in config) {
-                html += `<button class="collapsible" onclick="toggle('sub-${s}')">📁 ${s.toUpperCase()} <span onclick="event.stopPropagation(); deleteItem({subject:'${s}', target:'subject'})" style="background:red; padding:2px 5px; border-radius:3px; font-size:10px;">DELETE</span></button>
-                <div id="sub-${s}" class="content">`;
-                for (let c in config[s]) {
-                    const cId = `chap-${s}-${c.replace(/\s+/g,'_')}`;
-                    html += `<div class="item-box" style="background:#eee; margin-top:5px; cursor:pointer;" onclick="toggle('${cId}')">
-                        <b>📖 ${c}</b>
-                        <button class="del-btn" style="background:orange;" onclick="event.stopPropagation(); deleteItem({subject:'${s}', chapter:'${c}', target:'chapter'})">Del Chap</button>
-                    </div>
-                    <div id="${cId}" class="content">`;
-                    config[s][c].forEach(t => {
-                        html += `<div class="item-box"><span>📄 ${t.name}</span><button class="del-btn" onclick="deleteItem({subject:'${s}', chapter:'${c}', test_name:'${t.name}', target:'test'})">Delete</button></div>`;
-                    });
-                    html += `</div>`;
-                }
-                html += `</div>`;
-            }
-            document.getElementById('manage-tree').innerHTML = html || "No data.";
-        }
-
-        function toggle(id) {
-            let el = document.getElementById(id);
-            if(el) el.style.display = (el.style.display === "block") ? "none" : "block";
-        }
-
-        async function deleteItem(params) {
-            if(!confirm("Kya aap delete karna chahte hain?")) return;
-            const res = await fetch('/delete_item', {
+            btn.disabled = true; btn.innerText = "Uploading...";
+            const res = await fetch('/save_test', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(params)
+                body: JSON.stringify(data)
             });
-            const r = await res.json();
-            if(r.success) loadManage();
+            const result = await res.json();
+            alert(result.success ? "Success!" : "Error: " + result.message);
+            location.reload();
         }
     </script>
 </body>
