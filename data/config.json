@@ -158,23 +158,5 @@
         "unlock_at": "2026-04-01T12:25"
       }
     ]
-  },
-  "720marks": {
-    "": [
-      {
-        "name": "AAits",
-        "file": "720marks//AAits",
-        "unlock_at": ""
-      }
-    ]
-  },
-  "lol": {
-    "11": [
-      {
-        "name": "ddp_10",
-        "file": "lol/11/ddp_10",
-        "unlock_at": ""
-      }
-    ]
   }
 }
