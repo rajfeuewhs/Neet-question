@@ -64,11 +64,6 @@
       {
         "name": "DPP 01",
         "file": "chemistry/redox/Redox_Reactions"
-      },
-      {
-        "name": "dpp 1",
-        "file": "chemistry/Redox_Reactions/dpp_1",
-        "unlock_at": ""
       }
     ],
     "Organic Chemistry Basic": [
@@ -91,6 +86,11 @@
       {
         "name": "DPP 01",
         "file": "chemistry/pblock/p_Block"
+      },
+      {
+        "name": "dpp 2",
+        "file": "chemistry/p-Block_Elements/dpp_2",
+        "unlock_at": ""
       }
     ]
   },
