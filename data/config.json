@@ -96,6 +96,11 @@
         "name": "dpp 2",
         "file": "chemistry/p-Block_Elements/dpp_2",
         "unlock_at": ""
+      },
+      {
+        "name": "dpp_04",
+        "file": "chemistry/p-Block_Elements/dpp_04",
+        "unlock_at": ""
       }
     ]
   },
