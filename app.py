@@ -46,7 +46,6 @@ def save_test():
     try:
         data = request.json
         sub = data['subject'].lower().strip()
-        # Chapter optional logic: Agar khali hai toh Direct_Tests use karein
         chap = data['chapter'].strip() if data['chapter'] else "Direct_Tests"
         t_name = data['test_name'].strip()
         
@@ -62,12 +61,9 @@ def save_test():
         if sub not in config_data: config_data[sub] = {}
         if chap not in config_data[sub]: config_data[sub][chap] = []
         
-        # Multiple DPPs support: purana wala delete karo agar name same hai, warna append karo
         config_data[sub][chap] = [t for t in config_data[sub][chap] if t['name'] != t_name]
         config_data[sub][chap].append({
-            "name": t_name,
-            "file": f"{sub}/{safe_chap}/{safe_name}",
-            "unlock_at": data.get('unlock_at', "")
+            "name": t_name, "file": f"{sub}/{safe_chap}/{safe_name}", "unlock_at": data.get('unlock_at', "")
         })
             
         github_upload("data/config.json", json.dumps(config_data, indent=2), "Update Config")
@@ -79,7 +75,6 @@ def delete_item():
     try:
         data = request.json
         sub, chap, t_name, target = data.get('subject'), data.get('chapter'), data.get('test_name'), data.get('target')
-        
         r_conf = requests.get(f"{RAW_BASE_URL}config.json?v={int(time.time())}")
         config_data = r_conf.json() if r_conf.status_code == 200 else {}
 
