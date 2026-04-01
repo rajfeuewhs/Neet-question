@@ -165,5 +165,14 @@
         "unlock_at": ""
       }
     ]
+  },
+  "kinf": {
+    "Direct_Tests": [
+      {
+        "name": "ddp_10",
+        "file": "kinf/Direct_Tests/ddp_10",
+        "unlock_at": ""
+      }
+    ]
   }
 }
