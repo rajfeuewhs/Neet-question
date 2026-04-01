@@ -172,6 +172,11 @@
         "name": "ddp_10",
         "file": "kinf/Direct_Tests/ddp_10",
         "unlock_at": ""
+      },
+      {
+        "name": "dpp_04",
+        "file": "kinf/Direct_Tests/dpp_04",
+        "unlock_at": ""
       }
     ]
   }
