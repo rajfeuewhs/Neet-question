@@ -1,11 +1,5 @@
 {
   "physics": {
-    "Units and Measurements": [
-      {
-        "name": "DPP 01",
-        "file": "physics/units/dpp1"
-      }
-    ],
     "Motion in a Straight Line": [],
     "Motion in a Plane": [],
     "Laws of Motion": [],
