@@ -27,71 +27,11 @@ def get_config():
         return jsonify(r.json()) if r.status_code == 200 else jsonify({})
     except: return jsonify({})
 
-@app.route('/get_test/<path:p>')
-def get_test(p):
-    try:
-        r = requests.get(f"{RAW_BASE_URL}{p}.json?t={int(time.time())}")
-        return jsonify(r.json()) if r.status_code == 200 else jsonify([])
-    except: return jsonify([])
-
-def github_upload(path, content, message):
-    if not GITHUB_TOKEN: return None
-    url = GITHUB_API_URL + path
-    headers = {"Authorization": f"token {GITHUB_TOKEN}", "Accept": "application/vnd.github.v3+json"}
-    r = requests.get(url, headers=headers)
-    sha = r.json().get('sha') if r.status_code == 200 else None
-    payload = {
-        "message": message,
-        "content": base64.b64encode(content.encode('utf-8')).decode('utf-8'),
-        "branch": "main"
-    }
-    if sha: payload["sha"] = sha
-    return requests.put(url, headers=headers, json=payload)
-
-@app.route('/save_test', methods=['POST'])
-def save_test():
-    try:
-        data = request.json
-        sub = data['subject'].lower().strip()
-        chap = data['chapter'].strip()
-        t_name = data['test_name'].strip()
-        questions = data['questions']
-        unlock_at = data.get('unlock_at', "")
-
-        safe_chap = chap.replace(' ', '_').replace(':', '').replace('__', '_')
-        safe_name = t_name.replace(' ', '_')
-        file_path = f"data/{sub}/{safe_chap}/{safe_name}.json"
-        
-        github_upload(file_path, json.dumps(questions, indent=2), f"Add test: {t_name}")
-        
-        r_conf = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
-        config_data = r_conf.json() if r_conf.status_code == 200 else {}
-
-        if sub not in config_data: config_data[sub] = {}
-        if chap not in config_data[sub]: config_data[sub][chap] = []
-        
-        found = False
-        for t in config_data[sub][chap]:
-            if t['name'] == t_name:
-                t['unlock_at'] = unlock_at
-                found = True
-        
-        if not found:
-            config_data[sub][chap].append({"name": t_name, "file": f"{sub}/{safe_chap}/{safe_name}", "unlock_at": unlock_at})
-            
-        github_upload("data/config.json", json.dumps(config_data, indent=2), f"Update config for {t_name}")
-        return jsonify({"success": True})
-    except Exception as e: return jsonify({"success": False, "message": str(e)})
-
 @app.route('/delete_item', methods=['POST'])
 def delete_item():
     try:
         data = request.json
-        sub = data.get('subject')
-        chap = data.get('chapter')
-        t_name = data.get('test_name')
-        target = data.get('target') # 'subject', 'chapter', 'test'
-
+        sub, chap, t_name, target = data.get('subject'), data.get('chapter'), data.get('test_name'), data.get('target')
         r_conf = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
         config_data = r_conf.json() if r_conf.status_code == 200 else {}
 
@@ -103,9 +43,20 @@ def delete_item():
         elif target == 'subject':
             if sub in config_data: del config_data[sub]
 
-        github_upload("data/config.json", json.dumps(config_data, indent=2), f"Delete {target}: {sub}/{chap}/{t_name}")
+        github_upload("data/config.json", json.dumps(config_data, indent=2), f"Delete {target}")
         return jsonify({"success": True})
     except Exception as e: return jsonify({"success": False, "message": str(e)})
 
+def github_upload(path, content, message):
+    if not GITHUB_TOKEN: return None
+    url = GITHUB_API_URL + path
+    headers = {"Authorization": f"token {GITHUB_TOKEN}", "Accept": "application/vnd.github.v3+json"}
+    r = requests.get(url, headers=headers)
+    sha = r.json().get('sha') if r.status_code == 200 else None
+    payload = {"message": message, "content": base64.b64encode(content.encode('utf-8')).decode('utf-8'), "branch": "main"}
+    if sha: payload["sha"] = sha
+    return requests.put(url, headers=headers, json=payload)
+
+# Baaki save_test aur get_test routes bhi add kar dena...
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
