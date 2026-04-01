@@ -10,10 +10,10 @@
         .tab-btn { flex: 1; padding: 10px; cursor: pointer; border: none; border-radius: 8px; background: #ddd; font-weight: bold; }
         .tab-btn.active { background: #1b10b1; color: white; }
         input, select, textarea { width: 100%; padding: 10px; margin: 5px 0; border-radius: 6px; border: 1px solid #ddd; box-sizing: border-box; }
-        .collapsible { background: #1b10b1; color: white; cursor: pointer; padding: 10px; width: 100%; border: none; text-align: left; margin-top: 5px; border-radius: 5px; display: flex; justify-content: space-between; }
+        .collapsible { background: #1b10b1; color: white; cursor: pointer; padding: 10px; width: 100%; border: none; text-align: left; margin-top: 5px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
         .content { display: none; padding: 5px 15px; border-left: 2px solid #1b10b1; background: #fafafa; }
         .item-box { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; }
-        .del-btn { background: #ff4d4d; color: white; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; }
+        .del-btn { background: #ff4d4d; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; }
     </style>
 </head>
 <body>
@@ -24,21 +24,25 @@
         </div>
 
         <div id="upload-sec">
+            <h3>Upload & Schedule Test</h3>
             <select id="sub" onchange="toggleCustom(this.value)">
-                <option value="physics">Physics</option><option value="chemistry">Chemistry</option>
-                <option value="botany">Botany</option><option value="zoology">Zoology</option>
+                <option value="physics">Physics</option>
+                <option value="chemistry">Chemistry</option>
+                <option value="botany">Botany</option>
+                <option value="zoology">Zoology</option>
                 <option value="custom">-- Add New Subject --</option>
             </select>
             <input type="text" id="custom-sub" placeholder="New Subject Name" style="display:none;">
             <input type="text" id="chap" placeholder="Chapter Name">
-            <input type="text" id="tname" placeholder="Test Name">
+            <input type="text" id="tname" placeholder="Test Name (e.g. DPP 01)">
+            <label style="font-size: 0.8rem;">Unlock Time (Optional):</label>
             <input type="datetime-local" id="unlock">
-            <textarea id="jsondata" rows="5" placeholder="Paste JSON here..."></textarea>
-            <button onclick="upload()" style="width:100%; padding:12px; background:#1b10b1; color:white; border:none; border-radius:8px; margin-top:10px;">PUBLISH</button>
+            <textarea id="jsondata" rows="8" placeholder='Paste JSON here... Example: [{"q":"...","options":[],"correct_ans":0}]'></textarea>
+            <button onclick="upload()" style="width:100%; padding:12px; background:#1b10b1; color:white; border:none; border-radius:8px; margin-top:10px; font-weight:bold; cursor:pointer;">PUBLISH TEST</button>
         </div>
 
         <div id="manage-sec" style="display:none;">
-            <h3>🛠️ Manage (Click to Open)</h3>
+            <h3>🛠️ Management (Click to Expand)</h3>
             <div id="manage-tree">Loading...</div>
         </div>
     </div>
@@ -52,21 +56,35 @@
             if(t=='manage') loadTree();
         }
 
-        function toggleCustom(v) { document.getElementById('custom-sub').style.display = v=='custom'?'block':'none'; }
+        function toggleCustom(v) { 
+            document.getElementById('custom-sub').style.display = (v=='custom') ? 'block' : 'none'; 
+        }
 
         async function upload() {
-            const sub = document.getElementById('sub').value;
-            const finalSub = sub=='custom' ? document.getElementById('custom-sub').value : sub;
-            const data = {
-                subject: finalSub, chapter: document.getElementById('chap').value,
-                test_name: document.getElementById('tname').value,
-                unlock_at: document.getElementById('unlock').value,
-                questions: JSON.parse(document.getElementById('jsondata').value)
-            };
-            const res = await fetch('/save_test', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
-            const r = await res.json();
-            alert(r.success ? "Success!" : "Error: " + r.message);
-            if(r.success) location.reload();
+            try {
+                const sub = document.getElementById('sub').value;
+                const finalSub = (sub=='custom') ? document.getElementById('custom-sub').value : sub;
+                const questions = JSON.parse(document.getElementById('jsondata').value);
+                
+                const data = {
+                    subject: finalSub, 
+                    chapter: document.getElementById('chap').value,
+                    test_name: document.getElementById('tname').value,
+                    unlock_at: document.getElementById('unlock').value,
+                    questions: questions
+                };
+
+                const res = await fetch('/save_test', { 
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify(data) 
+                });
+                const r = await res.json();
+                alert(r.success ? "Successfully Published!" : "Error: " + r.message);
+                if(r.success) location.reload();
+            } catch(e) {
+                alert("JSON Format galat hai! Kripya sahi JSON paste karein.");
+            }
         }
 
         async function loadTree() {
@@ -74,7 +92,10 @@
             const config = await res.json();
             let h = '';
             for (let s in config) {
-                h += `<button class="collapsible" onclick="toggleDisplay('sub-${s}')">📁 ${s.toUpperCase()} <span onclick="event.stopPropagation(); handleDelete({subject:'${s}', target:'subject'})" style="background:red; padding:2px 5px; font-size:10px; border-radius:3px;">DEL</span></button>
+                h += `<button class="collapsible" onclick="toggleDisplay('sub-${s}')">
+                        📁 ${s.toUpperCase()} 
+                        <span onclick="event.stopPropagation(); handleDelete({subject:'${s}', target:'subject'})" style="background:red; padding:2px 5px; font-size:10px; border-radius:3px;">DEL SUBJECT</span>
+                      </button>
                 <div id="sub-${s}" class="content">`;
                 for (let c in config[s]) {
                     const cId = `chap-${s}-${c.replace(/\s+/g, '_')}`;
@@ -93,19 +114,24 @@
                 }
                 h += `</div>`;
             }
-            document.getElementById('manage-tree').innerHTML = h || "No Data.";
+            document.getElementById('manage-tree').innerHTML = h || "Abhi tak koi data nahi hai.";
         }
 
         function toggleDisplay(id) {
             let el = document.getElementById(id);
-            el.style.display = (el.style.display === "block") ? "none" : "block";
+            if(el) el.style.display = (el.style.display === "block") ? "none" : "block";
         }
 
         async function handleDelete(p) {
-            if(!confirm("Are you sure?")) return;
-            const res = await fetch('/delete_item', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(p) });
+            if(!confirm("Kya aap ise delete karna chahte hain?")) return;
+            const res = await fetch('/delete_item', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify(p) 
+            });
             const r = await res.json();
             if(r.success) loadTree();
+            else alert("Error: Delete nahi ho paya.");
         }
     </script>
 </body>
