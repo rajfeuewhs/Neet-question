@@ -167,5 +167,14 @@
         "unlock_at": ""
       }
     ]
+  },
+  "lol": {
+    "11": [
+      {
+        "name": "ddp_10",
+        "file": "lol/11/ddp_10",
+        "unlock_at": ""
+      }
+    ]
   }
 }
