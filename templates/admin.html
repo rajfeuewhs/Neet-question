@@ -1,28 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Master Admin Panel</title>
+    <title>NEET Admin Pro</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f0f2f5; }
-        .box { background: white; padding: 20px; border-radius: 10px; max-width: 500px; margin: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        input, select, textarea { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; border-radius: 5px; border: 1px solid #ccc; }
-        button { width: 100%; padding: 12px; background: #1b10b1; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f4f7fe; }
+        .box { background: white; padding: 25px; border-radius: 15px; max-width: 600px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #1b10b1; text-align: center; }
+        label { font-weight: bold; display: block; margin-top: 15px; }
+        input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #1b10b1; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 20px; }
+        button:disabled { background: #ccc; }
+        #msg { text-align: center; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
     <div class="box">
-        <h2>🚀 Admin Control</h2>
+        <h2>🚀 Admin Control Panel</h2>
         
-        <label>Subject:</label>
-        <select id="sub" onchange="checkCustom(this.value)">
+        <label>Subject Selection:</label>
+        <select id="sub" onchange="toggleCustom(this.value)">
             <option value="physics">Physics</option>
             <option value="chemistry">Chemistry</option>
             <option value="botany">Botany</option>
             <option value="zoology">Zoology</option>
-            <option value="custom">-- Add New Subject --</option>
+            <option value="custom">-- Add New Subject (e.g. AIITS) --</option>
         </select>
-        <input type="text" id="custom-sub" placeholder="Enter New Subject Name (e.g. AIITS)" style="display:none;">
+        <input type="text" id="custom-sub" placeholder="Enter New Subject Name" style="display:none;">
 
         <label>Chapter Name:</label>
         <input type="text" id="chap" placeholder="Chapter Name">
@@ -30,43 +34,57 @@
         <label>DPP/Test Name:</label>
         <input type="text" id="tname" placeholder="DPP 01 / Full Test 01">
 
-        <label>Unlock Time (Optional):</label>
+        <label>Unlock Time (Optional - Bachon ko countdown dikhega):</label>
         <input type="datetime-local" id="unlock">
 
-        <label>JSON Data (Questions):</label>
-        <textarea id="jsondata" rows="5" placeholder="Paste JSON here..."></textarea>
+        <label>JSON Data (Questions with Image support):</label>
+        <textarea id="jsondata" rows="8" placeholder='[{"q":"Question?","img":"link","options":["A","B","C","D"],"correct_ans":0}]'></textarea>
 
-        <button onclick="upload()">UPLOAD & SCHEDULE</button>
+        <button onclick="upload()">UPLOAD & PUBLISH</button>
         <p id="msg"></p>
     </div>
 
     <script>
-        function checkCustom(val) {
+        function toggleCustom(val) {
             document.getElementById('custom-sub').style.display = (val === 'custom') ? 'block' : 'none';
         }
 
         async function upload() {
             const btn = document.querySelector('button');
+            const msg = document.getElementById('msg');
             const sub = document.getElementById('sub').value;
             const finalSub = (sub === 'custom') ? document.getElementById('custom-sub').value : sub;
             
-            const data = {
-                subject: finalSub,
-                chapter: document.getElementById('chap').value,
-                test_name: document.getElementById('tname').value,
-                unlock_at: document.getElementById('unlock').value,
-                questions: JSON.parse(document.getElementById('jsondata').value)
-            };
+            if(!finalSub || !document.getElementById('chap').value || !document.getElementById('jsondata').value) {
+                alert("Please fill all fields!"); return;
+            }
 
-            btn.disabled = true; btn.innerText = "Uploading...";
-            const res = await fetch('/save_test', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data)
-            });
-            const result = await res.json();
-            alert(result.success ? "Success!" : "Error: " + result.message);
-            location.reload();
+            try {
+                const data = {
+                    subject: finalSub,
+                    chapter: document.getElementById('chap').value,
+                    test_name: document.getElementById('tname').value,
+                    unlock_at: document.getElementById('unlock').value,
+                    questions: JSON.parse(document.getElementById('jsondata').value)
+                };
+
+                btn.disabled = true; btn.innerText = "Processing...";
+                const res = await fetch('/save_test', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if(result.success) {
+                    msg.style.color = "green"; msg.innerText = "Successfully Uploaded!";
+                    setTimeout(() => location.reload(), 2000);
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch(e) {
+                alert("Error: " + e.message);
+                btn.disabled = false; btn.innerText = "UPLOAD & PUBLISH";
+            }
         }
     </script>
 </body>
