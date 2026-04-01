@@ -157,6 +157,13 @@
         "file": "zoology/dk/dpp1",
         "unlock_at": "2026-04-01T12:25"
       }
+    ],
+    "11": [
+      {
+        "name": "ddp_10",
+        "file": "zoology/11/ddp_10",
+        "unlock_at": ""
+      }
     ]
   }
 }
