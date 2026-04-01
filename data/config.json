@@ -170,5 +170,14 @@
         "unlock_at": ""
       }
     ]
+  },
+  "720marks": {
+    "Direct_Tests": [
+      {
+        "name": "dpp_04",
+        "file": "720marks/Direct_Tests/dpp_04",
+        "unlock_at": "2026-04-01T17:06"
+      }
+    ]
   }
 }
