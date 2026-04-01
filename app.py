@@ -7,7 +7,7 @@ import time
 
 app = Flask(__name__)
 
-# Render Environment Variables
+# Render Secrets
 GITHUB_TOKEN = os.environ.get("MY_GITHUB_TOKEN")
 REPO_OWNER = "rajfeuewhs"
 REPO_NAME = "Neet-question"
@@ -56,16 +56,14 @@ def save_test():
         chap = data['chapter'].strip()
         t_name = data['test_name'].strip()
         questions = data['questions']
-        unlock_at = data.get('unlock_at', "") # Scheduling logic
+        unlock_at = data.get('unlock_at', "")
 
         safe_chap = chap.replace(' ', '_').replace(':', '').replace('__', '_')
         safe_name = t_name.replace(' ', '_')
         file_path = f"data/{sub}/{safe_chap}/{safe_name}.json"
         
-        # 1. Questions Upload
         github_upload(file_path, json.dumps(questions, indent=2), f"Add test: {t_name}")
         
-        # 2. Config Sync
         r_conf = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
         config_data = r_conf.json() if r_conf.status_code == 200 else {}
 
@@ -79,14 +77,28 @@ def save_test():
                 found = True
         
         if not found:
-            config_data[sub][chap].append({
-                "name": t_name,
-                "file": f"{sub}/{safe_chap}/{safe_name}",
-                "unlock_at": unlock_at
-            })
+            config_data[sub][chap].append({"name": t_name, "file": f"{sub}/{safe_chap}/{safe_name}", "unlock_at": unlock_at})
             
         github_upload("data/config.json", json.dumps(config_data, indent=2), f"Update config for {t_name}")
         return jsonify({"success": True})
+    except Exception as e: return jsonify({"success": False, "message": str(e)})
+
+@app.route('/delete_test', methods=['POST'])
+def delete_test():
+    try:
+        data = request.json
+        sub, chap, t_name = data['subject'], data['chapter'], data['test_name']
+        
+        r_conf = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
+        config_data = r_conf.json() if r_conf.status_code == 200 else {}
+
+        if sub in config_data and chap in config_data[sub]:
+            config_data[sub][chap] = [t for t in config_data[sub][chap] if t['name'] != t_name]
+            if not config_data[sub][chap]: del config_data[sub][chap]
+            
+            github_upload("data/config.json", json.dumps(config_data, indent=2), f"Delete: {t_name}")
+            return jsonify({"success": True})
+        return jsonify({"success": False, "message": "Not Found"})
     except Exception as e: return jsonify({"success": False, "message": str(e)})
 
 if __name__ == '__main__':
