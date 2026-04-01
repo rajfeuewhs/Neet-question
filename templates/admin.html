@@ -1,79 +1,71 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Admin Panel - NEET Master</title>
+    <title>Master Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { font-family: sans-serif; background: #f4f7fe; padding: 20px; }
-        .box { max-width: 700px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        select, input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn { background: #1b10b1; color: white; padding: 15px; border: none; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        body { font-family: sans-serif; padding: 20px; background: #f0f2f5; }
+        .box { background: white; padding: 20px; border-radius: 10px; max-width: 500px; margin: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        input, select, textarea { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; border-radius: 5px; border: 1px solid #ccc; }
+        button { width: 100%; padding: 12px; background: #1b10b1; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="box">
-        <h2>🚀 Bulk Test Uploader</h2>
-        <label>Subject Select Karein:</label>
-        <select id="sub" onchange="loadChapters()">
-            <option value="">--Subject--</option>
+        <h2>🚀 Admin Control</h2>
+        
+        <label>Subject:</label>
+        <select id="sub" onchange="checkCustom(this.value)">
             <option value="physics">Physics</option>
             <option value="chemistry">Chemistry</option>
             <option value="botany">Botany</option>
             <option value="zoology">Zoology</option>
+            <option value="custom">-- Add New Subject --</option>
         </select>
-        
-        <label>Chapter Select Karein:</label>
-        <select id="chap"><option value="">Pehle Subject Chunein</option></select>
-        
-        <label>DPP Name:</label>
-        <input type="text" id="dpp_name" placeholder="e.g. DPP_01">
-        
-        <label>JSON Code (Paste here):</label>
-        <textarea id="jsondata" rows="10" placeholder="[{ 'q': '...', ... }]"></textarea>
-        
-        <button class="btn" id="upbtn" onclick="upload()">LIVE PE BHEJO</button>
+        <input type="text" id="custom-sub" placeholder="Enter New Subject Name (e.g. AIITS)" style="display:none;">
+
+        <label>Chapter Name:</label>
+        <input type="text" id="chap" placeholder="Chapter Name">
+
+        <label>DPP/Test Name:</label>
+        <input type="text" id="tname" placeholder="DPP 01 / Full Test 01">
+
+        <label>Unlock Time (Optional):</label>
+        <input type="datetime-local" id="unlock">
+
+        <label>JSON Data (Questions):</label>
+        <textarea id="jsondata" rows="5" placeholder="Paste JSON here..."></textarea>
+
+        <button onclick="upload()">UPLOAD & SCHEDULE</button>
+        <p id="msg"></p>
     </div>
 
     <script>
-        let config = {};
-        window.onload = async () => {
-            const r = await fetch('/get_config');
-            config = await r.json();
-        };
-
-        function loadChapters() {
-            const s = document.getElementById('sub').value;
-            const c = document.getElementById('chap');
-            c.innerHTML = "";
-            if(s && config[s]) {
-                Object.keys(config[s]).forEach(name => {
-                    let o = document.createElement('option');
-                    o.value = name; o.innerText = name;
-                    c.appendChild(o);
-                });
-            }
+        function checkCustom(val) {
+            document.getElementById('custom-sub').style.display = (val === 'custom') ? 'block' : 'none';
         }
 
         async function upload() {
-            const btn = document.getElementById('upbtn');
+            const btn = document.querySelector('button');
+            const sub = document.getElementById('sub').value;
+            const finalSub = (sub === 'custom') ? document.getElementById('custom-sub').value : sub;
+            
             const data = {
-                subject: document.getElementById('sub').value,
+                subject: finalSub,
                 chapter: document.getElementById('chap').value,
-                test_name: document.getElementById('dpp_name').value,
+                test_name: document.getElementById('tname').value,
+                unlock_at: document.getElementById('unlock').value,
                 questions: JSON.parse(document.getElementById('jsondata').value)
             };
 
-            if(!data.subject || !data.chapter || !data.test_name) return alert("Sab bhariye!");
-            
-            btn.innerText = "UPLOADING..."; btn.disabled = true;
-            
+            btn.disabled = true; btn.innerText = "Uploading...";
             const res = await fetch('/save_test', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(data)
             });
-            const resJ = await res.json();
-            alert(resJ.message);
+            const result = await res.json();
+            alert(result.success ? "Success!" : "Error: " + result.message);
             location.reload();
         }
     </script>
