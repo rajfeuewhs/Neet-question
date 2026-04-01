@@ -1,103 +1,109 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Clean Admin Panel</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f7fe; }
-        .box { background: white; padding: 20px; border-radius: 12px; max-width: 600px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .tabs { display: flex; gap: 5px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 10px; cursor: pointer; border: none; border-radius: 5px; background: #ddd; font-weight: bold; }
-        .tab-btn.active { background: #1b10b1; color: white; }
+from flask import Flask, render_template, jsonify, request
+import requests
+import base64
+import json
+import os
+import time
+
+app = Flask(__name__)
+
+# Render Environment Variables
+GITHUB_TOKEN = os.environ.get("MY_GITHUB_TOKEN")
+REPO_OWNER = "rajfeuewhs"
+REPO_NAME = "Neet-question"
+GITHUB_API_URL = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/"
+RAW_BASE_URL = f"https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/main/data/"
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')
+
+@app.route('/get_config')
+def get_config():
+    try:
+        r = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
+        return jsonify(r.json()) if r.status_code == 200 else jsonify({})
+    except:
+        return jsonify({})
+
+@app.route('/get_test/<path:p>')
+def get_test(p):
+    try:
+        r = requests.get(f"{RAW_BASE_URL}{p}.json?t={int(time.time())}")
+        return jsonify(r.json()) if r.status_code == 200 else jsonify([])
+    except:
+        return jsonify([])
+
+def github_upload(path, content, message):
+    if not GITHUB_TOKEN: return None
+    url = GITHUB_API_URL + path
+    headers = {"Authorization": f"token {GITHUB_TOKEN}", "Accept": "application/vnd.github.v3+json"}
+    r = requests.get(url, headers=headers)
+    sha = r.json().get('sha') if r.status_code == 200 else None
+    payload = {
+        "message": message,
+        "content": base64.b64encode(content.encode('utf-8')).decode('utf-8'),
+        "branch": "main"
+    }
+    if sha: payload["sha"] = sha
+    return requests.put(url, headers=headers, json=payload)
+
+@app.route('/save_test', methods=['POST'])
+def save_test():
+    try:
+        data = request.json
+        sub, chap, t_name = data['subject'].lower().strip(), data['chapter'].strip(), data['test_name'].strip()
+        unlock_at = data.get('unlock_at', "")
         
-        /* Dropdown Styles */
-        .collapsible { background: #1b10b1; color: white; cursor: pointer; padding: 12px; width: 100%; border: none; text-align: left; outline: none; font-size: 15px; margin-top: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
-        .content { display: none; padding: 0 18px; background-color: white; border-left: 2px solid #1b10b1; margin-bottom: 10px; }
-        .chap-box { background: #f0f2ff; padding: 10px; margin: 5px 0; border-radius: 5px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .test-box { padding: 8px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
-        .del-btn { background: #ff4d4d; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 0.7rem; }
-    </style>
-</head>
-<body>
-    <div class="box">
-        <div class="tabs">
-            <button class="tab-btn active" id="btn-up" onclick="showTab('upload')">UPLOAD</button>
-            <button class="tab-btn" id="btn-mn" onclick="showTab('manage')">MANAGE</button>
-        </div>
+        safe_chap = chap.replace(' ', '_').replace(':', '').replace('__', '_')
+        safe_name = t_name.replace(' ', '_')
+        file_path = f"data/{sub}/{safe_chap}/{safe_name}.json"
+        
+        github_upload(file_path, json.dumps(data['questions'], indent=2), f"Add test: {t_name}")
+        
+        r_conf = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
+        config_data = r_conf.json() if r_conf.status_code == 200 else {}
 
-        <div id="upload-sec">
-            <h3>Upload New Test</h3>
-            <input type="text" id="chap" placeholder="Chapter Name">
-            <input type="text" id="tname" placeholder="Test Name">
-            <textarea id="jsondata" rows="5" placeholder="JSON here..."></textarea>
-            <button style="width:100%; padding:10px; background:#1b10b1; color:white; border:none; margin-top:10px;" onclick="upload()">PUBLISH</button>
-        </div>
+        if sub not in config_data: config_data[sub] = {}
+        if chap not in config_data[sub]: config_data[sub][chap] = []
+        
+        found = False
+        for t in config_data[sub][chap]:
+            if t['name'] == t_name:
+                t['unlock_at'] = unlock_at
+                found = True
+        if not found:
+            config_data[sub][chap].append({"name": t_name, "file": f"{sub}/{safe_chap}/{safe_name}", "unlock_at": unlock_at})
+            
+        github_upload("data/config.json", json.dumps(config_data, indent=2), f"Update config")
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
 
-        <div id="manage-sec" style="display:none;">
-            <h3>🛠️ Manage Data (Click to Expand)</h3>
-            <div id="manage-tree">Loading...</div>
-        </div>
-    </div>
+@app.route('/delete_item', methods=['POST'])
+def delete_item():
+    try:
+        data = request.json
+        sub, chap, t_name, target = data.get('subject'), data.get('chapter'), data.get('test_name'), data.get('target')
+        r_conf = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
+        config_data = r_conf.json() if r_conf.status_code == 200 else {}
 
-    <script>
-        function showTab(t) {
-            document.getElementById('upload-sec').style.display = t=='upload'?'block':'none';
-            document.getElementById('manage-sec').style.display = t=='manage'?'block':'none';
-            if(t=='manage') loadTree();
-        }
+        if target == 'test' and sub in config_data and chap in config_data[sub]:
+            config_data[sub][chap] = [t for t in config_data[sub][chap] if t['name'] != t_name]
+            if not config_data[sub][chap]: del config_data[sub][chap]
+        elif target == 'chapter' and sub in config_data:
+            if chap in config_data[sub]: del config_data[sub][chap]
+        elif target == 'subject':
+            if sub in config_data: del config_data[sub]
 
-        async function loadTree() {
-            const res = await fetch('/get_config?t=' + Date.now());
-            const config = await res.json();
-            let h = '';
+        github_upload("data/config.json", json.dumps(config_data, indent=2), f"Delete {target}")
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
 
-            for (let s in config) {
-                h += `
-                <button class="collapsible" onclick="toggleDisplay('sub-${s}')">
-                    <span>📁 ${s.toUpperCase()}</span>
-                    <span onclick="event.stopPropagation(); handleDelete({subject:'${s}', target:'subject'})" style="background:red; padding:2px 6px; font-size:10px; border-radius:3px;">DEL SUBJECT</span>
-                </button>
-                <div id="sub-${s}" class="content">`;
-                
-                for (let c in config[s]) {
-                    h += `
-                    <div class="chap-box" onclick="toggleDisplay('chap-${s}-${c.replace(/ /g,'_')}')">
-                        <span>📖 ${c}</span>
-                        <button class="del-btn" style="background:orange;" onclick="event.stopPropagation(); handleDelete({subject:'${s}', chapter:'${c}', target:'chapter'})">Del Chap</button>
-                    </div>
-                    <div id="chap-${s}-${c.replace(/ /g,'_')}" class="content" style="padding-left:20px; border-left:1px dashed #ccc;">`;
-                    
-                    config[s][c].forEach(t => {
-                        h += `
-                        <div class="test-box">
-                            <span>📄 ${t.name}</span>
-                            <button class="del-btn" onclick="handleDelete({subject:'${s}', chapter:'${c}', test_name:'${t.name}', target:'test'})">Delete DPP</button>
-                        </div>`;
-                    });
-                    h += `</div>`;
-                }
-                h += `</div>`;
-            }
-            document.getElementById('manage-tree').innerHTML = h || "No Data Found";
-        }
-
-        function toggleDisplay(id) {
-            let el = document.getElementById(id);
-            el.style.display = (el.style.display === "block") ? "none" : "block";
-        }
-
-        async function handleDelete(params) {
-            if(!confirm("Are you sure?")) return;
-            const res = await fetch('/delete_item', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(params)
-            });
-            const r = await res.json();
-            if(r.success) loadTree(); 
-        }
-
-        // Add upload function here...
-    </script>
-</body>
-</html>
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
