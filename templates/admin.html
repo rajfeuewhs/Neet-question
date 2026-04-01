@@ -1,25 +1,125 @@
-<script>
-async function upload() {
-    const btn = document.querySelector('button');
-    // ... baki data gathering code wahi ...
-    
-    btn.disabled = true;
-    btn.innerText = "GitHub Syncing (Wait 10s)...";
-    
-    const res = await fetch('/save_test', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
-    });
-    
-    const r = await res.json();
-    if(r.success) {
-        alert("Upload Successful! Website par 10-20 seconds mein dikhne lagega.");
-        // Force refresh public config after 2 seconds
-        setTimeout(() => { location.reload(); }, 2000);
-    } else {
-        alert("Error: " + r.message);
-        btn.disabled = false;
-    }
-}
-</script>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NEET Admin Master</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: sans-serif; padding: 15px; background: #f4f7fe; }
+        .box { background: white; padding: 20px; border-radius: 12px; max-width: 600px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .tabs { display: flex; gap: 5px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 10px; cursor: pointer; border: none; border-radius: 8px; background: #ddd; font-weight: bold; }
+        .tab-btn.active { background: #1b10b1; color: white; }
+        input, select, textarea { width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        .collapsible { background: #1b10b1; color: white; cursor: pointer; padding: 12px; width: 100%; border: none; text-align: left; margin-top: 8px; border-radius: 5px; display: flex; justify-content: space-between; }
+        .content { display: none; padding: 5px 15px; border-left: 2px solid #1b10b1; background: #fafafa; }
+        .item-box { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+        .del-btn { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.7rem; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div class="tabs">
+            <button class="tab-btn active" id="btn-up" onclick="showTab('upload')">UPLOAD</button>
+            <button class="tab-btn" id="btn-mn" onclick="showTab('manage')">MANAGE DATA</button>
+        </div>
+
+        <div id="upload-sec">
+            <h3>🚀 Fast Upload</h3>
+            <select id="sub-select" onchange="loadChaps(this.value)">
+                <option value="">-- Select Subject --</option>
+                <option value="physics">Physics</option><option value="chemistry">Chemistry</option>
+                <option value="botany">Botany</option><option value="zoology">Zoology</option>
+                <option value="new">-- Add New Subject --</option>
+            </select>
+            <input type="text" id="custom-sub" placeholder="Enter New Subject Name" style="display:none;">
+
+            <select id="chap-select" onchange="checkNewChap(this.value)">
+                <option value="">-- Select Chapter --</option>
+            </select>
+            <input type="text" id="new-chap-input" placeholder="Enter New Chapter Name" style="display:none;">
+
+            <input type="text" id="t-name" placeholder="Test Name (e.g. DPP 01)">
+            <input type="datetime-local" id="unlock">
+            <textarea id="json-data" rows="5" placeholder="Paste JSON here..."></textarea>
+            <button onclick="saveTest()" id="up-btn" style="width:100%; padding:12px; background:#1b10b1; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">PUBLISH TEST</button>
+        </div>
+
+        <div id="manage-sec" style="display:none;">
+            <h3>🛠️ Manage Items</h3>
+            <div id="manage-tree">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        let config = {};
+        async function fetchConfig() {
+            const res = await fetch('/get_config?t=' + Date.now());
+            config = await res.json();
+        }
+        window.onload = fetchConfig;
+
+        function showTab(t) {
+            document.getElementById('upload-sec').style.display = (t=='upload')?'block':'none';
+            document.getElementById('manage-sec').style.display = (t=='manage')?'block':'none';
+            document.getElementById('btn-up').className = t=='upload'?'tab-btn active':'tab-btn';
+            document.getElementById('btn-mn').className = t=='manage'?'tab-btn active':'tab-btn';
+            if(t=='manage') loadManage();
+        }
+
+        function loadChaps(sub) {
+            document.getElementById('custom-sub').style.display = (sub === 'new') ? 'block' : 'none';
+            const select = document.getElementById('chap-select');
+            select.innerHTML = '<option value="">-- Select Chapter --</option>';
+            if(config[sub]) {
+                for(let c in config[sub]) {
+                    let opt = document.createElement('option');
+                    opt.value = c; opt.innerText = c;
+                    select.appendChild(opt);
+                }
+            }
+            let n = document.createElement('option'); n.value="new"; n.innerText="-- New Chapter --";
+            select.appendChild(n);
+        }
+
+        function checkNewChap(v) { document.getElementById('new-chap-input').style.display = (v === 'new') ? 'block' : 'none'; }
+
+        async function saveTest() {
+            const sub = document.getElementById('sub-select').value;
+            const fSub = (sub === 'new') ? document.getElementById('custom-sub').value : sub;
+            const chap = document.getElementById('chap-select').value;
+            const fChap = (chap === 'new') ? document.getElementById('new-chap-input').value : chap;
+            const btn = document.getElementById('up-btn');
+            
+            btn.disabled = true; btn.innerText = "Syncing with GitHub...";
+            const data = { subject: fSub, chapter: fChap, test_name: document.getElementById('t-name').value, unlock_at: document.getElementById('unlock').value, questions: JSON.parse(document.getElementById('json-data').value) };
+            
+            const res = await fetch('/save_test', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+            const r = await res.json();
+            if(r.success) { alert("Test Live!"); location.reload(); } else { alert("Error"); btn.disabled = false; }
+        }
+
+        async function loadManage() {
+            await fetchConfig();
+            let h = '';
+            for (let s in config) {
+                h += `<button class="collapsible" onclick="toggle('sub-${s}')">📁 ${s.toUpperCase()} <span onclick="event.stopPropagation(); del({subject:'${s}', target:'subject'})" style="background:red; padding:2px 5px; border-radius:3px; font-size:10px;">DEL</span></button>
+                <div id="sub-${s}" class="content">`;
+                for (let c in config[s]) {
+                    const cId = `chap-${s}-${c.replace(/\s+/g,'_')}`;
+                    h += `<div class="item-box" style="background:#eee; margin-top:5px; cursor:pointer;" onclick="toggle('${cId}')"><b>📖 ${c}</b><button class="del-btn" style="background:orange;" onclick="event.stopPropagation(); del({subject:'${s}', chapter:'${c}', target:'chapter'})">Del Chap</button></div>
+                    <div id="${cId}" class="content">`;
+                    config[s][c].forEach(t => {
+                        h += `<div class="item-box"><span>📄 ${t.name}</span><button class="del-btn" onclick="del({subject:'${s}', chapter:'${c}', test_name:'${t.name}', target:'test'})">Delete</button></div>`;
+                    });
+                    h += `</div>`;
+                }
+                h += `</div>`;
+            }
+            document.getElementById('manage-tree').innerHTML = h || "No data.";
+        }
+
+        function toggle(id) { let el = document.getElementById(id); if(el) el.style.display = (el.style.display === "block") ? "none" : "block"; }
+        async function del(p) { if(!confirm("Delete?")) return; await fetch('/delete_item', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(p) }); loadManage(); }
+    </script>
+</body>
+</html>
