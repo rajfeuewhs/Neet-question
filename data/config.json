@@ -164,6 +164,13 @@
         "file": "zoology/11/ddp_10",
         "unlock_at": ""
       }
+    ],
+    "don": [
+      {
+        "name": "dpp_01",
+        "file": "zoology/don/dpp_01",
+        "unlock_at": ""
+      }
     ]
   },
   "kinf": {
