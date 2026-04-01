@@ -113,14 +113,7 @@
     "Excretory Products and Their Elimination": [],
     "Locomotion and Movement": [],
     "Neural Control and Coordination": [],
-    "Chemical Coordination and Integration": [],
-    "AAITS": [
-      {
-        "name": "aaits 1",
-        "file": "zoology/AAITS/aaits_1",
-        "unlock_at": ""
-      }
-    ]
+    "Chemical Coordination and Integration": []
   },
   "kinf": {
     "AAITS": [
@@ -128,6 +121,15 @@
         "name": "aaits 1",
         "file": "kinf/AAITS/aaits_1",
         "unlock_at": ""
+      }
+    ]
+  },
+  "180": {
+    "kill": [
+      {
+        "name": "aaits 1",
+        "file": "180/kill/aaits_1",
+        "unlock_at": "2026-04-01T11:40"
       }
     ]
   }
