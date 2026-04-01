@@ -126,5 +126,14 @@
     "Locomotion and Movement": [],
     "Neural Control and Coordination": [],
     "Chemical Coordination and Integration": []
+  },
+  "720marks": {
+    "AAITS": [
+      {
+        "name": "aaits 1",
+        "file": "720marks/AAITS/aaits_1",
+        "unlock_at": "2026-04-01T09:05"
+      }
+    ]
   }
 }
