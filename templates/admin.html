@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin</title>
+    <title>Admin - Target720</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body { font-family: sans-serif; padding: 10px; background: #f4f7fe; }
@@ -16,7 +16,6 @@
     <div class="box">
         <div style="display:flex;gap:5px;margin-bottom:15px;">
             <button class="tab-btn active" onclick="showT('up')">UPLOAD</button>
-            <button class="tab-btn" onclick="showT('mn'); loadManage();">MANAGE</button>
             <button class="tab-btn" onclick="showT('cf'); fetchBr();">BRANDING</button>
         </div>
 
@@ -29,30 +28,28 @@
         </div>
 
         <div id="cf-sec" style="display:none;">
+            <h3>App Branding</h3>
             <label>Logo URL:</label><input type="text" id="lu">
             <label>Background URL:</label><input type="text" id="bu">
-            <button onclick="saveB()" style="background:green">SAVE</button>
+            <button onclick="saveB()" style="background:green">SAVE BRANDING</button>
         </div>
-        
-        <div id="mn-sec" style="display:none;"><div id="tree">Loading..</div></div>
     </div>
 
     <script>
         function showT(t) {
             document.getElementById('up-sec').style.display = t=='up'?'block':'none';
-            document.getElementById('mn-sec').style.display = t=='mn'?'block':'none';
             document.getElementById('cf-sec').style.display = t=='cf'?'block':'none';
-            document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active', ['up','mn','cf'][i]==t));
+            document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active', ['up','cf'][i]==t));
         }
         async function saveT() {
             const d = { subject: document.getElementById('sub-s').value, chapter: document.getElementById('ch').value, test_name: document.getElementById('tn').value, questions: JSON.parse(document.getElementById('jd').value) };
             const r = await fetch('/save_test', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(d) });
-            alert((await r.json()).success ? "Done" : "Error");
+            alert((await r.json()).success ? "Published!" : "Error");
         }
         async function fetchBr() { const r = await fetch('/get_bg_config'); const d = await r.json(); document.getElementById('lu').value=d.logo_url; document.getElementById('bu').value=d.bg_url; }
         async function saveB() {
             const r = await fetch('/save_bg_config', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({logo_url:document.getElementById('lu').value, bg_url:document.getElementById('bu').value}) });
-            alert((await r.json()).success ? "Saved" : "Error");
+            alert((await r.json()).success ? "Branding Saved!" : "Error");
         }
     </script>
 </body>
