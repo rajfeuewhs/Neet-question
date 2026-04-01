@@ -14,11 +14,11 @@
         .container { max-width: 800px; margin: auto; padding: 20px; box-sizing: border-box; }
         .nav-header { display: flex; align-items: center; padding: 10px 0; gap: 15px; }
         .back-link { color: var(--pw-blue); cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 5px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; text-align: center; }
-        .card { background: white; padding: 25px; border-radius: 15px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; }
-        .item-row { display: flex; justify-content: space-between; padding: 15px; background: white; margin: 8px 0; border-radius: 10px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-weight: bold; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; text-align: center; }
+        .card { background: white; padding: 25px; border-radius: 15px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .item-row { display: flex; justify-content: space-between; padding: 15px; background: white; margin: 8px 0; border-radius: 10px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-weight: bold; align-items: center; }
         .info-box { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-top: 20px; }
-        .rule-item { display: flex; align-items: center; gap: 10px; margin: 15px 0; font-size: 1.1rem; }
         .test-header { padding: 15px 20px; border-bottom: 2px solid #ddd; display: flex; justify-content: space-between; align-items: center; background: white; position: sticky; top: 0; z-index: 100; }
         .layout { display: flex; flex-direction: row; }
         .q-area { flex: 3; padding: 25px; padding-bottom: 120px; }
@@ -26,7 +26,7 @@
         @media (max-width: 768px) { .layout { flex-direction: column; } .sidebar { border-left: none; } }
         .opt { padding: 18px; border: 1px solid #ddd; margin: 12px 0; border-radius: 12px; cursor: pointer; background: #fff; }
         .opt.active { border: 2.5px solid var(--pw-blue); background: var(--pw-light); font-weight: bold; }
-        .dot { width: 40px; height: 40px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; margin: 2px; }
+        .dot { width: 40px; height: 40px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; margin: 2px; font-size: 0.8rem; }
         .dot.saved { background: var(--green); color: white; border: none; }
         .footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #ddd; display: flex; justify-content: space-around; box-sizing: border-box; }
         .btn { padding: 14px 30px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
@@ -38,12 +38,8 @@
 <div id="page-home" class="page-section active-page">
     <div class="container" style="text-align: center;">
         <h2 style="color: var(--pw-blue); margin-top: 20px;">NEET PREP MASTER</h2>
-        <div class="grid">
-            <div class="card" onclick="openSubject('physics')"><i class="fas fa-atom" style="font-size: 2.5rem; color: var(--pw-blue);"></i><h3>Physics</h3></div>
-            <div class="card" onclick="openSubject('chemistry')"><i class="fas fa-flask" style="font-size: 2.5rem; color: var(--pw-blue);"></i><h3>Chemistry</h3></div>
-            <div class="card" onclick="openSubject('botany')"><i class="fas fa-leaf" style="font-size: 2.5rem; color: var(--pw-blue);"></i><h3>Botany</h3></div>
-            <div class="card" onclick="openSubject('zoology')"><i class="fas fa-dog" style="font-size: 2.5rem; color: var(--pw-blue);"></i><h3>Zoology</h3></div>
-        </div>
+        <div class="grid" id="main-grid">
+            </div>
     </div>
 </div>
 
@@ -68,9 +64,12 @@
         <div class="info-box">
             <h2 style="color: var(--pw-blue); margin-top: 0;">Test Instructions</h2>
             <hr>
-            <div class="rule-item"><i class="fas fa-question-circle" style="color:var(--pw-blue)"></i> <span id="ins-q-count">0</span> Questions</div>
-            <div class="rule-item"><i class="fas fa-clock" style="color:orange"></i> <span id="ins-time">0</span> Minutes Total</div>
-            <div style="display: flex; gap: 15px; margin-top: 30px;">
+            <div style="margin: 20px 0;">
+                <p>• Total Questions: <span id="ins-q-count">0</span></p>
+                <p>• Time Limit: <span id="ins-time">0</span> Minutes</p>
+                <p>• Correct Answer: +4 Marks | Wrong Answer: -1 Mark</p>
+            </div>
+            <div style="display: flex; gap: 15px;">
                 <button class="btn" onclick="goBack()" style="background:#eee; flex:1;">BACK</button>
                 <button class="btn" onclick="actuallyStartTest()" style="background:var(--pw-blue); color:white; flex:2;">START TEST</button>
             </div>
@@ -79,15 +78,12 @@
 </div>
 
 <div id="page-test" class="page-section">
-    <div class="test-header">
-        <h3 id="t-name" style="margin:0; font-size: 0.9rem;">Test</h3>
-        <div id="timer" style="font-weight: bold; font-size: 1.2rem;">00:00</div>
-    </div>
+    <div class="test-header"><h3 id="t-name" style="margin:0; font-size:0.9rem;">Test</h3><div id="timer" style="font-weight:bold; font-size:1.2rem;">00:00</div></div>
     <div class="layout">
         <div class="q-area">
-            <h4 id="q-idx" style="color: #666; margin-top: 0;">Question 1</h4>
+            <h4 id="q-idx" style="color:#666; margin-top:0;">Question 1</h4>
             <div id="q-container">
-                <div id="q-txt" style="font-size:1.2rem; margin-bottom: 10px;"></div>
+                <div id="q-txt" style="font-size:1.2rem; margin-bottom:10px;"></div>
                 <div id="q-img-box" style="display:none;"></div>
             </div>
             <div id="opts"></div>
@@ -106,18 +102,34 @@
         <div style="max-width: 250px; margin: auto;"><canvas id="resultChart"></canvas></div>
         <div id="score-summary" style="font-size: 1.5rem; margin: 20px; font-weight:bold;"></div>
         <div id="review-content" style="text-align: left; margin-top: 20px;"></div>
-        <button onclick="location.reload()" class="btn" style="background:var(--pw-blue); color:white; width:100%; margin-top: 20px;">HOME</button>
+        <button onclick="location.reload()" class="btn" style="background:var(--pw-blue); color:white; width:100%;">HOME</button>
     </div>
 </div>
 
 <script>
-    let config = {}, questions = [], cur = 0, answers = [], status = [], curSub = "", timeLeft = 0, tInt;
-    let pageStack = ['page-home'];
+    let config = {}, questions = [], cur = 0, answers = [], status = [], curSub = "", timeLeft = 0, tInt, pageStack = ['page-home'];
     let pendingFile = "", pendingName = "";
 
     window.onload = async () => {
         const res = await fetch('/get_config?t=' + Date.now());
         config = await res.json();
+        
+        // Dynamic Grid Generation
+        let gridHtml = '';
+        for (let s in config) {
+            let icon = 'atom';
+            if(s.includes('chem')) icon = 'flask';
+            else if(s.includes('bot')) icon = 'leaf';
+            else if(s.includes('zoo')) icon = 'dog';
+            else if(s.includes('test') || s.includes('aiit')) icon = 'trophy';
+
+            gridHtml += `
+            <div class="card" onclick="openSubject('${s}')">
+                <i class="fas fa-${icon}" style="font-size: 2.5rem; color: var(--pw-blue);"></i>
+                <h3 style="text-transform: capitalize;">${s.replace('_', ' ')}</h3>
+            </div>`;
+        }
+        document.getElementById('main-grid').innerHTML = gridHtml || "<p>Loading...</p>";
     };
 
     function showPage(id, push = true) {
@@ -130,9 +142,11 @@
     function goBack() { if (pageStack.length > 1) { pageStack.pop(); showPage(pageStack[pageStack.length - 1], false); } }
 
     function openSubject(s) {
-        curSub = s; document.getElementById('sub-title').innerText = s.toUpperCase();
+        curSub = s; document.getElementById('sub-title').innerText = s.replace('_', ' ').toUpperCase();
         let html = '';
-        for (const ch in config[s]) html += `<div class="item-row" onclick="openDPPs('${ch}')"><span>${ch}</span><i class="fas fa-chevron-right"></i></div>`;
+        for (const ch in config[s]) {
+            html += `<div class="item-row" onclick="openDPPs('${ch}')"><span>${ch}</span><i class="fas fa-chevron-right"></i></div>`;
+        }
         document.getElementById('chapter-list-content').innerHTML = html;
         showPage('page-chapters');
     }
@@ -140,9 +154,31 @@
     function openDPPs(ch) {
         document.getElementById('chapter-title-display').innerText = ch;
         const tests = config[curSub][ch];
-        let html = tests.length === 0 ? "<p>No tests available</p>" : "";
-        tests.forEach(t => html += `<div class="item-row" onclick="loadInstructions('${t.file}', '${t.name}')"><span>${t.name}</span><i class="fas fa-play-circle" style="color:green"></i></div>`);
-        document.getElementById('dpp-list-content').innerHTML = html;
+        let html = '';
+        const now = new Date().getTime();
+
+        tests.forEach((t, i) => {
+            let unlockTime = t.unlock_at ? new Date(t.unlock_at).getTime() : 0;
+            if (unlockTime && unlockTime > now) {
+                // Countdown logic
+                html += `<div class="item-row" style="opacity:0.6; cursor:not-allowed; background:#f9f9f9;">
+                    <span>${t.name} (Locked)</span>
+                    <span id="lock-${i}" style="color:red; font-size:0.7rem;">Loading...</span>
+                </div>`;
+                setInterval(() => {
+                    let diff = unlockTime - new Date().getTime();
+                    if(diff <= 0) { location.reload(); return; }
+                    let h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+                    let el = document.getElementById(`lock-${i}`);
+                    if(el) el.innerText = `Unlocks in: ${h}h ${m}m ${s}s`;
+                }, 1000);
+            } else {
+                html += `<div class="item-row" onclick="loadInstructions('${t.file}', '${t.name}')">
+                    <span>${t.name}</span><i class="fas fa-play-circle" style="color:green"></i>
+                </div>`;
+            }
+        });
+        document.getElementById('dpp-list-content').innerHTML = html || "<p>No tests</p>";
         showPage('page-dpps');
     }
 
@@ -150,13 +186,11 @@
         try {
             const res = await fetch(`/get_test/${path}?t=${Date.now()}`);
             questions = await res.json();
-            if(questions.length > 0) {
-                document.getElementById('ins-q-count').innerText = questions.length;
-                document.getElementById('ins-time').innerText = questions.length;
-                pendingFile = path; pendingName = name;
-                showPage('page-instructions');
-            } else { alert("Test file khali hai!"); }
-        } catch(e) { alert("Error: Test load nahi ho raha."); }
+            document.getElementById('ins-q-count').innerText = questions.length;
+            document.getElementById('ins-time').innerText = questions.length;
+            pendingFile = path; pendingName = name;
+            showPage('page-instructions');
+        } catch(e) { alert("Test load nahi ho raha!"); }
     }
 
     function actuallyStartTest() {
@@ -174,27 +208,22 @@
         render(0);
     }
 
-    // FINAL RENDER FUNCTION WITH DIAGRAM SUPPORT
     function render(i) {
         cur = i; const q = questions[i];
         document.getElementById('q-idx').innerText = `Question ${i+1}`;
         document.getElementById('q-txt').innerText = q.q;
-
         const imgBox = document.getElementById('q-img-box');
-        if (q.img && q.img.trim() !== "") {
+        if (q.img) {
             imgBox.innerHTML = `<img src="${q.img}" class="q-img">`;
             imgBox.style.display = "block";
-        } else {
-            imgBox.innerHTML = "";
-            imgBox.style.display = "none";
-        }
+        } else { imgBox.style.display = "none"; }
 
         let h = '';
         q.options.forEach((o, idx) => h += `<div class="opt ${answers[i]===idx?'active':''}" onclick="pick(${idx})">${o}</div>`);
         document.getElementById('opts').innerHTML = h;
 
         let p = '';
-        questions.forEach((_, idx) => p += `<div class="dot ${status[idx]==='saved'?'saved':''}" style="${cur===idx?'border:3px solid blue;':''}" onclick="render(${idx})">${idx+1}</div>`);
+        questions.forEach((_, idx) => p += `<div class="dot ${status[idx]==='saved'?'saved':''}" style="${cur===idx?'border:2px solid blue;':''}" onclick="render(${idx})">${idx+1}</div>`);
         document.getElementById('palette').innerHTML = p;
     }
 
@@ -202,7 +231,7 @@
     function nextQ() { if(cur < questions.length - 1) render(cur + 1); }
 
     function submitTest() {
-        if(!confirm("Are you sure you want to submit?")) return;
+        if(!confirm("Submit?")) return;
         clearInterval(tInt);
         let correct = 0, wrong = 0, skipped = 0, reviewHtml = '';
         questions.forEach((q, i) => {
@@ -210,12 +239,9 @@
             if (pick === null) skipped++;
             else if (pick === actual) correct++;
             else wrong++;
-            
-            reviewHtml += `<div style="padding:15px; margin-bottom:10px; background:white; border-radius:10px; border-left:5px solid ${pick===actual?'green':'red'}">
-                <b>Q${i+1}:</b> ${q.q}<br>
-                ${q.img ? `<img src="${q.img}" style="max-width:150px; margin:10px 0;"><br>` : ''}
-                <span style="color:green">Correct: ${q.options[actual]}</span><br>
-                <span style="color:${pick===actual?'green':'red'}">Your: ${pick!==null?q.options[pick]:'Skipped'}</span>
+            reviewHtml += `<div style="padding:10px; margin-bottom:10px; background:#fff; border-radius:10px; border-left:5px solid ${pick===actual?'green':'red'}">
+                <b>Q${i+1}:</b> ${q.q}<br>${q.img?`<img src="${q.img}" style="max-width:100px;"><br>`:''}
+                <span style="color:green">Ans: ${q.options[actual]}</span> | <span style="color:${pick===actual?'green':'red'}">Your: ${pick!==null?q.options[pick]:'Skipped'}</span>
             </div>`;
         });
         document.getElementById('score-summary').innerText = `Score: ${(correct*4)-wrong} / ${questions.length*4}`;
