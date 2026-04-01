@@ -1,61 +1,58 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin - Target720</title>
+    <title>Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { font-family: sans-serif; padding: 15px; background: #f4f7fe; }
-        .box { background: white; padding: 20px; border-radius: 12px; max-width: 600px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .tabs { display: flex; gap: 5px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 10px; cursor: pointer; border: none; border-radius: 8px; background: #ddd; font-weight: bold; }
+        body { font-family: sans-serif; padding: 10px; background: #f4f7fe; }
+        .box { background: white; padding: 15px; border-radius: 12px; max-width: 500px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .tab-btn { padding: 8px; cursor: pointer; border-radius: 5px; border: 1px solid #ddd; background: #eee; font-size: 0.8rem; }
         .tab-btn.active { background: #1b10b1; color: white; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #1b10b1; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #ddd; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #1b10b1; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="box">
-        <div class="tabs">
-            <button class="tab-btn active" id="btn-up" onclick="showTab('upload')">UPLOAD</button>
-            <button class="tab-btn" id="btn-mn" onclick="showTab('manage')">MANAGE</button>
-            <button class="tab-btn" id="btn-cf" onclick="showTab('config')">APP CONFIG</button>
+        <div style="display:flex;gap:5px;margin-bottom:15px;">
+            <button class="tab-btn active" onclick="showT('up')">UPLOAD</button>
+            <button class="tab-btn" onclick="showT('mn'); loadManage();">MANAGE</button>
+            <button class="tab-btn" onclick="showT('cf'); fetchBr();">BRANDING</button>
         </div>
 
-        <div id="upload-sec">
-            <h3>Upload Test</h3>
-            <select id="sub-select"><option value="physics">Physics</option><option value="chemistry">Chemistry</option><option value="botany">Botany</option><option value="zoology">Zoology</option></select>
-            <input type="text" id="chap" placeholder="Chapter (Optional)">
-            <input type="text" id="t-name" placeholder="Test Name">
-            <textarea id="json-data" rows="5" placeholder="JSON Questions..."></textarea>
-            <button onclick="saveTest()">PUBLISH</button>
+        <div id="up-sec">
+            <select id="sub-s"><option value="physics">Physics</option><option value="chemistry">Chemistry</option><option value="botany">Botany</option><option value="zoology">Zoology</option></select>
+            <input type="text" id="ch" placeholder="Chapter (Optional)">
+            <input type="text" id="tn" placeholder="Test Name">
+            <textarea id="jd" rows="4" placeholder="JSON..."></textarea>
+            <button onclick="saveT()">PUBLISH</button>
         </div>
 
-        <div id="config-sec" style="display:none;">
-            <h3>📱 App Config</h3>
-            <label>Background Image URL:</label>
-            <input type="text" id="bg-url" placeholder="Paste image link here">
-            <button onclick="saveBg()" style="background:#28a745">SAVE BACKGROUND</button>
+        <div id="cf-sec" style="display:none;">
+            <label>Logo URL:</label><input type="text" id="lu">
+            <label>Background URL:</label><input type="text" id="bu">
+            <button onclick="saveB()" style="background:green">SAVE</button>
         </div>
+        
+        <div id="mn-sec" style="display:none;"><div id="tree">Loading..</div></div>
     </div>
 
     <script>
-        function showTab(t) {
-            document.getElementById('upload-sec').style.display = t=='upload'?'block':'none';
-            document.getElementById('config-sec').style.display = t=='config'?'block':'none';
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
+        function showT(t) {
+            document.getElementById('up-sec').style.display = t=='up'?'block':'none';
+            document.getElementById('mn-sec').style.display = t=='mn'?'block':'none';
+            document.getElementById('cf-sec').style.display = t=='cf'?'block':'none';
+            document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active', ['up','mn','cf'][i]==t));
         }
-
-        async function saveTest() {
-            const data = { subject: document.getElementById('sub-select').value, chapter: document.getElementById('chap').value, test_name: document.getElementById('t-name').value, questions: JSON.parse(document.getElementById('json-data').value) };
-            const r = await fetch('/save_test', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
-            const res = await r.json(); alert(res.success ? "Success" : "Error");
+        async function saveT() {
+            const d = { subject: document.getElementById('sub-s').value, chapter: document.getElementById('ch').value, test_name: document.getElementById('tn').value, questions: JSON.parse(document.getElementById('jd').value) };
+            const r = await fetch('/save_test', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(d) });
+            alert((await r.json()).success ? "Done" : "Error");
         }
-
-        async function saveBg() {
-            const url = document.getElementById('bg-url').value;
-            const r = await fetch('/save_bg_config', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({bg_url: url}) });
-            const res = await r.json(); alert(res.success ? "Saved" : "Error");
+        async function fetchBr() { const r = await fetch('/get_bg_config'); const d = await r.json(); document.getElementById('lu').value=d.logo_url; document.getElementById('bu').value=d.bg_url; }
+        async function saveB() {
+            const r = await fetch('/save_bg_config', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({logo_url:document.getElementById('lu').value, bg_url:document.getElementById('bu').value}) });
+            alert((await r.json()).success ? "Saved" : "Error");
         }
     </script>
 </body>
