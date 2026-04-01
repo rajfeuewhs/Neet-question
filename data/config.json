@@ -109,7 +109,13 @@
     "Plant Kingdom": [],
     "Morphology of Flowering Plants": [],
     "Anatomy of Flowering Plants": [],
-    "Cell Cycle and Cell Division": [],
+    "Cell Cycle and Cell Division": [
+      {
+        "name": "dpp_04",
+        "file": "botany/Cell_Cycle_and_Cell_Division/dpp_04",
+        "unlock_at": ""
+      }
+    ],
     "Photosynthesis in Higher Plants": [],
     "Respiration in Plants": [],
     "Plant Growth and Development": []
@@ -142,15 +148,6 @@
       {
         "name": "AAits",
         "file": "720marks//AAits",
-        "unlock_at": ""
-      }
-    ]
-  },
-  "q": {
-    "Q": [
-      {
-        "name": "Q",
-        "file": "q/Q/Q",
         "unlock_at": ""
       }
     ]
