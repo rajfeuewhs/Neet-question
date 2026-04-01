@@ -24,21 +24,19 @@
         </div>
 
         <div id="upload-sec">
-            <h3 style="color:#1b10b1">🚀 Fast Upload</h3>
+            <h3>🚀 Fast Upload</h3>
             <label>Subject:</label>
             <select id="sub-select" onchange="loadChaps(this.value)">
                 <option value="">-- Select Subject --</option>
-                <option value="physics">Physics</option>
-                <option value="chemistry">Chemistry</option>
-                <option value="botany">Botany</option>
-                <option value="zoology">Zoology</option>
-                </select>
-            <input type="text" id="custom-sub" placeholder="Enter New Subject Name (e.g. AIITS)" style="display:none;">
-            <button onclick="toggleNewSub()" id="new-sub-btn" style="background:#444; font-size:0.7rem; padding:5px; margin-bottom:10px;">+ Create New Subject</button>
+                <option value="physics">Physics</option><option value="chemistry">Chemistry</option>
+                <option value="botany">Botany</option><option value="zoology">Zoology</option>
+            </select>
+            <input type="text" id="custom-sub" placeholder="Enter New Subject Name" style="display:none;">
+            <button onclick="toggleNewSub()" id="new-sub-btn" style="background:#444; font-size:0.7rem; padding:5px; margin-bottom:10px; color:white; border:none; cursor:pointer;">+ Create New Subject</button>
 
-            <label>Chapter:</label>
+            <label>Chapter (Optional):</label>
             <select id="chap-select" onchange="checkNewChap(this.value)">
-                <option value="">-- Select Chapter --</option>
+                <option value="">-- No Chapter (Direct Upload) --</option>
             </select>
             <input type="text" id="new-chap-input" placeholder="Enter New Chapter Name" style="display:none;">
 
@@ -63,10 +61,10 @@
             config = await res.json();
             updateSubDropdown();
         }
+        window.onload = fetchConfig;
 
         function updateSubDropdown() {
             const select = document.getElementById('sub-select');
-            // Basic subjects ko chhod kar jo naye hain unhe list mein jodein
             const basics = ['physics', 'chemistry', 'botany', 'zoology'];
             for (let s in config) {
                 if (!basics.includes(s)) {
@@ -83,41 +81,30 @@
             }
         }
 
-        window.onload = fetchConfig;
-
         function toggleNewSub() {
             isNewSub = !isNewSub;
-            const input = document.getElementById('custom-sub');
-            const select = document.getElementById('sub-select');
-            const btn = document.getElementById('new-sub-btn');
-            if(isNewSub) {
-                input.style.display = 'block';
-                select.disabled = true;
-                btn.innerText = "× Cancel New Subject";
-            } else {
-                input.style.display = 'none';
-                select.disabled = false;
-                btn.innerText = "+ Create New Subject";
-            }
+            document.getElementById('custom-sub').style.display = isNewSub ? 'block' : 'none';
+            document.getElementById('sub-select').disabled = isNewSub;
+            document.getElementById('new-sub-btn').innerText = isNewSub ? "× Cancel" : "+ Create New Subject";
         }
 
         function loadChaps(sub) {
             const select = document.getElementById('chap-select');
-            select.innerHTML = '<option value="">-- Select Chapter --</option>';
+            select.innerHTML = '<option value="">-- No Chapter (Direct Upload) --</option>';
             if(config[sub]) {
                 for(let c in config[sub]) {
-                    let opt = document.createElement('option');
-                    opt.value = c; opt.innerText = c;
-                    select.appendChild(opt);
+                    if(c !== "Direct_Tests") {
+                        let opt = document.createElement('option');
+                        opt.value = c; opt.innerText = c;
+                        select.appendChild(opt);
+                    }
                 }
             }
-            let n = document.createElement('option'); n.value="new"; n.innerText="-- Add New Chapter --";
+            let n = document.createElement('option'); n.value="new"; n.innerText="-- New Chapter --";
             select.appendChild(n);
         }
 
-        function checkNewChap(v) { 
-            document.getElementById('new-chap-input').style.display = (v === 'new') ? 'block' : 'none'; 
-        }
+        function checkNewChap(v) { document.getElementById('new-chap-input').style.display = (v === 'new') ? 'block' : 'none'; }
 
         function showTab(t) {
             document.getElementById('upload-sec').style.display = (t=='upload')?'block':'none';
@@ -128,33 +115,19 @@
         }
 
         async function saveTest() {
-            const subSelect = document.getElementById('sub-select');
-            const fSub = isNewSub ? document.getElementById('custom-sub').value : subSelect.value;
-            const chapSelect = document.getElementById('chap-select');
-            const fChap = (chapSelect.value === 'new') ? document.getElementById('new-chap-input').value : chapSelect.value;
+            const fSub = isNewSub ? document.getElementById('custom-sub').value : document.getElementById('sub-select').value;
+            const chapVal = document.getElementById('chap-select').value;
+            const fChap = (chapVal === 'new') ? document.getElementById('new-chap-input').value : chapVal;
             const btn = document.getElementById('up-btn');
             
-            if(!fSub || !fChap) { alert("Subject aur Chapter bhariye!"); return; }
+            if(!fSub || !document.getElementById('t-name').value) return alert("Subject aur Test Name bhariye!");
 
-            btn.disabled = true; btn.innerText = "GitHub Syncing (Wait 15s)...";
-            const data = { 
-                subject: fSub, 
-                chapter: fChap, 
-                test_name: document.getElementById('t-name').value, 
-                unlock_at: document.getElementById('unlock').value, 
-                questions: JSON.parse(document.getElementById('json-data').value) 
-            };
+            btn.disabled = true; btn.innerText = "Syncing...";
+            const data = { subject: fSub, chapter: fChap, test_name: document.getElementById('t-name').value, unlock_at: document.getElementById('unlock').value, questions: JSON.parse(document.getElementById('json-data').value) };
             
             const res = await fetch('/save_test', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
             const r = await res.json();
-            if(r.success) { 
-                alert("Upload Successful! Refreshing dropdowns..."); 
-                await fetchConfig(); // Refresh local config
-                location.reload(); 
-            } else { 
-                alert("Error: " + r.message); 
-                btn.disabled = false; 
-            }
+            if(r.success) { alert("Test Published!"); location.reload(); } else { alert("Error"); btn.disabled = false; }
         }
 
         async function loadManage() {
@@ -165,7 +138,8 @@
                 <div id="sub-${s}" class="content">`;
                 for (let c in config[s]) {
                     const cId = `chap-${s}-${c.replace(/\s+/g,'_')}`;
-                    h += `<div class="item-box" style="background:#eee; margin-top:5px; cursor:pointer;" onclick="toggle('${cId}')"><b>📖 ${c}</b><button class="del-btn" style="background:orange;" onclick="event.stopPropagation(); del({subject:'${s}', chapter:'${c}', target:'chapter'})">Del Chap</button></div>
+                    let displayTitle = (c === "Direct_Tests") ? "📖 DIRECT TESTS / AIITS" : "📖 " + c;
+                    h += `<div class="item-box" style="background:#eee; margin-top:5px; cursor:pointer;" onclick="toggle('${cId}')"><b>${displayTitle}</b><button class="del-btn" style="background:orange;" onclick="event.stopPropagation(); del({subject:'${s}', chapter:'${c}', target:'chapter'})">Del Chap</button></div>
                     <div id="${cId}" class="content">`;
                     config[s][c].forEach(t => {
                         h += `<div class="item-box"><span>📄 ${t.name}</span><button class="del-btn" onclick="del({subject:'${s}', chapter:'${c}', test_name:'${t.name}', target:'test'})">Delete</button></div>`;
@@ -178,7 +152,7 @@
         }
 
         function toggle(id) { let el = document.getElementById(id); if(el) el.style.display = (el.style.display === "block") ? "none" : "block"; }
-        async function del(p) { if(!confirm("Delete?")) return; await fetch('/delete_item', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(p) }); loadManage(); }
+        async function del(p) { if(!confirm("Are you sure?")) return; await fetch('/delete_item', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(p) }); loadManage(); }
     </script>
 </body>
 </html>
