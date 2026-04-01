@@ -113,14 +113,12 @@
     "Excretory Products and Their Elimination": [],
     "Locomotion and Movement": [],
     "Neural Control and Coordination": [],
-    "Chemical Coordination and Integration": []
-  },
-  "180": {
-    "rk": [
+    "Chemical Coordination and Integration": [],
+    "dk": [
       {
-        "name": "dpp 1",
-        "file": "180/rk/dpp_1",
-        "unlock_at": "2026-04-01T12:24"
+        "name": "dpp1",
+        "file": "zoology/dk/dpp1",
+        "unlock_at": "2026-04-01T12:25"
       }
     ]
   }
