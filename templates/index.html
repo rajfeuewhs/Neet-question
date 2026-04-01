@@ -7,122 +7,186 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --pw-blue: #1b10b1; --pw-light: #f0f2ff; --green: #28a745; --danger: #dc3545; --warning: #ffc107; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7fe; overflow-x: hidden; }
-        .page-section { display: none; min-height: 100vh; width: 100%; }
+        :root { 
+            --pw-blue: #1b10b1; 
+            --pw-gradient: linear-gradient(135deg, #1b10b1 0%, #4a3aff 100%);
+            --pw-light: #f0f2ff; 
+            --white: #ffffff;
+            --text-dark: #2d3436;
+        }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: #f8faff; color: var(--text-dark); }
+        
+        .page-section { display: none; min-height: 100vh; width: 100%; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .active-page { display: block !important; }
-        .container { max-width: 800px; margin: auto; padding: 20px; box-sizing: border-box; }
-        .nav-header { display: flex; align-items: center; padding: 10px 0; gap: 15px; }
-        .back-link { color: var(--pw-blue); cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 5px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; text-align: center; }
-        .card { background: white; padding: 25px; border-radius: 15px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; }
-        .item-row { display: flex; justify-content: space-between; padding: 15px; background: white; margin: 8px 0; border-radius: 10px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-weight: bold; align-items: center; }
-        .info-box { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-top: 20px; }
-        .test-header { padding: 15px 20px; border-bottom: 2px solid #ddd; display: flex; justify-content: space-between; align-items: center; background: white; position: sticky; top: 0; z-index: 100; }
-        .layout { display: flex; flex-direction: row; }
-        .q-area { flex: 3; padding: 25px; padding-bottom: 120px; }
-        .sidebar { flex: 1; padding: 20px; border-left: 1px solid #ddd; background: #fafafa; }
-        @media (max-width: 768px) { .layout { flex-direction: column; } .sidebar { border-left: none; } }
-        .opt { padding: 18px; border: 1px solid #ddd; margin: 12px 0; border-radius: 12px; cursor: pointer; background: #fff; }
-        .opt.active { border: 2.5px solid var(--pw-blue); background: var(--pw-light); font-weight: bold; }
-        .dot { width: 40px; height: 40px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; margin: 2px; }
-        .dot.saved { background: var(--green); color: white; border: none; }
-        .footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #ddd; display: flex; justify-content: space-around; box-sizing: border-box; }
-        .btn { padding: 14px 30px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .q-img { max-width: 100%; height: auto; margin: 15px 0; border-radius: 10px; }
+        
+        .container { max-width: 850px; margin: auto; padding: 20px; }
+        
+        /* Main 4 Subjects: Modern Square Design */
+        .main-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 20px; 
+            margin-bottom: 30px;
+        }
+        .main-card {
+            background: var(--white);
+            padding: 30px 15px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(27, 16, 177, 0.05);
+            border: 1px solid rgba(27, 16, 177, 0.1);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+        .main-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(27, 16, 177, 0.15); }
+        .main-card i { font-size: 2.8rem; margin-bottom: 15px; color: var(--pw-blue); }
+        .main-card h3 { margin: 0; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Custom Subjects: Sleek Rectangle Design */
+        .custom-section { margin-top: 40px; }
+        .section-title { font-size: 0.9rem; font-weight: bold; color: #636e72; text-transform: uppercase; margin-bottom: 15px; display: block; border-left: 4px solid var(--pw-blue); padding-left: 10px; }
+        
+        .rect-card {
+            background: var(--pw-gradient);
+            color: white;
+            padding: 20px 25px;
+            border-radius: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+        .rect-card h3 { margin: 0; font-size: 1.1rem; }
+        .rect-card i { font-size: 1.4rem; opacity: 0.8; }
+
+        /* General UI Elements */
+        .item-row { 
+            display: flex; justify-content: space-between; padding: 18px; 
+            background: white; margin: 12px 0; border-radius: 15px; 
+            cursor: pointer; box-shadow: 0 3px 10px rgba(0,0,0,0.03); 
+            font-weight: 600; align-items: center; border: 1px solid #edf2f7;
+        }
+        .item-row:hover { background: var(--pw-light); border-color: var(--pw-blue); }
+
+        .nav-header { display: flex; align-items: center; padding: 15px 0; gap: 15px; position: sticky; top: 0; background: #f8faff; z-index: 10; }
+        .back-link { background: white; padding: 8px 15px; border-radius: 50px; font-weight: bold; color: var(--pw-blue); box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; }
+
+        /* Test & Question UI */
+        .test-header { background: var(--pw-gradient); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-radius: 0 0 25px 25px; }
+        .opt { padding: 18px; border: 2px solid #edf2f7; margin: 12px 0; border-radius: 16px; cursor: pointer; background: #fff; transition: 0.2s; font-weight: 500; }
+        .opt.active { border-color: var(--pw-blue); background: var(--pw-light); color: var(--pw-blue); }
+        .footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #eee; display: flex; gap: 15px; box-sizing: border-box; }
+        .btn { flex: 1; padding: 16px; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 1rem; }
     </style>
 </head>
 <body>
 
 <div id="page-home" class="page-section active-page">
-    <div class="container" style="text-align: center;">
-        <h2 style="color: var(--pw-blue); margin-top: 20px;">NEET PREP MASTER</h2>
-        <div class="grid">
+    <div class="container">
+        <h1 style="text-align: center; color: var(--pw-blue); font-size: 1.8rem; margin: 30px 0;">NEET PREP <span style="color:#000">MASTER</span></h1>
+        
+        <div class="main-grid" id="main-subjects">
             </div>
+
+        <div class="custom-section" id="custom-subjects-area" style="display:none;">
+            <span class="section-title">Special Exams & Tests</span>
+            <div id="custom-list"></div>
+        </div>
     </div>
 </div>
 
 <div id="page-chapters" class="page-section">
     <div class="container">
-        <div class="nav-header"><div class="back-link" onclick="goBack()"><i class="fas fa-arrow-left"></i> Home</div></div>
-        <h2 id="sub-title" style="text-transform: uppercase; color: var(--pw-blue);">Subject</h2>
+        <div class="nav-header"><div class="back-link" onclick="goBack()"><i class="fas fa-arrow-left"></i></div> <h3 id="sub-title" style="margin:0">Subject</h3></div>
         <div id="chapter-list-content"></div>
     </div>
 </div>
 
 <div id="page-dpps" class="page-section">
     <div class="container">
-        <div class="nav-header"><div class="back-link" onclick="goBack()"><i class="fas fa-arrow-left"></i> Chapters</div></div>
-        <h2 id="chapter-title-display">Chapter Name</h2>
+        <div class="nav-header"><div class="back-link" onclick="goBack()"><i class="fas fa-arrow-left"></i></div> <h3 id="chapter-title-display" style="margin:0">Chapter</h3></div>
         <div id="dpp-list-content"></div>
     </div>
 </div>
 
 <div id="page-instructions" class="page-section">
     <div class="container">
-        <div class="info-box">
-            <h2 style="color: var(--pw-blue); margin-top: 0;">Instructions</h2>
-            <p>• Total Questions: <span id="ins-q-count">0</span></p>
-            <p>• Time: <span id="ins-time">0</span> Minutes</p>
-            <div style="display: flex; gap: 15px; margin-top: 20px;">
-                <button class="btn" onclick="goBack()" style="background:#eee; flex:1;">BACK</button>
-                <button class="btn" onclick="actuallyStartTest()" style="background:var(--pw-blue); color:white; flex:2;">START</button>
+        <div class="info-box" style="margin-top: 50px;">
+            <h2 style="color: var(--pw-blue); text-align: center;">Ready for Test?</h2>
+            <div style="background: #f8faff; padding: 20px; border-radius: 15px; margin: 20px 0;">
+                <p><b>Total Questions:</b> <span id="ins-q-count">0</span></p>
+                <p><b>Time Limit:</b> <span id="ins-time">0</span> Min</p>
             </div>
+            <button class="btn" onclick="actuallyStartTest()" style="background:var(--pw-gradient); color:white; width:100%;">START TEST NOW</button>
         </div>
     </div>
 </div>
 
 <div id="page-test" class="page-section">
-    <div class="test-header"><h3 id="t-name" style="margin:0;">Test</h3><div id="timer" style="font-weight: bold;">00:00</div></div>
-    <div class="layout">
+    <div class="test-header">
+        <span id="t-name" style="font-weight: 500;">Test Name</span>
+        <span id="timer" style="font-size: 1.2rem; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 10px;">00:00</span>
+    </div>
+    <div class="container">
         <div class="q-area">
-            <h4 id="q-idx">Question 1</h4>
-            <div id="q-txt" style="font-size:1.1rem; margin-bottom:10px;"></div>
+            <span id="q-idx" style="color: var(--pw-blue); font-weight: bold; text-transform: uppercase;">Question 1</span>
+            <div id="q-txt" style="font-size:1.2rem; margin: 15px 0; line-height: 1.5;"></div>
             <div id="q-img-box"></div>
             <div id="opts"></div>
         </div>
-        <div class="sidebar"><h4>Palette</h4><div id="palette" style="display:flex; flex-wrap:wrap;"></div></div>
     </div>
     <div class="footer">
-        <button class="btn" onclick="submitTest()" style="background:orange; color:white;">SUBMIT</button>
-        <button class="btn" onclick="nextQ()" style="background:var(--pw-blue); color:white;">SAVE & NEXT</button>
+        <button class="btn" onclick="submitTest()" style="background:#f1f2f6; color:#2d3436;">SUBMIT</button>
+        <button class="btn" onclick="nextQ()" style="background:var(--pw-gradient); color:white;">NEXT QUESTION</button>
     </div>
 </div>
 
 <div id="page-res" class="page-section">
-    <div class="container" style="text-align: center;">
-        <h2>Analysis Report</h2>
-        <div style="max-width: 250px; margin: auto;"><canvas id="resultChart"></canvas></div>
-        <div id="score-summary" style="font-size: 1.5rem; margin: 20px;"></div>
-        <button onclick="location.reload()" class="btn" style="background:var(--pw-blue); color:white; width:100%;">HOME</button>
+    <div class="container" style="text-align: center; padding-top: 50px;">
+        <h2 style="color:var(--pw-blue)">Test Completed!</h2>
+        <div style="max-width: 280px; margin: auto;"><canvas id="resultChart"></canvas></div>
+        <h1 id="score-summary" style="margin: 30px 0;">Score: 0</h1>
+        <button onclick="location.reload()" class="btn" style="background:var(--pw-gradient); color:white; width:100%;">BACK TO HOME</button>
     </div>
 </div>
 
 <script>
     let config = {}, questions = [], cur = 0, answers = [], status = [], curSub = "", timeLeft = 0, tInt, pageStack = ['page-home'];
-    let pendingFile = "", pendingName = "";
-
-    // 1. Home Page par saare subjects dikhane ke liye dynamic load
+    
     window.onload = async () => {
-        const res = await fetch('/get_config?t=' + Date.now());
+        const res = await fetch('/get_config?v=' + Date.now());
         config = await res.json();
         
-        let gridHtml = '';
-        for (let s in config) {
-            let icon = 'atom';
-            if(s === 'physics') icon = 'atom';
-            else if(s === 'chemistry') icon = 'flask';
-            else if(s === 'botany') icon = 'leaf';
-            else if(s === 'zoology') icon = 'dog';
-            else icon = 'trophy'; // AIITS ya naye subjects ke liye trophy icon
+        const mainSubs = ['physics', 'chemistry', 'botany', 'zoology'];
+        let mainHtml = '';
+        let customHtml = '';
+        let hasCustom = false;
 
-            gridHtml += `
-            <div class="card" onclick="openSubject('${s}')">
-                <i class="fas fa-${icon}" style="font-size: 2.5rem; color: var(--pw-blue);"></i>
-                <h3 style="text-transform: capitalize;">${s}</h3>
-            </div>`;
+        for (let s in config) {
+            if (mainSubs.includes(s)) {
+                let icon = s === 'physics' ? 'atom' : s === 'chemistry' ? 'flask' : s === 'botany' ? 'leaf' : 'dna';
+                mainHtml += `
+                <div class="main-card" onclick="openSubject('${s}')">
+                    <i class="fas fa-${icon}"></i>
+                    <h3>${s}</h3>
+                </div>`;
+            } else {
+                hasCustom = true;
+                customHtml += `
+                <div class="rect-card" onclick="openSubject('${s}')">
+                    <h3>${s.toUpperCase()}</h3>
+                    <i class="fas fa-arrow-right"></i>
+                </div>`;
+            }
         }
-        document.querySelector('.grid').innerHTML = gridHtml;
+        document.getElementById('main-subjects').innerHTML = mainHtml;
+        if(hasCustom) {
+            document.getElementById('custom-subjects-area').style.display = 'block';
+            document.getElementById('custom-list').innerHTML = customHtml;
+        }
     };
 
     function showPage(id, push = true) {
@@ -134,45 +198,49 @@
     function goBack() { if (pageStack.length > 1) { pageStack.pop(); showPage(pageStack[pageStack.length - 1], false); } }
 
     function openSubject(s) {
-        curSub = s; document.getElementById('sub-title').innerText = s.toUpperCase();
+        curSub = s;
+        document.getElementById('sub-title').innerText = s.toUpperCase();
+        
+        // AGAR DIRECT TEST HAI (BINA CHAPTER KE)
+        // Check if there is ONLY "Direct_Tests" folder
+        const chapters = Object.keys(config[s]);
+        if (chapters.length === 1 && chapters[0] === "Direct_Tests") {
+            openDPPs("Direct_Tests"); // Seedha DPP list kholo
+            return;
+        }
+
         let html = '';
         for (const ch in config[s]) {
-            html += `<div class="item-row" onclick="openDPPs('${ch}')"><span>${ch}</span><i class="fas fa-chevron-right"></i></div>`;
+            let title = (ch === "Direct_Tests") ? "General / Mixed Tests" : ch;
+            html += `<div class="item-row" onclick="openDPPs('${ch}')"><span>${title}</span><i class="fas fa-chevron-right"></i></div>`;
         }
         document.getElementById('chapter-list-content').innerHTML = html;
         showPage('page-chapters');
     }
 
-    // 2. Countdown Timer Logic
     function openDPPs(ch) {
-        document.getElementById('chapter-title-display').innerText = ch;
+        document.getElementById('chapter-title-display').innerText = (ch === "Direct_Tests") ? "Tests" : ch;
         const tests = config[curSub][ch];
-        let html = tests.length === 0 ? "<p>No tests</p>" : "";
-        
+        let html = '';
         const now = new Date().getTime();
 
         tests.forEach((t, i) => {
             let unlockTime = t.unlock_at ? new Date(t.unlock_at).getTime() : 0;
-            
             if (unlockTime && unlockTime > now) {
-                html += `
-                <div class="item-row" style="opacity: 0.6; cursor: not-allowed; background: #eee;">
-                    <span>${t.name} (Locked)</span>
-                    <span id="lock-${i}" style="color:red; font-size:0.8rem;">Counting...</span>
+                html += `<div class="item-row" style="opacity:0.6; cursor:not-allowed;">
+                    <span>${t.name}</span>
+                    <span id="lock-${i}" style="color:red; font-size:0.7rem;">Locked</span>
                 </div>`;
-                
-                let timer = setInterval(() => {
+                setInterval(() => {
                     let diff = unlockTime - new Date().getTime();
-                    if (diff <= 0) { clearInterval(timer); location.reload(); }
-                    let h = Math.floor(diff/(1000*60*60)), m = Math.floor((diff%(1000*60*60))/(1000*60)), s = Math.floor((diff%(1000*60))/1000);
+                    if(diff <= 0) { location.reload(); return; }
+                    let h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
                     let el = document.getElementById(`lock-${i}`);
                     if(el) el.innerText = `Unlocks in: ${h}h ${m}m ${s}s`;
                 }, 1000);
             } else {
-                html += `
-                <div class="item-row" onclick="loadInstructions('${t.file}', '${t.name}')">
-                    <span>${t.name}</span>
-                    <i class="fas fa-play-circle" style="color:green"></i>
+                html += `<div class="item-row" onclick="loadInstructions('${t.file}', '${t.name}')">
+                    <span>${t.name}</span><i class="fas fa-play-circle" style="color:var(--pw-blue)"></i>
                 </div>`;
             }
         });
@@ -181,14 +249,12 @@
     }
 
     async function loadInstructions(path, name) {
-        try {
-            const res = await fetch(`/get_test/${path}?t=${Date.now()}`);
-            questions = await res.json();
-            document.getElementById('ins-q-count').innerText = questions.length;
-            document.getElementById('ins-time').innerText = questions.length;
-            pendingFile = path; pendingName = name;
-            showPage('page-instructions');
-        } catch(e) { alert("Test load nahi ho raha!"); }
+        const res = await fetch(`/get_test/${path}?v=${Date.now()}`);
+        questions = await res.json();
+        document.getElementById('ins-q-count').innerText = questions.length;
+        document.getElementById('ins-time').innerText = questions.length;
+        pendingFile = path; pendingName = name;
+        showPage('page-instructions');
     }
 
     function actuallyStartTest() {
@@ -200,7 +266,8 @@
         tInt = setInterval(() => {
             timeLeft--;
             let m = Math.floor(Math.abs(timeLeft)/60), s = Math.abs(timeLeft)%60;
-            document.getElementById('timer').innerText = `${timeLeft<0?'-':''}${m}:${s<10?'0':''}${s}`;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(timeLeft === 0) submitTest();
         }, 1000);
         showPage('page-test');
         render(0);
@@ -208,28 +275,19 @@
 
     function render(i) {
         cur = i; const q = questions[i];
-        document.getElementById('q-idx').innerText = `Question ${i+1}`;
+        document.getElementById('q-idx').innerText = `Question ${i+1} of ${questions.length}`;
         document.getElementById('q-txt').innerText = q.q;
         const imgBox = document.getElementById('q-img-box');
-        if (q.img) {
-            imgBox.innerHTML = `<img src="${q.img}" class="q-img">`;
-            imgBox.style.display = "block";
-        } else { imgBox.style.display = "none"; }
-
+        imgBox.innerHTML = q.img ? `<img src="${q.img}" class="q-img" style="width:100%; border-radius:15px; margin:15px 0;">` : "";
         let h = '';
         q.options.forEach((o, idx) => h += `<div class="opt ${answers[i]===idx?'active':''}" onclick="pick(${idx})">${o}</div>`);
         document.getElementById('opts').innerHTML = h;
-
-        let p = '';
-        questions.forEach((_, idx) => p += `<div class="dot ${status[idx]==='saved'?'saved':''}" style="${cur===idx?'border:2px solid blue;':''}" onclick="render(${idx})">${idx+1}</div>`);
-        document.getElementById('palette').innerHTML = p;
     }
 
     function pick(idx) { answers[cur] = idx; status[cur] = 'saved'; render(cur); }
-    function nextQ() { if(cur < questions.length - 1) render(cur + 1); }
+    function nextQ() { if(cur < questions.length - 1) render(cur + 1); else alert("Last question! Click Submit to finish."); }
 
     function submitTest() {
-        if(!confirm("Submit?")) return;
         clearInterval(tInt);
         let correct = 0, wrong = 0, skipped = 0;
         questions.forEach((q, i) => {
@@ -239,7 +297,7 @@
         });
         document.getElementById('score-summary').innerText = `Score: ${(correct*4)-wrong}`;
         showPage('page-res');
-        new Chart(document.getElementById('resultChart'), { type: 'pie', data: { labels: ['Right', 'Wrong', 'Skipped'], datasets: [{ data: [correct, wrong, skipped], backgroundColor: ['#28a745', '#dc3545', '#ffc107'] }] } });
+        new Chart(document.getElementById('resultChart'), { type: 'doughnut', data: { labels: ['Right', 'Wrong', 'Skipped'], datasets: [{ data: [correct, wrong, skipped], backgroundColor: ['#28a745', '#dc3545', '#ffc107'], borderWidth: 0 }] }, options: { cutout: '70%' } });
     }
 </script>
 </body>
