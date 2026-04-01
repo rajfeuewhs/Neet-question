@@ -83,22 +83,28 @@ def save_test():
         return jsonify({"success": True})
     except Exception as e: return jsonify({"success": False, "message": str(e)})
 
-@app.route('/delete_test', methods=['POST'])
-def delete_test():
+@app.route('/delete_item', methods=['POST'])
+def delete_item():
     try:
         data = request.json
-        sub, chap, t_name = data['subject'], data['chapter'], data['test_name']
-        
+        sub = data.get('subject')
+        chap = data.get('chapter')
+        t_name = data.get('test_name')
+        target = data.get('target') # 'subject', 'chapter', 'test'
+
         r_conf = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
         config_data = r_conf.json() if r_conf.status_code == 200 else {}
 
-        if sub in config_data and chap in config_data[sub]:
+        if target == 'test' and sub in config_data and chap in config_data[sub]:
             config_data[sub][chap] = [t for t in config_data[sub][chap] if t['name'] != t_name]
             if not config_data[sub][chap]: del config_data[sub][chap]
-            
-            github_upload("data/config.json", json.dumps(config_data, indent=2), f"Delete: {t_name}")
-            return jsonify({"success": True})
-        return jsonify({"success": False, "message": "Not Found"})
+        elif target == 'chapter' and sub in config_data:
+            if chap in config_data[sub]: del config_data[sub][chap]
+        elif target == 'subject':
+            if sub in config_data: del config_data[sub]
+
+        github_upload("data/config.json", json.dumps(config_data, indent=2), f"Delete {target}: {sub}/{chap}/{t_name}")
+        return jsonify({"success": True})
     except Exception as e: return jsonify({"success": False, "message": str(e)})
 
 if __name__ == '__main__':
