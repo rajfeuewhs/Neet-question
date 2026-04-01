@@ -23,6 +23,23 @@ def get_config():
         return jsonify(r.json()) if r.status_code == 200 else jsonify({})
     except: return jsonify({})
 
+# NEW: Get Background Config
+@app.route('/get_bg_config')
+def get_bg_config():
+    try:
+        r = requests.get(f"{RAW_BASE_URL}bg_config.json?v={int(time.time())}")
+        return jsonify(r.json()) if r.status_code == 200 else jsonify({"bg_url": ""})
+    except: return jsonify({"bg_url": ""})
+
+# NEW: Save Background Config
+@app.route('/save_bg_config', methods=['POST'])
+def save_bg_config():
+    try:
+        data = request.json
+        github_upload("data/bg_config.json", json.dumps(data, indent=2), "Update App Background")
+        return jsonify({"success": True})
+    except: return jsonify({"success": False})
+
 @app.route('/get_test/<path:p>')
 def get_test(p):
     try:
@@ -48,27 +65,19 @@ def save_test():
         sub = data['subject'].lower().strip()
         chap = data['chapter'].strip() if data['chapter'] else "Direct_Tests"
         t_name = data['test_name'].strip()
-        
         safe_chap = chap.replace(' ', '_').replace(':', '')
         safe_name = t_name.replace(' ', '_')
         file_path = f"data/{sub}/{safe_chap}/{safe_name}.json"
-        
         github_upload(file_path, json.dumps(data['questions'], indent=2), f"Add {t_name}")
-        
         r_conf = requests.get(f"{RAW_BASE_URL}config.json?v={int(time.time())}")
         config_data = r_conf.json() if r_conf.status_code == 200 else {}
-
         if sub not in config_data: config_data[sub] = {}
         if chap not in config_data[sub]: config_data[sub][chap] = []
-        
         config_data[sub][chap] = [t for t in config_data[sub][chap] if t['name'] != t_name]
-        config_data[sub][chap].append({
-            "name": t_name, "file": f"{sub}/{safe_chap}/{safe_name}", "unlock_at": data.get('unlock_at', "")
-        })
-            
+        config_data[sub][chap].append({"name": t_name, "file": f"{sub}/{safe_chap}/{safe_name}", "unlock_at": data.get('unlock_at', "")})
         github_upload("data/config.json", json.dumps(config_data, indent=2), "Update Config")
         return jsonify({"success": True})
-    except Exception as e: return jsonify({"success": False, "message": str(e)})
+    except: return jsonify({"success": False})
 
 @app.route('/delete_item', methods=['POST'])
 def delete_item():
@@ -77,20 +86,16 @@ def delete_item():
         sub, chap, t_name, target = data.get('subject'), data.get('chapter'), data.get('test_name'), data.get('target')
         r_conf = requests.get(f"{RAW_BASE_URL}config.json?v={int(time.time())}")
         config_data = r_conf.json() if r_conf.status_code == 200 else {}
-
         if target == 'test':
-            real_chap = chap if chap else "Direct_Tests"
-            if sub in config_data and real_chap in config_data[sub]:
-                config_data[sub][real_chap] = [t for t in config_data[sub][real_chap] if t['name'] != t_name]
-                if not config_data[sub][real_chap]: del config_data[sub][real_chap]
-        elif target == 'chapter':
-            if sub in config_data and chap in config_data[sub]: del config_data[sub][chap]
-        elif target == 'subject':
-            if sub in config_data: del config_data[sub]
-
+            rc = chap if chap else "Direct_Tests"
+            if sub in config_data and rc in config_data[sub]:
+                config_data[sub][rc] = [t for t in config_data[sub][rc] if t['name'] != t_name]
+                if not config_data[sub][rc]: del config_data[sub][rc]
+        elif target == 'chapter': del config_data[sub][chap]
+        elif target == 'subject': del config_data[sub]
         github_upload("data/config.json", json.dumps(config_data, indent=2), f"Delete {target}")
         return jsonify({"success": True})
-    except Exception as e: return jsonify({"success": False, "message": str(e)})
+    except: return jsonify({"success": False})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
