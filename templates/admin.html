@@ -9,11 +9,11 @@
         .tabs { display: flex; gap: 5px; margin-bottom: 20px; }
         .tab-btn { flex: 1; padding: 10px; cursor: pointer; border: none; border-radius: 8px; background: #ddd; font-weight: bold; }
         .tab-btn.active { background: #1b10b1; color: white; }
-        input, select, textarea { width: 100%; padding: 10px; margin: 5px 0; border-radius: 6px; border: 1px solid #ddd; box-sizing: border-box; }
-        .collapsible { background: #1b10b1; color: white; cursor: pointer; padding: 10px; width: 100%; border: none; text-align: left; margin-top: 5px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        .collapsible { background: #1b10b1; color: white; cursor: pointer; padding: 12px; width: 100%; border: none; text-align: left; margin-top: 8px; border-radius: 5px; display: flex; justify-content: space-between; }
         .content { display: none; padding: 5px 15px; border-left: 2px solid #1b10b1; background: #fafafa; }
-        .item-box { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; }
-        .del-btn { background: #ff4d4d; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; }
+        .item-box { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+        .del-btn { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.7rem; }
     </style>
 </head>
 <body>
@@ -24,114 +24,106 @@
         </div>
 
         <div id="upload-sec">
-            <h3>Upload & Schedule Test</h3>
-            <select id="sub" onchange="toggleCustom(this.value)">
+            <h3 style="color:#1b10b1">Upload Test</h3>
+            <select id="sub-select" onchange="checkNew(this, 'custom-sub')">
                 <option value="physics">Physics</option>
                 <option value="chemistry">Chemistry</option>
                 <option value="botany">Botany</option>
                 <option value="zoology">Zoology</option>
-                <option value="custom">-- Add New Subject --</option>
+                <option value="new">-- Add New Subject (e.g. 720 Exam) --</option>
             </select>
-            <input type="text" id="custom-sub" placeholder="New Subject Name" style="display:none;">
-            <input type="text" id="chap" placeholder="Chapter Name">
-            <input type="text" id="tname" placeholder="Test Name (e.g. DPP 01)">
-            <label style="font-size: 0.8rem;">Unlock Time (Optional):</label>
+            <input type="text" id="custom-sub" placeholder="Enter New Subject Name" style="display:none;">
+
+            <input type="text" id="chap-name" placeholder="Chapter Name (Naya hai toh likh dein)">
+            <input type="text" id="t-name" placeholder="Test Name (DPP 01 / Full Test)">
+            <label style="font-size:0.8rem">Unlock At (Optional):</label>
             <input type="datetime-local" id="unlock">
-            <textarea id="jsondata" rows="8" placeholder='Paste JSON here... Example: [{"q":"...","options":[],"correct_ans":0}]'></textarea>
-            <button onclick="upload()" style="width:100%; padding:12px; background:#1b10b1; color:white; border:none; border-radius:8px; margin-top:10px; font-weight:bold; cursor:pointer;">PUBLISH TEST</button>
+            <textarea id="json-data" rows="6" placeholder="Paste Questions JSON here..."></textarea>
+            <button onclick="saveTest()" style="width:100%; padding:15px; background:#1b10b1; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">PUBLISH TEST</button>
         </div>
 
         <div id="manage-sec" style="display:none;">
-            <h3>🛠️ Management (Click to Expand)</h3>
+            <h3 style="color:#1b10b1">Manage Items</h3>
             <div id="manage-tree">Loading...</div>
         </div>
     </div>
 
     <script>
         function showTab(t) {
-            document.getElementById('upload-sec').style.display = t=='upload'?'block':'none';
-            document.getElementById('manage-sec').style.display = t=='manage'?'block':'none';
-            document.getElementById('btn-up').classList.toggle('active', t=='upload');
-            document.getElementById('btn-mn').classList.toggle('active', t=='manage');
-            if(t=='manage') loadTree();
+            document.getElementById('upload-sec').style.display = (t=='upload')?'block':'none';
+            document.getElementById('manage-sec').style.display = (t=='manage')?'block':'none';
+            document.getElementById('btn-up').className = t=='upload'?'tab-btn active':'tab-btn';
+            document.getElementById('btn-mn').className = t=='manage'?'tab-btn active':'tab-btn';
+            if(t=='manage') loadManage();
         }
 
-        function toggleCustom(v) { 
-            document.getElementById('custom-sub').style.display = (v=='custom') ? 'block' : 'none'; 
+        function checkNew(el, targetId) {
+            document.getElementById(targetId).style.display = (el.value === 'new') ? 'block' : 'none';
         }
 
-        async function upload() {
+        async function saveTest() {
+            const sub = document.getElementById('sub-select').value;
+            const finalSub = (sub === 'new') ? document.getElementById('custom-sub').value : sub;
+            const chap = document.getElementById('chap-name').value;
+            const tname = document.getElementById('t-name').value;
+            const jsonText = document.getElementById('json-data').value;
+
+            if(!finalSub || !chap || !tname || !jsonText) return alert("Sari fields bhariye!");
+
             try {
-                const sub = document.getElementById('sub').value;
-                const finalSub = (sub=='custom') ? document.getElementById('custom-sub').value : sub;
-                const questions = JSON.parse(document.getElementById('jsondata').value);
-                
                 const data = {
-                    subject: finalSub, 
-                    chapter: document.getElementById('chap').value,
-                    test_name: document.getElementById('tname').value,
+                    subject: finalSub, chapter: chap, test_name: tname,
                     unlock_at: document.getElementById('unlock').value,
-                    questions: questions
+                    questions: JSON.parse(jsonText)
                 };
-
-                const res = await fetch('/save_test', { 
-                    method: 'POST', 
-                    headers: {'Content-Type': 'application/json'}, 
-                    body: JSON.stringify(data) 
+                const res = await fetch('/save_test', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
                 });
                 const r = await res.json();
-                alert(r.success ? "Successfully Published!" : "Error: " + r.message);
-                if(r.success) location.reload();
-            } catch(e) {
-                alert("JSON Format galat hai! Kripya sahi JSON paste karein.");
-            }
+                if(r.success) { alert("Test Uploaded!"); location.reload(); }
+            } catch(e) { alert("JSON format galat hai!"); }
         }
 
-        async function loadTree() {
+        async function loadManage() {
             const res = await fetch('/get_config?t=' + Date.now());
             const config = await res.json();
-            let h = '';
+            let html = '';
             for (let s in config) {
-                h += `<button class="collapsible" onclick="toggleDisplay('sub-${s}')">
-                        📁 ${s.toUpperCase()} 
-                        <span onclick="event.stopPropagation(); handleDelete({subject:'${s}', target:'subject'})" style="background:red; padding:2px 5px; font-size:10px; border-radius:3px;">DEL SUBJECT</span>
-                      </button>
+                html += `<button class="collapsible" onclick="toggle('sub-${s}')">📁 ${s.toUpperCase()} <span onclick="event.stopPropagation(); deleteItem({subject:'${s}', target:'subject'})" style="background:red; padding:2px 5px; border-radius:3px; font-size:10px;">DELETE</span></button>
                 <div id="sub-${s}" class="content">`;
                 for (let c in config[s]) {
-                    const cId = `chap-${s}-${c.replace(/\s+/g, '_')}`;
-                    h += `<div class="item-box" style="background:#eee; margin-top:5px; cursor:pointer;" onclick="toggleDisplay('${cId}')">
+                    const cId = `chap-${s}-${c.replace(/\s+/g,'_')}`;
+                    html += `<div class="item-box" style="background:#eee; margin-top:5px; cursor:pointer;" onclick="toggle('${cId}')">
                         <b>📖 ${c}</b>
-                        <button class="del-btn" style="background:orange;" onclick="event.stopPropagation(); handleDelete({subject:'${s}', chapter:'${c}', target:'chapter'})">Del Chap</button>
+                        <button class="del-btn" style="background:orange;" onclick="event.stopPropagation(); deleteItem({subject:'${s}', chapter:'${c}', target:'chapter'})">Del Chap</button>
                     </div>
                     <div id="${cId}" class="content">`;
                     config[s][c].forEach(t => {
-                        h += `<div class="item-box">
-                            <span>📄 ${t.name}</span>
-                            <button class="del-btn" onclick="handleDelete({subject:'${s}', chapter:'${c}', test_name:'${t.name}', target:'test'})">Delete</button>
-                        </div>`;
+                        html += `<div class="item-box"><span>📄 ${t.name}</span><button class="del-btn" onclick="deleteItem({subject:'${s}', chapter:'${c}', test_name:'${t.name}', target:'test'})">Delete</button></div>`;
                     });
-                    h += `</div>`;
+                    html += `</div>`;
                 }
-                h += `</div>`;
+                html += `</div>`;
             }
-            document.getElementById('manage-tree').innerHTML = h || "Abhi tak koi data nahi hai.";
+            document.getElementById('manage-tree').innerHTML = html || "No data.";
         }
 
-        function toggleDisplay(id) {
+        function toggle(id) {
             let el = document.getElementById(id);
             if(el) el.style.display = (el.style.display === "block") ? "none" : "block";
         }
 
-        async function handleDelete(p) {
-            if(!confirm("Kya aap ise delete karna chahte hain?")) return;
-            const res = await fetch('/delete_item', { 
-                method: 'POST', 
-                headers: {'Content-Type': 'application/json'}, 
-                body: JSON.stringify(p) 
+        async function deleteItem(params) {
+            if(!confirm("Kya aap delete karna chahte hain?")) return;
+            const res = await fetch('/delete_item', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(params)
             });
             const r = await res.json();
-            if(r.success) loadTree();
-            else alert("Error: Delete nahi ho paya.");
+            if(r.success) loadManage();
         }
     </script>
 </body>
