@@ -57,11 +57,6 @@
       {
         "name": "DPP_02",
         "file": "chemistry/Chemical_Bonding/DPP_02"
-      },
-      {
-        "name": "Dpp 8",
-        "file": "chemistry/Chemical_Bonding/Dpp_8",
-        "unlock_at": ""
       }
     ],
     "Thermodynamics": [
@@ -168,15 +163,6 @@
         "name": "ddp_10",
         "file": "zoology/11/ddp_10",
         "unlock_at": ""
-      }
-    ]
-  },
-  "720marks": {
-    "Direct_Tests": [
-      {
-        "name": "dpp_04",
-        "file": "720marks/Direct_Tests/dpp_04",
-        "unlock_at": "2026-04-01T17:06"
       }
     ]
   }
