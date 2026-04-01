@@ -93,7 +93,6 @@
     "Biological Classification": [],
     "Plant Kingdom": [],
     "Morphology of Flowering Plants": [],
-    "Anatomy of Flowering Plants": [],
     "Cell Cycle and Cell Division": [],
     "Photosynthesis in Higher Plants": [],
     "Respiration in Plants": [],
@@ -101,13 +100,7 @@
   },
   "zoology": {
     "Structural Organisation in Animals": [],
-    "Biomolecules": [
-      {
-        "name": "dpp_01",
-        "file": "zoology/Biomolecules/dpp_01",
-        "unlock_at": ""
-      }
-    ],
+    "Biomolecules": [],
     "Breathing and Exchange of Gases": [],
     "Body Fluids and Circulation": [],
     "Excretory Products and Their Elimination": [],
