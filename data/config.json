@@ -113,7 +113,14 @@
     "Excretory Products and Their Elimination": [],
     "Locomotion and Movement": [],
     "Neural Control and Coordination": [],
-    "Chemical Coordination and Integration": []
+    "Chemical Coordination and Integration": [],
+    "AAITS": [
+      {
+        "name": "aaits 1",
+        "file": "zoology/AAITS/aaits_1",
+        "unlock_at": ""
+      }
+    ]
   },
   "kinf": {
     "AAITS": [
