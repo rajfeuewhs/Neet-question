@@ -123,14 +123,5 @@
         "unlock_at": ""
       }
     ]
-  },
-  "180": {
-    "kill": [
-      {
-        "name": "aaits 1",
-        "file": "180/kill/aaits_1",
-        "unlock_at": "2026-04-01T11:40"
-      }
-    ]
   }
 }
