@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>NEET Admin Master</title>
+    <title>Master Admin Panel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body { font-family: sans-serif; padding: 15px; background: #f4f7fe; }
@@ -9,30 +9,30 @@
         .tabs { display: flex; gap: 5px; margin-bottom: 20px; }
         .tab-btn { flex: 1; padding: 10px; cursor: pointer; border: none; border-radius: 8px; background: #ddd; font-weight: bold; }
         .tab-btn.active { background: #1b10b1; color: white; }
-        input, select, textarea { width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
-        .collapsible { background: #1b10b1; color: white; cursor: pointer; padding: 12px; width: 100%; border: none; text-align: left; margin-top: 8px; border-radius: 5px; display: flex; justify-content: space-between; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        .collapsible { background: #1b10b1; color: white; cursor: pointer; padding: 12px; width: 100%; border: none; text-align: left; margin-top: 8px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
         .content { display: none; padding: 5px 15px; border-left: 2px solid #1b10b1; background: #fafafa; }
         .item-box { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
-        .del-btn { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.7rem; }
+        .del-btn { background: #ff4d4d; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; }
     </style>
 </head>
 <body>
     <div class="box">
         <div class="tabs">
-            <button class="tab-btn active" id="btn-up" onclick="showTab('upload')">UPLOAD</button>
-            <button class="tab-btn" id="btn-mn" onclick="showTab('manage')">MANAGE DATA</button>
+            <button class="tab-btn active" onclick="showTab('upload')">UPLOAD</button>
+            <button class="tab-btn" onclick="showTab('manage')">MANAGE DATA</button>
         </div>
 
         <div id="upload-sec">
-            <h3>🚀 Fast Upload</h3>
+            <h3 style="color:#1b10b1">🚀 Upload System</h3>
             <label>Subject:</label>
             <select id="sub-select" onchange="loadChaps(this.value)">
                 <option value="">-- Select Subject --</option>
                 <option value="physics">Physics</option><option value="chemistry">Chemistry</option>
                 <option value="botany">Botany</option><option value="zoology">Zoology</option>
             </select>
-            <input type="text" id="custom-sub" placeholder="Enter New Subject Name" style="display:none;">
-            <button onclick="toggleNewSub()" id="new-sub-btn" style="background:#444; font-size:0.7rem; padding:5px; margin-bottom:10px; color:white; border:none; cursor:pointer;">+ Create New Subject</button>
+            <input type="text" id="custom-sub" placeholder="New Subject Name" style="display:none;">
+            <button onclick="toggleNewSub()" id="new-sub-btn" style="background:#444; color:white; border:none; padding:5px; margin-bottom:10px; border-radius:4px; cursor:pointer;">+ Create New Subject</button>
 
             <label>Chapter (Optional):</label>
             <select id="chap-select" onchange="checkNewChap(this.value)">
@@ -42,12 +42,12 @@
 
             <input type="text" id="t-name" placeholder="Test Name (e.g. DPP 01)">
             <input type="datetime-local" id="unlock">
-            <textarea id="json-data" rows="5" placeholder="Paste JSON here..."></textarea>
-            <button onclick="saveTest()" id="up-btn" style="width:100%; padding:12px; background:#1b10b1; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">PUBLISH TEST</button>
+            <textarea id="json-data" rows="6" placeholder='[{"q":"Q Text","img":"","options":["A","B","C","D"],"correct_ans":0}]'></textarea>
+            <button onclick="saveTest()" id="up-btn" style="width:100%; padding:15px; background:#1b10b1; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">PUBLISH TEST</button>
         </div>
 
         <div id="manage-sec" style="display:none;">
-            <h3>🛠️ Manage Items</h3>
+            <h3 style="color:#1b10b1">🛠️ Manage Items</h3>
             <div id="manage-tree">Loading...</div>
         </div>
     </div>
@@ -109,8 +109,6 @@
         function showTab(t) {
             document.getElementById('upload-sec').style.display = (t=='upload')?'block':'none';
             document.getElementById('manage-sec').style.display = (t=='manage')?'block':'none';
-            document.getElementById('btn-up').className = t=='upload'?'tab-btn active':'tab-btn';
-            document.getElementById('btn-mn').className = t=='manage'?'tab-btn active':'tab-btn';
             if(t=='manage') loadManage();
         }
 
@@ -120,14 +118,14 @@
             const fChap = (chapVal === 'new') ? document.getElementById('new-chap-input').value : chapVal;
             const btn = document.getElementById('up-btn');
             
-            if(!fSub || !document.getElementById('t-name').value) return alert("Subject aur Test Name bhariye!");
+            if(!fSub || !document.getElementById('t-name').value) return alert("Fill all fields!");
 
-            btn.disabled = true; btn.innerText = "Syncing...";
+            btn.disabled = true; btn.innerText = "Publishing...";
             const data = { subject: fSub, chapter: fChap, test_name: document.getElementById('t-name').value, unlock_at: document.getElementById('unlock').value, questions: JSON.parse(document.getElementById('json-data').value) };
             
             const res = await fetch('/save_test', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
             const r = await res.json();
-            if(r.success) { alert("Test Published!"); location.reload(); } else { alert("Error"); btn.disabled = false; }
+            if(r.success) { alert("Success!"); location.reload(); } else { alert("Error"); btn.disabled = false; }
         }
 
         async function loadManage() {
@@ -138,8 +136,8 @@
                 <div id="sub-${s}" class="content">`;
                 for (let c in config[s]) {
                     const cId = `chap-${s}-${c.replace(/\s+/g,'_')}`;
-                    let displayTitle = (c === "Direct_Tests") ? "📖 DIRECT TESTS / AIITS" : "📖 " + c;
-                    h += `<div class="item-box" style="background:#eee; margin-top:5px; cursor:pointer;" onclick="toggle('${cId}')"><b>${displayTitle}</b><button class="del-btn" style="background:orange;" onclick="event.stopPropagation(); del({subject:'${s}', chapter:'${c}', target:'chapter'})">Del Chap</button></div>
+                    let title = (c === "Direct_Tests") ? "📖 DIRECT TESTS" : "📖 " + c;
+                    h += `<div class="item-box" style="background:#eee; margin-top:5px; cursor:pointer;" onclick="toggle('${cId}')"><b>${title}</b><button class="del-btn" style="background:orange;" onclick="event.stopPropagation(); del({subject:'${s}', chapter:'${c}', target:'chapter'})">Del Chap</button></div>
                     <div id="${cId}" class="content">`;
                     config[s][c].forEach(t => {
                         h += `<div class="item-box"><span>📄 ${t.name}</span><button class="del-btn" onclick="del({subject:'${s}', chapter:'${c}', test_name:'${t.name}', target:'test'})">Delete</button></div>`;
