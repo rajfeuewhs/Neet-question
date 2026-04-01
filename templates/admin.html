@@ -1,31 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>NEET Admin Pro</title>
+    <title>Advanced Admin Panel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f4f7fe; }
-        .box { background: white; padding: 25px; border-radius: 15px; max-width: 600px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .box { background: white; padding: 25px; border-radius: 15px; max-width: 700px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 10px; cursor: pointer; border: none; border-radius: 8px; background: #ddd; font-weight: bold; }
+        .tab-btn { flex: 1; padding: 12px; cursor: pointer; border: none; border-radius: 8px; background: #ddd; font-weight: bold; }
         .tab-btn.active { background: #1b10b1; color: white; }
         label { font-weight: bold; display: block; margin-top: 15px; }
         input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
         .main-btn { width: 100%; padding: 15px; background: #1b10b1; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 20px; }
-        .del-btn { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
-        .list-item { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee; }
+        .tree-container { background: #fff; padding: 10px; border-radius: 10px; }
+        .sub-row { background: #1b10b1; color: white; padding: 10px; border-radius: 8px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .chap-row { background: #f0f2ff; padding: 8px 15px; margin: 8px 0 8px 20px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid #1b10b1; }
+        .test-row { background: #fff; padding: 6px 15px; margin: 4px 0 4px 40px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
+        .del-btn { background: #ff4d4d; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="box">
         <div class="tabs">
-            <button class="tab-btn active" id="btn-up" onclick="showTab('upload')">UPLOAD NEW</button>
-            <button class="tab-btn" id="btn-mn" onclick="showTab('manage')">MANAGE TESTS</button>
+            <button class="tab-btn active" id="btn-up" onclick="showTab('upload')">UPLOAD</button>
+            <button class="tab-btn" id="btn-mn" onclick="showTab('manage')">MANAGE DATA</button>
         </div>
 
         <div id="upload-sec">
             <h2 style="color:#1b10b1">🚀 Upload & Schedule</h2>
-            <label>Subject:</label>
             <select id="sub" onchange="toggleCustom(this.value)">
                 <option value="physics">Physics</option><option value="chemistry">Chemistry</option>
                 <option value="botany">Botany</option><option value="zoology">Zoology</option>
@@ -34,15 +36,14 @@
             <input type="text" id="custom-sub" placeholder="Enter New Subject Name" style="display:none;">
             <input type="text" id="chap" placeholder="Chapter Name">
             <input type="text" id="tname" placeholder="Test Name (e.g. DPP 01)">
-            <label>Unlock Time (Optional):</label>
             <input type="datetime-local" id="unlock">
             <textarea id="jsondata" rows="6" placeholder="Paste Questions JSON here..."></textarea>
             <button class="main-btn" onclick="upload()">PUBLISH TEST</button>
         </div>
 
         <div id="manage-sec" style="display:none;">
-            <h2 style="color:#1b10b1">🛠️ Manage Existing Tests</h2>
-            <div id="test-list">Loading...</div>
+            <h2 style="color:#1b10b1">🛠️ Advanced Tree Management</h2>
+            <div id="manage-tree" class="tree-container">Loading...</div>
         </div>
     </div>
 
@@ -52,7 +53,7 @@
             document.getElementById('manage-sec').style.display = t=='manage'?'block':'none';
             document.getElementById('btn-up').classList.toggle('active', t=='upload');
             document.getElementById('btn-mn').classList.toggle('active', t=='manage');
-            if(t=='manage') loadTests();
+            if(t=='manage') loadTree();
         }
 
         function toggleCustom(v) { document.getElementById('custom-sub').style.display = v=='custom'?'block':'none'; }
@@ -72,28 +73,36 @@
             if(r.success) location.reload();
         }
 
-        async function loadTests() {
+        async function loadTree() {
             const res = await fetch('/get_config?t=' + Date.now());
             const config = await res.json();
             let h = '';
             for(let s in config) {
+                h += `<div class="sub-row">
+                    <b>📁 Subject: ${s.toUpperCase()}</b>
+                    <button class="del-btn" onclick="handleDelete({subject:'${s}', target:'subject'})">DELETE SUBJECT</button>
+                </div>`;
                 for(let c in config[s]) {
+                    h += `<div class="chap-row">
+                        <span>📖 ${c}</span>
+                        <button class="del-btn" style="background:#ff9800" onclick="handleDelete({subject:'${s}', chapter:'${c}', target:'chapter'})">Delete Chapter</button>
+                    </div>`;
                     config[s][c].forEach(t => {
-                        h += `<div class="list-item">
-                            <div><b>${t.name}</b><br><small>${s} > ${c}</small></div>
-                            <button class="del-btn" onclick="deleteT('${s}','${c}','${t.name}')">DELETE</button>
+                        h += `<div class="test-row">
+                            <span>📄 ${t.name}</span>
+                            <button class="del-btn" onclick="handleDelete({subject:'${s}', chapter:'${c}', test_name:'${t.name}', target:'test'})">Delete DPP</button>
                         </div>`;
                     });
                 }
             }
-            document.getElementById('test-list').innerHTML = h || "No tests found.";
+            document.getElementById('manage-tree').innerHTML = h || "No data available.";
         }
 
-        async function deleteT(s, c, n) {
-            if(!confirm(`Delete "${n}"?`)) return;
-            const res = await fetch('/delete_test', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({subject:s, chapter:c, test_name:n}) });
+        async function handleDelete(params) {
+            if(!confirm(`Kya aap is ${params.target} ko sach mein delete karna chahte hain?`)) return;
+            const res = await fetch('/delete_item', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(params) });
             const r = await res.json();
-            if(r.success) loadTests(); else alert("Error");
+            if(r.success) loadTree(); else alert("Error");
         }
     </script>
 </body>
