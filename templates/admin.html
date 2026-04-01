@@ -24,15 +24,19 @@
         </div>
 
         <div id="upload-sec">
-            <h3>🚀 Fast Upload</h3>
+            <h3 style="color:#1b10b1">🚀 Fast Upload</h3>
+            <label>Subject:</label>
             <select id="sub-select" onchange="loadChaps(this.value)">
                 <option value="">-- Select Subject --</option>
-                <option value="physics">Physics</option><option value="chemistry">Chemistry</option>
-                <option value="botany">Botany</option><option value="zoology">Zoology</option>
-                <option value="new">-- Add New Subject --</option>
-            </select>
-            <input type="text" id="custom-sub" placeholder="Enter New Subject Name" style="display:none;">
+                <option value="physics">Physics</option>
+                <option value="chemistry">Chemistry</option>
+                <option value="botany">Botany</option>
+                <option value="zoology">Zoology</option>
+                </select>
+            <input type="text" id="custom-sub" placeholder="Enter New Subject Name (e.g. AIITS)" style="display:none;">
+            <button onclick="toggleNewSub()" id="new-sub-btn" style="background:#444; font-size:0.7rem; padding:5px; margin-bottom:10px;">+ Create New Subject</button>
 
+            <label>Chapter:</label>
             <select id="chap-select" onchange="checkNewChap(this.value)">
                 <option value="">-- Select Chapter --</option>
             </select>
@@ -52,22 +56,52 @@
 
     <script>
         let config = {};
+        let isNewSub = false;
+
         async function fetchConfig() {
-            const res = await fetch('/get_config?t=' + Date.now());
+            const res = await fetch('/get_config?v=' + Date.now());
             config = await res.json();
+            updateSubDropdown();
         }
+
+        function updateSubDropdown() {
+            const select = document.getElementById('sub-select');
+            // Basic subjects ko chhod kar jo naye hain unhe list mein jodein
+            const basics = ['physics', 'chemistry', 'botany', 'zoology'];
+            for (let s in config) {
+                if (!basics.includes(s)) {
+                    let exists = false;
+                    for (let i=0; i<select.options.length; i++) {
+                        if(select.options[i].value === s) exists = true;
+                    }
+                    if (!exists) {
+                        let opt = document.createElement('option');
+                        opt.value = s; opt.innerText = s.toUpperCase();
+                        select.appendChild(opt);
+                    }
+                }
+            }
+        }
+
         window.onload = fetchConfig;
 
-        function showTab(t) {
-            document.getElementById('upload-sec').style.display = (t=='upload')?'block':'none';
-            document.getElementById('manage-sec').style.display = (t=='manage')?'block':'none';
-            document.getElementById('btn-up').className = t=='upload'?'tab-btn active':'tab-btn';
-            document.getElementById('btn-mn').className = t=='manage'?'tab-btn active':'tab-btn';
-            if(t=='manage') loadManage();
+        function toggleNewSub() {
+            isNewSub = !isNewSub;
+            const input = document.getElementById('custom-sub');
+            const select = document.getElementById('sub-select');
+            const btn = document.getElementById('new-sub-btn');
+            if(isNewSub) {
+                input.style.display = 'block';
+                select.disabled = true;
+                btn.innerText = "× Cancel New Subject";
+            } else {
+                input.style.display = 'none';
+                select.disabled = false;
+                btn.innerText = "+ Create New Subject";
+            }
         }
 
         function loadChaps(sub) {
-            document.getElementById('custom-sub').style.display = (sub === 'new') ? 'block' : 'none';
             const select = document.getElementById('chap-select');
             select.innerHTML = '<option value="">-- Select Chapter --</option>';
             if(config[sub]) {
@@ -77,25 +111,50 @@
                     select.appendChild(opt);
                 }
             }
-            let n = document.createElement('option'); n.value="new"; n.innerText="-- New Chapter --";
+            let n = document.createElement('option'); n.value="new"; n.innerText="-- Add New Chapter --";
             select.appendChild(n);
         }
 
-        function checkNewChap(v) { document.getElementById('new-chap-input').style.display = (v === 'new') ? 'block' : 'none'; }
+        function checkNewChap(v) { 
+            document.getElementById('new-chap-input').style.display = (v === 'new') ? 'block' : 'none'; 
+        }
+
+        function showTab(t) {
+            document.getElementById('upload-sec').style.display = (t=='upload')?'block':'none';
+            document.getElementById('manage-sec').style.display = (t=='manage')?'block':'none';
+            document.getElementById('btn-up').className = t=='upload'?'tab-btn active':'tab-btn';
+            document.getElementById('btn-mn').className = t=='manage'?'tab-btn active':'tab-btn';
+            if(t=='manage') loadManage();
+        }
 
         async function saveTest() {
-            const sub = document.getElementById('sub-select').value;
-            const fSub = (sub === 'new') ? document.getElementById('custom-sub').value : sub;
-            const chap = document.getElementById('chap-select').value;
-            const fChap = (chap === 'new') ? document.getElementById('new-chap-input').value : chap;
+            const subSelect = document.getElementById('sub-select');
+            const fSub = isNewSub ? document.getElementById('custom-sub').value : subSelect.value;
+            const chapSelect = document.getElementById('chap-select');
+            const fChap = (chapSelect.value === 'new') ? document.getElementById('new-chap-input').value : chapSelect.value;
             const btn = document.getElementById('up-btn');
             
-            btn.disabled = true; btn.innerText = "Syncing with GitHub...";
-            const data = { subject: fSub, chapter: fChap, test_name: document.getElementById('t-name').value, unlock_at: document.getElementById('unlock').value, questions: JSON.parse(document.getElementById('json-data').value) };
+            if(!fSub || !fChap) { alert("Subject aur Chapter bhariye!"); return; }
+
+            btn.disabled = true; btn.innerText = "GitHub Syncing (Wait 15s)...";
+            const data = { 
+                subject: fSub, 
+                chapter: fChap, 
+                test_name: document.getElementById('t-name').value, 
+                unlock_at: document.getElementById('unlock').value, 
+                questions: JSON.parse(document.getElementById('json-data').value) 
+            };
             
             const res = await fetch('/save_test', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
             const r = await res.json();
-            if(r.success) { alert("Test Live!"); location.reload(); } else { alert("Error"); btn.disabled = false; }
+            if(r.success) { 
+                alert("Upload Successful! Refreshing dropdowns..."); 
+                await fetchConfig(); // Refresh local config
+                location.reload(); 
+            } else { 
+                alert("Error: " + r.message); 
+                btn.disabled = false; 
+            }
         }
 
         async function loadManage() {
