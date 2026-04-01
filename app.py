@@ -40,11 +40,7 @@ def github_upload(path, content, message):
     headers = {"Authorization": f"token {GITHUB_TOKEN}", "Accept": "application/vnd.github.v3+json"}
     r = requests.get(url, headers=headers)
     sha = r.json().get('sha') if r.status_code == 200 else None
-    payload = {
-        "message": message,
-        "content": base64.b64encode(content.encode('utf-8')).decode('utf-8'),
-        "branch": "main"
-    }
+    payload = {"message": message, "content": base64.b64encode(content.encode('utf-8')).decode('utf-8'), "branch": "main"}
     if sha: payload["sha"] = sha
     return requests.put(url, headers=headers, json=payload)
 
@@ -55,38 +51,55 @@ def save_test():
         sub = data['subject'].lower()
         chap = data['chapter'].strip()
         t_name = data['test_name'].strip()
-        questions = data['questions']
-        unlock_at = data.get('unlock_at', "") # Naya scheduling field
-
+        
         safe_chap = chap.replace(' ', '_').replace(':', '').replace('__', '_')
         safe_name = t_name.replace(' ', '_')
         file_path = f"data/{sub}/{safe_chap}/{safe_name}.json"
         
-        # 1. Upload Questions
-        github_upload(file_path, json.dumps(questions, indent=2), f"Add test: {t_name}")
+        github_upload(file_path, json.dumps(data['questions'], indent=2), f"Add test: {t_name}")
         
-        # 2. Update Config
         r_conf = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
         config_data = r_conf.json() if r_conf.status_code == 200 else {}
 
         if sub not in config_data: config_data[sub] = {}
         if chap not in config_data[sub]: config_data[sub][chap] = []
         
-        # Update if exists, else add
         found = False
         for t in config_data[sub][chap]:
             if t['name'] == t_name:
-                t['unlock_at'] = unlock_at
+                t['unlock_at'] = data.get('unlock_at', "")
                 found = True
         
         if not found:
             config_data[sub][chap].append({
                 "name": t_name,
                 "file": f"{sub}/{safe_chap}/{safe_name}",
-                "unlock_at": unlock_at
+                "unlock_at": data.get('unlock_at', "")
             })
             
-        github_upload("data/config.json", json.dumps(config_data, indent=2), f"Update config for {t_name}")
+        github_upload("data/config.json", json.dumps(config_data, indent=2), f"Update config")
+        return jsonify({"success": True})
+    except Exception as e: return jsonify({"success": False, "message": str(e)})
+
+# Naya Delete Route (Hierarchy ke saath)
+@app.route('/delete_item', methods=['POST'])
+def delete_item():
+    try:
+        data = request.json
+        sub, chap, t_name, target = data.get('subject'), data.get('chapter'), data.get('test_name'), data.get('target')
+        
+        r_conf = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
+        config_data = r_conf.json() if r_conf.status_code == 200 else {}
+
+        if target == 'test' and sub in config_data and chap in config_data[sub]:
+            config_data[sub][chap] = [t for t in config_data[sub][chap] if t['name'] != t_name]
+            if not config_data[sub][chap]: del config_data[sub][chap]
+        elif target == 'chapter' and sub in config_data:
+            if chap in config_data[sub]: del config_data[sub][chap]
+        elif target == 'subject':
+            if sub in config_data: del config_data[sub]
+
+        github_upload("data/config.json", json.dumps(config_data, indent=2), f"Delete {target}")
         return jsonify({"success": True})
     except Exception as e: return jsonify({"success": False, "message": str(e)})
 
