@@ -2,7 +2,13 @@
   "physics": {
     "Motion in a Straight Line": [],
     "Motion in a Plane": [],
-    "Laws of Motion": [],
+    "Laws of Motion": [
+      {
+        "name": "Dpp 6",
+        "file": "physics/Laws_of_Motion/Dpp_6",
+        "unlock_at": ""
+      }
+    ],
     "Work, Energy and Power": [],
     "System of Particles": [],
     "Gravitation": [],
@@ -148,13 +154,6 @@
       {
         "name": "AAits",
         "file": "720marks//AAits",
-        "unlock_at": ""
-      }
-    ],
-    "Ty": [
-      {
-        "name": "Dpp3",
-        "file": "720marks/Ty/Dpp3",
         "unlock_at": ""
       }
     ]
