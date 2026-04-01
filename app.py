@@ -1,13 +1,8 @@
 from flask import Flask, render_template, jsonify, request
-import requests
-import base64
-import json
-import os
-import time
+import requests, base64, json, os, time
 
 app = Flask(__name__)
 
-# Render Secrets
 GITHUB_TOKEN = os.environ.get("MY_GITHUB_TOKEN")
 REPO_OWNER = "rajfeuewhs"
 REPO_NAME = "Neet-question"
@@ -23,14 +18,16 @@ def admin(): return render_template('admin.html')
 @app.route('/get_config')
 def get_config():
     try:
-        r = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
+        # Cache buster added to get fresh data every time
+        r = requests.get(f"{RAW_BASE_URL}config.json?v={int(time.time())}")
         return jsonify(r.json()) if r.status_code == 200 else jsonify({})
     except: return jsonify({})
 
 @app.route('/get_test/<path:p>')
 def get_test(p):
     try:
-        r = requests.get(f"{RAW_BASE_URL}{p}.json?t={int(time.time())}")
+        url = f"{RAW_BASE_URL}{p}.json" if not p.endswith('.json') else f"{RAW_BASE_URL}{p}"
+        r = requests.get(f"{url}?v={int(time.time())}")
         return jsonify(r.json()) if r.status_code == 200 else jsonify([])
     except: return jsonify([])
 
@@ -38,9 +35,16 @@ def github_upload(path, content, message):
     if not GITHUB_TOKEN: return None
     url = GITHUB_API_URL + path
     headers = {"Authorization": f"token {GITHUB_TOKEN}", "Accept": "application/vnd.github.v3+json"}
+    
+    # Get SHA for update
     r = requests.get(url, headers=headers)
     sha = r.json().get('sha') if r.status_code == 200 else None
-    payload = {"message": message, "content": base64.b64encode(content.encode('utf-8')).decode('utf-8'), "branch": "main"}
+    
+    payload = {
+        "message": message,
+        "content": base64.b64encode(content.encode('utf-8')).decode('utf-8'),
+        "branch": "main"
+    }
     if sha: payload["sha"] = sha
     return requests.put(url, headers=headers, json=payload)
 
@@ -48,56 +52,44 @@ def github_upload(path, content, message):
 def save_test():
     try:
         data = request.json
-        sub = data['subject'].lower()
-        chap = data['chapter'].strip()
-        t_name = data['test_name'].strip()
+        sub, chap, t_name = data['subject'].lower().strip(), data['chapter'].strip(), data['test_name'].strip()
         
-        safe_chap = chap.replace(' ', '_').replace(':', '').replace('__', '_')
+        safe_chap = chap.replace(' ', '_').replace(':', '')
         safe_name = t_name.replace(' ', '_')
         file_path = f"data/{sub}/{safe_chap}/{safe_name}.json"
         
-        github_upload(file_path, json.dumps(data['questions'], indent=2), f"Add test: {t_name}")
+        # 1. Upload DPP File
+        github_upload(file_path, json.dumps(data['questions'], indent=2), f"Add {t_name}")
         
-        r_conf = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
+        # 2. Get Config & Update (Optimized)
+        r_conf = requests.get(f"{RAW_BASE_URL}config.json?v={int(time.time())}")
         config_data = r_conf.json() if r_conf.status_code == 200 else {}
 
         if sub not in config_data: config_data[sub] = {}
         if chap not in config_data[sub]: config_data[sub][chap] = []
         
-        found = False
-        for t in config_data[sub][chap]:
-            if t['name'] == t_name:
-                t['unlock_at'] = data.get('unlock_at', "")
-                found = True
-        
-        if not found:
-            config_data[sub][chap].append({
-                "name": t_name,
-                "file": f"{sub}/{safe_chap}/{safe_name}",
-                "unlock_at": data.get('unlock_at', "")
-            })
+        config_data[sub][chap] = [t for t in config_data[sub][chap] if t['name'] != t_name]
+        config_data[sub][chap].append({
+            "name": t_name,
+            "file": f"{sub}/{safe_chap}/{safe_name}",
+            "unlock_at": data.get('unlock_at', "")
+        })
             
-        github_upload("data/config.json", json.dumps(config_data, indent=2), f"Update config")
+        github_upload("data/config.json", json.dumps(config_data, indent=2), "Fast Update")
         return jsonify({"success": True})
     except Exception as e: return jsonify({"success": False, "message": str(e)})
 
-# Naya Delete Route (Hierarchy ke saath)
 @app.route('/delete_item', methods=['POST'])
 def delete_item():
     try:
         data = request.json
         sub, chap, t_name, target = data.get('subject'), data.get('chapter'), data.get('test_name'), data.get('target')
-        
-        r_conf = requests.get(f"{RAW_BASE_URL}config.json?t={int(time.time())}")
+        r_conf = requests.get(f"{RAW_BASE_URL}config.json?v={int(time.time())}")
         config_data = r_conf.json() if r_conf.status_code == 200 else {}
 
-        if target == 'test' and sub in config_data and chap in config_data[sub]:
-            config_data[sub][chap] = [t for t in config_data[sub][chap] if t['name'] != t_name]
-            if not config_data[sub][chap]: del config_data[sub][chap]
-        elif target == 'chapter' and sub in config_data:
-            if chap in config_data[sub]: del config_data[sub][chap]
-        elif target == 'subject':
-            if sub in config_data: del config_data[sub]
+        if target == 'test': config_data[sub][chap] = [t for t in config_data[sub][chap] if t['name'] != t_name]
+        elif target == 'chapter': del config_data[sub][chap]
+        elif target == 'subject': del config_data[sub]
 
         github_upload("data/config.json", json.dumps(config_data, indent=2), f"Delete {target}")
         return jsonify({"success": True})
