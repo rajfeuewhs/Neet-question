@@ -101,7 +101,13 @@
   },
   "zoology": {
     "Structural Organisation in Animals": [],
-    "Biomolecules": [],
+    "Biomolecules": [
+      {
+        "name": "dpp_01",
+        "file": "zoology/Biomolecules/dpp_01",
+        "unlock_at": ""
+      }
+    ],
     "Breathing and Exchange of Gases": [],
     "Body Fluids and Circulation": [],
     "Excretory Products and Their Elimination": [],
