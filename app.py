@@ -1,7 +1,7 @@
 from flask import Flask, render_template, jsonify, request
 import requests, base64, json, os, time
 
-# Static folder support ke liye
+# Static folder support for bg.jpg and logo.png
 app = Flask(__name__, static_folder='static')
 
 # Render Secrets
@@ -54,7 +54,7 @@ def save_test():
         safe_name = t_name.replace(' ', '_')
         file_path = f"data/{sub}/{safe_chap}/{safe_name}.json"
         
-        # Upload question file
+        # Uploading question JSON to GitHub
         github_upload(file_path, json.dumps(data['questions'], indent=2), f"Add {t_name}")
         
         r_conf = requests.get(f"{RAW_BASE_URL}config.json?v={int(time.time())}")
@@ -63,12 +63,12 @@ def save_test():
         if sub not in config_data: config_data[sub] = {}
         if chap not in config_data[sub]: config_data[sub][chap] = []
         
-        # Timer (unlock_at) save karne ka logic
+        # Adding Timer (unlock_at) support
         config_data[sub][chap] = [t for t in config_data[sub][chap] if t['name'] != t_name]
         config_data[sub][chap].append({
             "name": t_name,
             "file": f"{sub}/{safe_chap}/{safe_name}",
-            "unlock_at": data.get('unlock_at', "") # Admin panel se timer yahan save hoga
+            "unlock_at": data.get('unlock_at', "") # Yeh timer save karega
         })
             
         github_upload("data/config.json", json.dumps(config_data, indent=2), "Update Config")
