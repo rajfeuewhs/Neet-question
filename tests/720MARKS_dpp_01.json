@@ -1,102 +1,52 @@
 [
   {
-    "q": "1. The alkane that can be oxidized to the corresponding alcohol by KMnO4 is, when:",
-    "options": [
-      "R1 = H; R2 = H; R3 = H",
-      "R1 = CH3; R2 = CH3; R3 = CH3",
-      "R1 = CH3; R2 = H; R3 = H",
-      "R1 = CH3; R2 = CH3; R3 = H"
-    ],
-    "correct_ans": 1
+    "question": "Which organelle is known as the powerhouse of the cell?",
+    "options": ["Nucleus", "Mitochondria", "Ribosome", "Golgi body"],
+    "correct": 1
   },
   {
-    "q": "2. Given below are two statements:\nStatement I: The boiling point of isomeric pentanes follows the order n-pentane > isopentane > neopentane.\nStatement II: When branching increases, surface area decreases, lowering the boiling point.",
-    "options": [
-      "Statement - I is correct but Statement II is incorrect.",
-      "Statement - I is incorrect but Statement - II is correct.",
-      "Both Statement - I and Statement II are correct.",
-      "Both Statement - I and Statement - II are incorrect."
-    ],
-    "correct_ans": 2
+    "question": "Which blood cells help in clotting of blood?",
+    "options": ["RBC", "WBC", "Platelets", "Plasma"],
+    "correct": 2
   },
   {
-    "q": "3. Weight (g) of two moles of the organic compound obtained by heating sodium ethanoate with sodium hydroxide in presence of calcium oxide is:",
-    "options": [
-      "18",
-      "16",
-      "32",
-      "30"
-    ],
-    "correct_ans": 2
+    "question": "Which vitamin is obtained from sunlight?",
+    "options": ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"],
+    "correct": 3
   },
   {
-    "q": "4. The decreasing order of boiling points of the following alkanes is:\n(a) heptane (b) butane (c) 2-methylbutane (d) 2-methylpropane (e) hexane",
-    "options": [
-      "(a) > (e) > (c) > (b) > (d)",
-      "(a) > (c) > (e) > (d) > (b)",
-      "(c) > (d) > (a) > (e) > (b)",
-      "(a) > (e) > (b) > (c) > (d)"
-    ],
-    "correct_ans": 0
+    "question": "Which part of brain controls balance of body?",
+    "options": ["Cerebrum", "Cerebellum", "Medulla", "Spinal cord"],
+    "correct": 1
   },
   {
-    "q": "5. Dihedral angle of least stable conformer of ethane is:",
-    "options": [
-      "180°",
-      "60°",
-      "0°",
-      "120°"
-    ],
-    "correct_ans": 2
+    "question": "Which gas is used by humans for respiration?",
+    "options": ["Carbon dioxide", "Oxygen", "Nitrogen", "Hydrogen"],
+    "correct": 1
   },
   {
-    "q": "6. Which of the following alkane cannot be made in good yield by Wurtz reaction?",
-    "options": [
-      "2,3-Dimethylbutane",
-      "n-Heptane",
-      "n-Butane",
-      "n-Hexane"
-    ],
-    "correct_ans": 1
+    "question": "Which type of blood cells fight infection?",
+    "options": ["RBC", "Platelets", "WBC", "Hemoglobin"],
+    "correct": 2
   },
   {
-    "q": "7. Which of the following is a free radical substitution reaction?",
-    "options": [
-      "Acetylene with HBr",
-      "Methane with Br2 (hv)",
-      "Propene with HBr/(C6H5COO)2",
-      "Benzene with Br2/AlCl3"
-    ],
-    "correct_ans": 1
+    "question": "DNA is present in which part of the cell?",
+    "options": ["Nucleus", "Cytoplasm", "Cell wall", "Ribosome"],
+    "correct": 0
   },
   {
-    "q": "8. Hydrocarbon (A) reacts with bromine by substitution to form an alkyl bromide which by Wurtz reaction gives gaseous hydrocarbon with less than four carbon atoms. (A) is:",
-    "options": [
-      "CH≡CH",
-      "CH2=CH2",
-      "CH4",
-      "CH3-CH3"
-    ],
-    "correct_ans": 2
+    "question": "Which organ purifies blood in human body?",
+    "options": ["Heart", "Lungs", "Kidney", "Liver"],
+    "correct": 2
   },
   {
-    "q": "9. With respect to conformers of ethane, which statement is true?",
-    "options": [
-      "Both bond angles and bond length remains same",
-      "Bond angle remains same but bond length changes",
-      "Bond angle changes but bond length remains same",
-      "Both bond angle and bond length change"
-    ],
-    "correct_ans": 0
+    "question": "Which hormone regulates blood sugar level?",
+    "options": ["Insulin", "Thyroxine", "Adrenaline", "Testosterone"],
+    "correct": 0
   },
   {
-    "q": "10. The correct statement regarding staggered and eclipsed conformations of ethane is:",
-    "options": [
-      "Staggered is more stable due to no torsional strain",
-      "Staggered is less stable due to torsional strain",
-      "Eclipsed is more stable due to no torsional strain",
-      "Eclipsed is more stable despite torsional strain"
-    ],
-    "correct_ans": 0
+    "question": "Which system is responsible for transport of oxygen in body?",
+    "options": ["Digestive system", "Respiratory system", "Circulatory system", "Nervous system"],
+    "correct": 2
   }
 ]
