@@ -186,5 +186,14 @@
         "unlock_at": ""
       }
     ]
+  },
+  "kinf214": {
+    "Direct_Tests": [
+      {
+        "name": "dpp_01",
+        "file": "kinf214/Direct_Tests/dpp_01",
+        "unlock_at": ""
+      }
+    ]
   }
 }
