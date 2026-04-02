@@ -3,213 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Target720 App</title>
+    <title>Target720</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --accent: #8b5cf6; --bg-dark: #121212; --card-bg: #1e1e1e; --text: #ffffff; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: url('/static/bg.jpg') no-repeat center center fixed; background-size: cover; color: var(--text); }
-        .page-section { display: none; min-height: 100vh; background: rgba(18, 18, 18, 0.9); }
+        :root { --accent: #8b5cf6; --card-bg: #1e1e1e; --text: #ffffff; }
+        body { font-family: sans-serif; margin: 0; background: #121212; color: var(--text); }
+        .page-section { display: none; min-height: 100vh; padding-bottom: 80px; }
         .active-page { display: block !important; }
         .container { max-width: 600px; margin: auto; padding: 15px; }
 
-        /* Modern App Header */
-        .branding { text-align: center; padding: 15px; background: #252525; border-radius: 0 0 25px 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); margin-bottom: 20px; }
-        .branding img { max-width: 140px; }
-
-        /* Subject Cards */
-        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .main-card { background: var(--card-bg); padding: 20px; border-radius: 18px; text-align: center; border: 1px solid #333; }
-        .rect-card { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); color: white; padding: 20px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-
-        /* Test Result UI */
-        .result-header { background: linear-gradient(135deg, #312e81, #1e1b4b); padding: 25px; border-radius: 20px; text-align: center; margin-bottom: 20px; border: 1px solid #4338ca; }
-        .progress-box { background: var(--card-bg); padding: 20px; border-radius: 20px; border: 1px solid #333; margin-top: 15px; }
-        .prog-bar { height: 8px; background: #333; border-radius: 10px; margin: 10px 0; overflow: hidden; }
-        .prog-fill { height: 100%; transition: 0.5s; }
-
-        /* Question UI */
-        .test-nav { background: #252525; padding: 15px; display: flex; gap: 8px; overflow-x: auto; border-radius: 10px; margin-bottom: 15px; }
-        .q-num { min-width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; background: #333; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .q-num.active { background: #8b5cf6; border: 2px solid white; }
-        .opt { padding: 16px; border: 1.5px solid #333; margin: 10px 0; border-radius: 12px; background: #252525; display: flex; align-items: center; gap: 10px; }
-        .opt.active { border-color: #8b5cf6; background: rgba(139, 92, 246, 0.15); }
+        /* Centered Header */
+        .header { padding: 15px; background: #1e1e1e; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #333; }
         
-        .footer { position: fixed; bottom: 0; width: 100%; background: #1e1e1e; padding: 15px; display: flex; gap: 10px; box-sizing: border-box; border-top: 1px solid #333; }
-        .btn { flex: 1; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+        /* Subject/Chapter Cards */
+        .item-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; cursor: pointer; }
+        
+        /* DPP Card Design (Clean - No Earn XP) */
+        .dpp-card { background: #1e1e1e; border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid #333; }
+        .dpp-info { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px; }
+        .dpp-icon { background: #ffdfba; width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #333; font-weight: bold; }
+        .dpp-meta h3 { margin: 0; font-size: 1rem; color: #fff; }
+        .dpp-meta p { margin: 5px 0; font-size: 0.8rem; color: #aaa; }
+        
+        .attempt-btn { background: #252525; color: #fff; width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+
+        /* Standard Buttons */
+        .footer { position: fixed; bottom: 0; width: 100%; background: #1e1e1e; padding: 15px; display: flex; gap: 10px; box-sizing: border-box; }
+        .btn { flex: 1; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="page-home" class="page-section active-page">
-    <div class="branding"><img src="/static/logo.png" onerror="this.outerHTML='<h2 style=color:var(--accent)>Target720</h2>'"></div>
-    <div class="container"><div class="main-grid" id="main-subs"></div><div id="custom-area" style="margin-top:20px;"><div id="custom-list"></div></div></div>
+    <div class="header"><h3>Subjects</h3></div>
+    <div class="container" id="main-subs"></div>
 </div>
 
-<div id="page-test" class="page-section">
-    <div style="padding:15px; display:flex; justify-content:space-between; align-items:center; background:#252525;">
-        <span id="timer" style="font-weight:bold; font-size:1.2rem;">03:00:00</span>
-        <button onclick="submitTest()" style="background:#8b5cf6; color:white; border:none; padding:8px 20px; border-radius:8px; font-weight:bold;">Submit DPP</button>
-    </div>
-    <div id="test-nav-content" class="test-nav"></div>
-    <div class="container">
-        <div id="marks-info" style="font-size:0.8rem; color:#aaa; margin-bottom:10px;">Marks: +4 -1 | Type: Single</div>
-        <div id="qt" style="font-size:1.2rem; line-height:1.5; margin-bottom:20px;"></div>
-        <div id="qimg"></div>
-        <div id="opts"></div>
-    </div>
-    <div class="footer">
-        <button class="btn" style="background:#333; color:white;" onclick="prevQ()">PREVIOUS</button>
-        <button class="btn" style="background:#8b5cf6; color:white;" onclick="nextQ()">SAVE & NEXT</button>
-    </div>
+<div id="page-chapters" class="page-section">
+    <div class="header"><i class="fas fa-arrow-left" onclick="goBack()"></i> <h3 id="sub-t"></h3></div>
+    <div class="container" id="chap-list"></div>
 </div>
 
-<div id="page-res" class="page-section">
-    <div class="container">
-        <div class="result-header">
-            <h3 id="res-title">The Living World : DPP 01</h3>
-            <div style="font-size:0.9rem; margin-top:5px;"><i class="fas fa-file-alt"></i> <span id="res-q-total"></span> Questions • <span id="res-m-total"></span> Marks</div>
-            <div style="display:flex; gap:10px; margin-top:15px;">
-                <button class="btn" style="background:#252525; color:white; border:1px solid #444;" onclick="location.reload()">Reattempt</button>
-                <button class="btn" style="background:#ddd; color:#111;" onclick="toggleAnalysis()">View Analysis</button>
-            </div>
-        </div>
-
-        <div class="progress-box">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div>SCORE<br><h1 id="score" style="margin:5px 0;">0</h1><small>out of <span id="max">0</span></small></div>
-                <div style="width:100px; height:60px;"><canvas id="miniChart"></canvas></div>
-            </div>
-            
-            <div style="margin-top:20px;">
-                <div style="display:flex; justify-content:space-between;"><small><i class="fas fa-check-circle" style="color:#22c55e"></i> Correct</small><b id="rc">0</b></div>
-                <div class="prog-bar"><div id="bar-r" class="prog-fill" style="background:#22c55e"></div></div>
-                
-                <div style="display:flex; justify-content:space-between; margin-top:10px;"><small><i class="fas fa-times-circle" style="color:#ef4444"></i> Incorrect</small><b id="wc">0</b></div>
-                <div class="prog-bar"><div id="bar-w" class="prog-fill" style="background:#ef4444"></div></div>
-                
-                <div style="display:flex; justify-content:space-between; margin-top:10px;"><small><i class="fas fa-forward" style="color:#aaa"></i> Skipped</small><b id="sc">0</b></div>
-                <div class="prog-bar"><div id="bar-s" class="prog-fill" style="background:#666"></div></div>
-            </div>
-        </div>
-        <button onclick="location.reload()" class="btn" style="background:#8b5cf6; color:white; width:100%; margin:20px 0;">BACK TO HOME</button>
-    </div>
+<div id="page-dpps" class="page-section">
+    <div class="header"><i class="fas fa-arrow-left" onclick="goBack()"></i> <h3 id="chap-t"></h3></div>
+    <div class="container" id="dpp-list"></div>
 </div>
 
 <script>
-    let config={}, questions=[], cur=0, answers=[], curSub="", timeLeft=0, tInt, pageStack=['page-home'];
+    let config={}, questions=[], curSub="", pageStack=['page-home'];
 
     window.onload = async () => {
         const res = await fetch('/get_config?v='+Date.now()); config = await res.json();
         renderHome();
-        // Double-Back exit logic
-        history.pushState(null,'','');
-        window.onpopstate = () => {
-            if(pageStack.length>1) { goBack(); history.pushState(null,'',''); }
-            else { alert("Press back again to exit"); history.pushState(null,'',''); }
-        };
     };
 
     function renderHome() {
-        const main = ['physics','chemistry','botany','zoology']; let mH='', cH='', hasC=false;
-        for (let s in config) {
-            if (main.includes(s)) {
-                let icon = s=='physics'?'atom':s=='chemistry'?'flask':s=='botany'?'leaf':'dna';
-                mH += `<div class="main-card" onclick="openSub('${s}')"><i class="fas fa-${icon}" style="font-size:2rem;color:var(--accent)"></i><h3>${s.toUpperCase()}</h3></div>`;
-            } else { hasC=true; cH += `<div class="rect-card" onclick="openSub('${s}')"><b>${s.toUpperCase()}</b><i class="fas fa-chevron-right"></i></div>`; }
+        let h=''; for(let s in config) {
+            h += `<div class="item-card" onclick="openSub('${s}')"><span>${s.toUpperCase()}</span><i class="fas fa-chevron-right"></i></div>`;
         }
-        document.getElementById('main-subs').innerHTML = mH;
-        if(hasC) { document.getElementById('custom-area').style.display='block'; document.getElementById('custom-list').innerHTML=cH; }
+        document.getElementById('main-subs').innerHTML = h;
     }
 
     function openSub(s) {
-        curSub = s; const chaps = config[s];
-        if(Object.keys(chaps).length == 1 && chaps["Direct_Tests"]) { openDPPs("Direct_Tests"); return; }
-        // ... (Chapter listing logic)
+        curSub = s; document.getElementById('sub-t').innerText = s.toUpperCase();
+        let h=''; for(let c in config[s]) {
+            if(c === "Direct_Tests") continue;
+            h += `<div class="item-card" onclick="openDPPs('${c}')"><div><b>${c}</b><br><small>DPPs: ${config[s][c].length}</small></div><i class="fas fa-chevron-right"></i></div>`;
+        }
+        document.getElementById('chap-list').innerHTML = h; showP('page-chapters');
     }
 
+    // Clean DPP Cards
     function openDPPs(c) {
+        document.getElementById('chap-t').innerText = c;
         const tests = config[curSub][c]; let h='';
-        tests.forEach((t, i) => {
-            // Timer check logic
-            let now = Date.now();
-            let unlock = t.unlock_at ? new Date(t.unlock_at).getTime() : 0;
-            if(unlock > now) {
-                h += `<div class="item-row" style="opacity:0.5"><span>${t.name} (Locked)</span><i class="fas fa-lock"></i></div>`;
-            } else {
-                h += `<div class="item-row" onclick="startT('${t.file}','${t.name}')"><span>${t.name}</span><i class="fas fa-play"></i></div>`;
-            }
+        tests.forEach(t => {
+            h += `
+            <div class="dpp-card">
+                <div class="dpp-info">
+                    <div class="dpp-icon">DPP</div>
+                    <div class="dpp-meta">
+                        <h3>${t.name}</h3>
+                        <p>Questions: ${t.qCount || '--'} | Marks: ${t.mCount || '--'}</p>
+                    </div>
+                </div>
+                <button class="attempt-btn" onclick="startT('${t.file}','${t.name}')">
+                    <i class="fas fa-arrow-circle-right"></i> Attempt
+                </button>
+            </div>`;
         });
-        document.getElementById('custom-list').innerHTML = h;
-    }
-
-    async function startT(p, n) {
-        const r = await fetch(`/get_test/${p}?v=${Date.now()}`); questions = await r.json();
-        answers = new Array(questions.length).fill(null);
-        timeLeft = 180 * 60; // 3 Hours
-        tInt = setInterval(() => { 
-            timeLeft--; 
-            let h=Math.floor(timeLeft/3600), m=Math.floor((timeLeft%3600)/60), s=timeLeft%60;
-            document.getElementById('timer').innerText = `${h<10?'0':''}${h}:${m<10?'0':''}${m}:${s<10?'0':''}${s}`;
-            if(timeLeft<=0) submitTest();
-        }, 1000);
-        showP('page-test'); render(0);
-        renderNav();
-    }
-
-    function renderNav() {
-        let h = '';
-        questions.forEach((_, i) => h += `<div class="q-num ${cur==i?'active':''}" onclick="render(${i})">${i+1}</div>`);
-        document.getElementById('test-nav-content').innerHTML = h;
-    }
-
-    function render(i) {
-        cur = i; const q = questions[i];
-        document.getElementById('qt').innerText = q.q;
-        document.getElementById('qimg').innerHTML = q.img ? `<img src="${q.img}" style="width:100%; border-radius:15px; margin:15px 0;">` : "";
-        let h = '';
-        q.options.forEach((o, idx) => h += `<div class="opt ${answers[i]===idx?'active':''}" onclick="pick(${idx})"><b>${idx+1}</b> ${o}</div>`);
-        document.getElementById('opts').innerHTML = h;
-        renderNav();
-    }
-
-    function pick(idx) { answers[cur] = idx; render(cur); }
-    function nextQ() { if(cur < questions.length-1) render(cur+1); }
-    function prevQ() { if(cur > 0) render(cur-1); }
-
-    function submitTest() {
-        clearInterval(tInt);
-        let r=0, w=0, s=0;
-        questions.forEach((q, i) => {
-            if(answers[i]===null) s++;
-            else if(answers[i]===q.correct_ans) r++;
-            else w++;
-        });
-        
-        // NEET Marking Calculation
-        let score = (r * 4) - w;
-        let max = questions.length * 4;
-        
-        document.getElementById('score').innerText = score;
-        document.getElementById('max').innerText = max;
-        document.getElementById('rc').innerText = r + "/" + questions.length;
-        document.getElementById('wc').innerText = w + "/" + questions.length;
-        document.getElementById('sc').innerText = s + "/" + questions.length;
-        
-        // Update bars
-        document.getElementById('bar-r').style.width = (r/questions.length*100) + "%";
-        document.getElementById('bar-w').style.width = (w/questions.length*100) + "%";
-        document.getElementById('bar-s').style.width = (s/questions.length*100) + "%";
-        
-        showP('page-res');
+        document.getElementById('dpp-list').innerHTML = h; showP('page-dpps');
     }
 
     function showP(id) {
-        document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active-page'));
+        document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active-page'));
         document.getElementById(id).classList.add('active-page');
-        pageStack.push(id);
+        if(pageStack[pageStack.length-1]!==id) pageStack.push(id);
     }
-    function goBack() { pageStack.pop(); showP(pageStack[pageStack.length-1]); }
+    function goBack() { pageStack.pop(); showP(pageStack[pageStack.length-1], false); }
 </script>
 </body>
 </html>
