@@ -3,62 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Target720 | NEET Exam Portal</title>
+    <title>Target720 | Premier NEET Portal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --pw-blue: #1b10b1; --bg: #f4f7fe; --text: #2d3436; --card: #ffffff; --border: rgba(27, 16, 177, 0.08); }
+        :root {
+            --pw-blue: #1b10b1; --pw-gradient: linear-gradient(135deg, #1b10b1 0%, #4a3aff 100%);
+            --bg: #f4f7fe; --text: #2d3436; --card: #ffffff; --border: rgba(27, 16, 177, 0.08);
+        }
         body.dark-mode { --bg: #0f172a; --text: #f8fafc; --card: #1e293b; --border: #334155; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--bg); color: var(--text); transition: 0.3s; overflow-x: hidden; }
-        .container { width: 100%; max-width: 1200px; margin: auto; padding: 15px; box-sizing: border-box; }
+        
+        .container { width: 100%; max-width: 1200px; margin: auto; padding: 20px; box-sizing: border-box; }
         .page-section { display: none; min-height: 100vh; }
         .active-page { display: block !important; }
 
-        /* Test Engine Styles */
+        /* Banner System */
+        .banner-wrapper { width: 100%; overflow: hidden; border-radius: 25px; margin-bottom: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .banner-container { display: flex; transition: transform 0.5s ease; }
+        .banner-card { min-width: 100%; height: 140px; color: white; padding: 30px; display: flex; flex-direction: column; justify-content: center; position: relative; box-sizing: border-box; }
+
+        /* Pulsing Countdown */
+        @keyframes pulse-red { 0%, 100% { background: #ef4444; color: white; } 50% { background: white; color: #ef4444; } }
+        .countdown-badge { display: inline-block; padding: 6px 15px; border-radius: 50px; font-weight: 900; font-size: 0.8rem; border: 2px solid #ef4444; animation: pulse-red 2s infinite; margin-top: 10px; }
+
+        /* Grid System */
+        .main-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-top: 20px; }
+        .subject-card { background: var(--card); padding: 35px 15px; border-radius: 30px; text-align: center; border: 1px solid var(--border); transition: 0.3s; cursor: pointer; position: relative; }
+        .subject-card:hover { transform: translateY(-10px); }
+
+        /* Item/DPP Card */
+        .item-card { background: var(--card); border-radius: 20px; border: 1px solid var(--border); margin-bottom: 15px; padding: 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; }
+        .ch-tag { background: #2d3436; color: white; font-size: 0.65rem; padding: 4px 10px; border-radius: 6px; font-weight: 900; display: inline-block; margin-bottom: 8px; }
+
+        /* TEST ENGINE (BLACK) */
         #page-test { background: #000 !important; color: white !important; }
         .option-box { background: #1e293b; border: 1px solid #334155; padding: 18px; border-radius: 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; color: white; }
-        .option-box.selected { border-color: #60a5fa !important; background: #1e3a8a !important; }
+        .option-box.correct { background: #064e3b !important; border-color: #10b981 !important; }
+        .option-box.wrong { background: #7f1d1d !important; border-color: #ef4444 !important; }
         
-        .nav-dot { min-width: 38px; height: 38px; border-radius: 8px; background: #1e293b; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; border: 1px solid #334155; }
-        .nav-dot.active { background: #1e40af; border-color: #60a5fa; }
-        .nav-dot.answered { border-color: #10b981; }
+        .nav-dot { min-width: 40px; height: 40px; border-radius: 8px; background: #1e293b; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; }
+        .nav-dot.active { background: #7f1d1d; color: #fca5a5; border: 1px solid #fca5a5; }
 
-        .footer-nav { position: fixed; bottom: 0; width: 100%; max-width: 1200px; background: #111; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #334155; box-sizing: border-box; }
         .header-sticky { background: var(--card); padding: 15px 20px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-        .banner-card { min-width: 100%; height: 130px; color: white; padding: 25px; border-radius: 25px; display: flex; flex-direction: column; justify-content: center; margin-bottom: 20px; background: var(--pw-blue); }
+        .footer-nav { position: fixed; bottom: 0; width: 100%; max-width: 1200px; background: #111; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #334155; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
 <div id="page-home" class="page-section active-page">
     <div class="container">
-        <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-            <div onclick="toggleDarkMode()" style="cursor:pointer;"><i class="fas fa-adjust"></i></div>
-            <div style="font-weight:900;">TARGET 720</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <div onclick="toggleDarkMode()" style="font-size:1.5rem; cursor:pointer;"><i class="fas fa-adjust"></i></div>
+            <div style="font-weight:900; color:var(--pw-blue);">TARGET 720</div>
         </div>
-        <div class="banner-card"><h3>Practice Mode</h3><p>Select subject to start testing.</p></div>
-        <div id="main-subjects" style="display:grid; grid-template-columns:1fr 1fr; gap:15px;"></div>
+
+        <div class="banner-wrapper">
+            <div class="banner-container" id="banner-slide">
+                <div class="banner-card" style="background: #1b10b1;"><h3>Target 720</h3><p>Success is closer than you think!</p></div>
+                <div class="banner-card" style="background: #ea580c;"><h3>Daily Practice</h3><p>NEET 2026 Mastery starts here.</p></div>
+            </div>
+        </div>
+
+        <h1 style="margin:0; font-size:2rem; font-weight:900;">Dashboard</h1>
+        <div id="neet-timer" class="countdown-badge">NEET 2026: 00d 00h 00m</div>
+
+        <div class="main-grid" id="main-subjects"></div>
+
+        <div id="specials-area" style="display:none; margin-top:40px;">
+            <span style="font-weight:900; color:#64748b; text-transform:uppercase; letter-spacing:1px;">Specials</span>
+            <div class="main-grid" id="custom-list"></div>
+        </div>
     </div>
 </div>
 
 <div id="page-chapters" class="page-section">
-    <div class="header-sticky"><i class="fas fa-arrow-left" onclick="goBack()"></i><h3 id="sub-title" style="margin:0;">Subject</h3></div>
+    <div class="header-sticky"><i class="fas fa-chevron-left" onclick="goBack()"></i><h3 id="sub-title" style="margin:0;">Subject</h3></div>
     <div class="container" id="chapter-list"></div>
 </div>
 
 <div id="page-dpp" class="page-section">
-    <div class="header-sticky"><i class="fas fa-arrow-left" onclick="goBack()"></i><h3 id="ch-title" style="margin:0;">DPPs</h3></div>
+    <div class="header-sticky"><i class="fas fa-chevron-left" onclick="goBack()"></i><h3 id="ch-title-dpp" style="margin:0;">Chapter</h3></div>
     <div class="container" id="dpp-items"></div>
 </div>
 
 <div id="page-test" class="page-section">
-    <div class="header-sticky" style="background:#000; border-bottom:1px solid #334155;">
-        <h3 id="test-timer" style="margin:0;">00:00</h3>
-        <button onclick="submitTest()" style="margin-left:auto; background:#ef4444; color:white; border:none; padding:8px 15px; border-radius:8px; font-weight:bold;">Submit</button>
+    <div class="header-sticky" style="background:#000; color:white; border-bottom:1px solid #334155;">
+        <h3 id="test-timer-val" style="margin:0;">00:00:00</h3>
+        <button onclick="submitTest()" style="margin-left:auto; background:#ef4444; color:white; border:none; padding:8px 15px; border-radius:10px; font-weight:bold;">Submit</button>
     </div>
     <div id="test-nav" style="display:flex; gap:10px; overflow-x:auto; padding:15px; scrollbar-width:none;"></div>
     <div class="container">
-        <div id="ques-text" style="font-size:1.2rem; margin-bottom:25px; line-height:1.5; font-weight:500;"></div>
+        <div id="ques-area" style="font-size:1.2rem; margin-bottom:25px; line-height:1.6;"></div>
         <div id="opts-area"></div>
     </div>
     <div class="footer-nav">
@@ -72,98 +108,115 @@
 </div>
 
 <script>
-    let config = {}, pageStack = ['page-home'], curTest = [], qIdx = 0, userAns = {};
+    let config = {}, bIdx = 0, pageStack = ['page-home'], curSub = "", curTest = [], qIdx = 0, userAns = {};
 
     window.onload = async () => {
-        const res = await fetch('/get_config');
-        config = await res.json();
+        const res = await fetch('/get_config'); config = await res.json();
         renderHome();
+        setInterval(updateTimer, 1000);
+        setInterval(() => { bIdx = (bIdx+1)%2; document.getElementById('banner-slide').style.transform = `translateX(-${bIdx*100}%)`; }, 4000);
     };
 
-    function renderHome() {
-        let h = '';
-        ['physics','chemistry','botany','zoology'].forEach(s => {
-            if(config[s]) h += `<div style="background:var(--card); padding:20px; border-radius:20px; text-align:center; border:1px solid var(--border);" onclick="openSub('${s}')"><h3>${s.toUpperCase()}</h3></div>`;
-        });
-        document.getElementById('main-subjects').innerHTML = h;
+    function updateTimer() {
+        const diff = new Date("May 3, 2026") - new Date();
+        const d = Math.floor(diff/864e5), h = Math.floor((diff%864e5)/36e5), m = Math.floor((diff%36e5)/6e4);
+        document.getElementById('neet-timer').innerText = `NEET 2026: ${d}d ${h}h ${m}m`;
     }
 
-    function openSub(s) {
-        let h = ''; for(let ch in config[s]) h += `<div style="background:var(--card); padding:15px; margin-bottom:10px; border-radius:15px;" onclick="openDPP('${s}','${ch}')">${ch}</div>`;
+    function renderHome() {
+        const main = ['physics','chemistry','botany','zoology'];
+        let mH = '', sH = '', hasS = false;
+        for(let s in config) {
+            let isM = main.includes(s.toLowerCase());
+            let card = `<div class="subject-card" onclick="openSubjectPage('${s}')">
+                <i class="fas fa-${isM?'atom':'star'}" style="font-size:2.5rem; color:var(--pw-blue); margin-bottom:15px;"></i>
+                <h3 style="margin:0;">${s.toUpperCase()}</h3>
+            </div>`;
+            if(isM) mH += card; else { sH += card; hasS = true; }
+        }
+        document.getElementById('main-subjects').innerHTML = mH;
+        if(hasS) { document.getElementById('specials-area').style.display='block'; document.getElementById('custom-list').innerHTML = sH; }
+    }
+
+    function openSubjectPage(s) {
+        curSub = s; document.getElementById('sub-title').innerText = s.toUpperCase();
+        let h = '', i = 1;
+        for(let ch in config[s]) {
+            h += `<div class="item-card" onclick="openDPPList('${ch}')">
+                <div style="flex:1;"><span class="ch-tag">CH - ${i<10?'0'+i:i}</span><h3>${ch}</h3></div>
+                <i class="fas fa-chevron-right"></i></div>`; i++;
+        }
         document.getElementById('chapter-list').innerHTML = h; showPage('page-chapters');
     }
 
-    function openDPP(s, ch) {
-        let h = ''; config[s][ch].forEach(t => h += `<div style="background:var(--card); padding:15px; margin-bottom:10px; border-radius:15px;" onclick="loadTest('${t.file}')">${t.name}</div>`);
+    function openDPPList(ch) {
+        document.getElementById('ch-title-dpp').innerText = ch;
+        let h = ''; config[curSub][ch].forEach(t => {
+            h += `<div class="item-card" onclick="loadTest('${t.file}')">
+                <div style="width:50px; height:50px; background:#fed7aa; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:900;">DPP</div>
+                <div style="flex:1;"><b>${t.name}</b><br><small>NEET Pattern</small></div></div>`;
+        });
         document.getElementById('dpp-items').innerHTML = h; showPage('page-dpp');
     }
 
     async function loadTest(file) {
-        const res = await fetch(`/get_test/${file}`);
-        curTest = await res.json();
-        qIdx = 0; userAns = {};
-        renderQ(); renderNav(); showPage('page-test');
+        const res = await fetch(`/get_test/${file}`); curTest = await res.json();
+        qIdx = 0; userAns = {}; renderQ(); renderNav(); showPage('page-test');
     }
 
     function renderQ() {
         const q = curTest[qIdx];
-        document.getElementById('ques-text').innerHTML = `<b>Q${qIdx+1}.</b> ${q.question}`;
+        document.getElementById('ques-area').innerHTML = `<b>Q${qIdx+1}.</b> ${q.question}`;
         let h = '';
         q.options.forEach((opt, i) => {
-            const isSelected = userAns[qIdx] === i;
-            h += `<div class="option-box ${isSelected ? 'selected' : ''}" onclick="selectAns(${i})">
-                    <span>${String.fromCharCode(65+i)}. ${opt}</span>
-                    <i class="${isSelected ? 'fas fa-check-circle' : 'far fa-circle'}"></i>
-                  </div>`;
+            let cls = "";
+            if(userAns[qIdx] !== undefined) {
+                if(i == q.correct) cls = "correct";
+                else if(i == userAns[qIdx]) cls = "wrong";
+            }
+            h += `<div class="option-box ${cls}" onclick="checkAns(this, ${i}, ${q.correct})">
+                <span>${String.fromCharCode(65+i)}. ${opt}</span>
+                <i class="far ${cls=='correct'?'fa-check-circle':cls=='wrong'?'fa-times-circle':'fa-circle'}"></i></div>`;
         });
         document.getElementById('opts-area').innerHTML = h;
     }
 
-    function selectAns(i) { userAns[qIdx] = i; renderQ(); renderNav(); }
+    function checkAns(el, chosen, correct) {
+        if(userAns[qIdx] !== undefined) return;
+        userAns[qIdx] = chosen;
+        const boxes = document.querySelectorAll('.option-box');
+        if(chosen == correct) el.classList.add('correct');
+        else { el.classList.add('wrong'); boxes[correct].classList.add('correct'); }
+        renderNav();
+    }
 
     function renderNav() {
         let h = ''; curTest.forEach((_, i) => {
-            let cls = (i === qIdx) ? 'active' : (userAns[i] !== undefined ? 'answered' : '');
+            let cls = (i==qIdx)?'active':(userAns[i]!==undefined?'answered':'');
             h += `<div class="nav-dot ${cls}" onclick="qIdx=${i};renderQ();renderNav()">${i+1}</div>`;
         });
         document.getElementById('test-nav').innerHTML = h;
     }
 
-    function nextQ() { if(qIdx < curTest.length-1) { qIdx++; renderQ(); renderNav(); } }
-    function prevQ() { if(qIdx > 0) { qIdx--; renderQ(); renderNav(); } }
-
     function submitTest() {
-        if(!confirm("Submit Test?")) return;
-        let score = 0, c = 0, w = 0, u = 0;
+        let c=0, w=0, u=0;
         curTest.forEach((q, i) => {
             if(userAns[i] === undefined) u++;
-            else if(parseInt(userAns[i]) === parseInt(q.correct)) { score += 4; c++; }
-            else { score -= 1; w++; }
+            else if(userAns[i] == q.correct) c++;
+            else w++;
         });
-        showFinalResult(score, c, w, u);
-    }
-
-    function showFinalResult(score, c, w, u) {
-        const total = curTest.length;
         document.getElementById('result-content').innerHTML = `
-            <div style="background:white; color:#000; padding:30px; border-radius:30px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.1);">
-                <h2 style="color:var(--pw-blue);">Result Card</h2>
-                <h1 style="font-size:3rem; margin:10px 0;">${score}/${total*4}</h1>
-                <div style="width:200px; margin:20px auto;"><canvas id="resChart"></canvas></div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
-                    <div style="background:#f0fdf4; padding:10px; border-radius:12px;">Correct: ${c}</div>
-                    <div style="background:#fef2f2; padding:10px; border-radius:12px;">Wrong: ${w}</div>
-                </div>
-                <button onclick="location.reload()" style="background:var(--pw-blue); color:white; padding:15px; width:100%; border:none; border-radius:15px; font-weight:bold;">Dashboard</button>
+            <div style="background:white; padding:30px; border-radius:30px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.1);">
+                <h2>Result: ${c*4 - w} Marks</h2>
+                <canvas id="resChart" style="max-width:200px; margin:20px auto;"></canvas>
+                <button onclick="location.reload()" style="background:var(--pw-blue); color:white; width:100%; padding:15px; border-radius:15px; border:none; font-weight:bold;">Dashboard</button>
             </div>`;
         showPage('page-result');
-        new Chart(document.getElementById('resChart'), {
-            type: 'doughnut',
-            data: { labels:['C','W','S'], datasets:[{data:[c,w,u], backgroundColor:['#10b981','#ef4444','#cbd5e1']}] },
-            options: { cutout:'70%', plugins:{legend:{display:false}} }
-        });
+        new Chart(document.getElementById('resChart'), { type:'doughnut', data:{ datasets:[{data:[c,w,u], backgroundColor:['#10b981','#ef4444','#cbd5e1']}] } });
     }
 
+    function nextQ() { if(qIdx < curTest.length-1) { qIdx++; renderQ(); renderNav(); } }
+    function prevQ() { if(qIdx > 0) { qIdx--; renderQ(); renderNav(); } }
     function showPage(id) { document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active-page')); document.getElementById(id).classList.add('active-page'); if(pageStack[pageStack.length-1]!==id) pageStack.push(id); }
     function goBack() { if(pageStack.length > 1) { pageStack.pop(); showPage(pageStack[pageStack.length-1]); pageStack.pop(); } }
     function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
