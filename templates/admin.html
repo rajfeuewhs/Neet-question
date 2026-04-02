@@ -7,13 +7,14 @@
         body { font-family: sans-serif; padding: 15px; background: #f4f7fe; }
         .box { background: white; padding: 20px; border-radius: 12px; max-width: 600px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .tabs { display: flex; gap: 5px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 10px; cursor: pointer; border: none; border-radius: 8px; background: #ddd; font-weight: bold; }
+        .tab-btn { flex: 1; padding: 12px; cursor: pointer; border: none; border-radius: 8px; background: #ddd; font-weight: bold; }
         .tab-btn.active { background: #1b10b1; color: white; }
-        input, select, textarea { width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
-        .collapsible { background: #1b10b1; color: white; cursor: pointer; padding: 12px; width: 100%; border: none; text-align: left; margin-top: 8px; border-radius: 5px; display: flex; justify-content: space-between; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        .collapsible { background: #1b10b1; color: white; cursor: pointer; padding: 12px; width: 100%; border: none; text-align: left; margin-top: 8px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
         .content { display: none; padding: 5px 15px; border-left: 2px solid #1b10b1; background: #fafafa; }
-        .item-box { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+        .item-box { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
         .del-btn { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.7rem; }
+        .publish-btn { width: 100%; padding: 15px; background: #1b10b1; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -28,25 +29,26 @@
             <label>Subject:</label>
             <select id="sub-select" onchange="loadChaps(this.value)">
                 <option value="">-- Select Subject --</option>
-                <option value="physics">Physics</option><option value="chemistry">Chemistry</option>
-                <option value="botany">Botany</option><option value="zoology">Zoology</option>
+                <option value="physics">Physics</option>
+                <option value="chemistry">Chemistry</option>
+                <option value="botany">Botany</option>
+                <option value="zoology">Zoology</option>
             </select>
-            <input type="text" id="custom-sub" placeholder="Enter New Subject Name" style="display:none;">
+            <input type="text" id="custom-sub" placeholder="Enter New Subject Name (e.g. backlogs)" style="display:none;">
             <button onclick="toggleNewSub()" id="new-sub-btn" style="background:#444; font-size:0.7rem; padding:5px; margin-bottom:10px; color:white; border:none; cursor:pointer;">+ Create New Subject</button>
 
-            <label>Chapter (Optional):</label>
+            <label>Chapter:</label>
             <select id="chap-select" onchange="checkNewChap(this.value)">
-                <option value="">-- No Chapter (Direct Upload) --</option>
+                <option value="">-- Select Chapter --</option>
             </select>
             <input type="text" id="new-chap-input" placeholder="Enter New Chapter Name" style="display:none;">
 
-            <input type="text" id="t-name" placeholder="Test Name">
-            
-            <label>Unlock Test At (Timer):</label>
+            <input type="text" id="t-name" placeholder="Test Name (e.g. DPP 01)">
+            <label>Unlock At:</label>
             <input type="datetime-local" id="unlock-time">
 
-            <textarea id="json-data" rows="5" placeholder="JSON..."></textarea>
-            <button onclick="saveTest()" id="up-btn" style="width:100%; padding:12px; background:#1b10b1; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">PUBLISH TEST</button>
+            <textarea id="json-data" rows="8" placeholder='Paste JSON here... e.g. [{"question": "...", "options": [...], "correct": 0}]'></textarea>
+            <button onclick="saveTest()" class="publish-btn">PUBLISH TEST</button>
         </div>
 
         <div id="manage-sec" style="display:none;">
@@ -56,23 +58,49 @@
     </div>
 
     <script>
-        let config = {}; let isNewSub = false;
-        async function fetchConfig() { const res = await fetch('/get_config?v=' + Date.now()); config = await res.json(); updateSubDropdown(); }
+        let config = {}; 
+        let isNewSub = false;
+
+        async function fetchConfig() { 
+            const res = await fetch('/get_config?v=' + Date.now()); 
+            config = await res.json(); 
+            updateSubDropdown(); 
+        }
+        
         window.onload = fetchConfig;
 
         function updateSubDropdown() {
-            const select = document.getElementById('sub-select'); const basics = ['physics', 'chemistry', 'botany', 'zoology'];
-            for (let s in config) { if (!basics.includes(s)) {
-                let opt = document.createElement('option'); opt.value = s; opt.innerText = s.toUpperCase(); select.appendChild(opt);
-            }}
+            const select = document.getElementById('sub-select');
+            const basics = ['physics', 'chemistry', 'botany', 'zoology'];
+            // Pehle se dropdown mein jo subjects hain unhe rehne do, bas extra wale add karo
+            for (let s in config) { 
+                if (!basics.includes(s.toLowerCase())) {
+                    let exists = false;
+                    for(let i=0; i<select.options.length; i++) {
+                        if(select.options[i].value === s) exists = true;
+                    }
+                    if(!exists) {
+                        let opt = document.createElement('option'); opt.value = s; opt.innerText = s.toUpperCase(); select.appendChild(opt);
+                    }
+                }
+            }
         }
 
-        function toggleNewSub() { isNewSub = !isNewSub; document.getElementById('custom-sub').style.display = isNewSub ? 'block' : 'none'; document.getElementById('sub-select').disabled = isNewSub; }
+        function toggleNewSub() { 
+            isNewSub = !isNewSub; 
+            document.getElementById('custom-sub').style.display = isNewSub ? 'block' : 'none'; 
+            document.getElementById('sub-select').disabled = isNewSub; 
+        }
 
         function loadChaps(sub) {
-            const select = document.getElementById('chap-select'); select.innerHTML = '<option value="">-- No Chapter --</option>';
-            if(config[sub]) { for(let c in config[sub]) { if(c !== "Direct_Tests") { let opt = document.createElement('option'); opt.value = c; opt.innerText = c; select.appendChild(opt); }}}
-            let n = document.createElement('option'); n.value="new"; n.innerText="-- New Chapter --"; select.appendChild(n);
+            const select = document.getElementById('chap-select'); 
+            select.innerHTML = '<option value="">-- Select Chapter --</option>';
+            if(config[sub]) { 
+                for(let c in config[sub]) { 
+                    let opt = document.createElement('option'); opt.value = c; opt.innerText = c; select.appendChild(opt); 
+                }
+            }
+            let n = document.createElement('option'); n.value="new"; n.innerText="-- Add New Chapter --"; select.appendChild(n);
         }
 
         function checkNewChap(v) { document.getElementById('new-chap-input').style.display = (v === 'new') ? 'block' : 'none'; }
@@ -80,46 +108,89 @@
         function showTab(t) {
             document.getElementById('upload-sec').style.display = (t=='upload')?'block':'none';
             document.getElementById('manage-sec').style.display = (t=='manage')?'block':'none';
+            document.getElementById('btn-up').classList.toggle('active', t=='upload');
+            document.getElementById('btn-mn').classList.toggle('active', t=='manage');
             if(t=='manage') loadManage();
         }
 
         async function saveTest() {
-            const fSub = isNewSub ? document.getElementById('custom-sub').value : document.getElementById('sub-select').value;
+            const fSub = isNewSub ? document.getElementById('custom-sub').value.toLowerCase().trim() : document.getElementById('sub-select').value;
             const chapVal = document.getElementById('chap-select').value;
-            const fChap = (chapVal === 'new') ? document.getElementById('new-chap-input').value : chapVal;
-            
-            // Timer data added here
+            const fChap = (chapVal === 'new') ? document.getElementById('new-chap-input').value.trim() : chapVal;
+            const tName = document.getElementById('t-name').value.trim();
+            const qRaw = document.getElementById('json-data').value;
+
+            if(!fSub || !fChap || !tName || !qRaw) { alert("Please fill all fields!"); return; }
+
             const data = { 
                 subject: fSub, 
                 chapter: fChap, 
-                test_name: document.getElementById('t-name').value, 
-                unlock_at: document.getElementById('unlock-time').value, // Timer
-                questions: JSON.parse(document.getElementById('json-data').value) 
+                test_name: tName, 
+                unlock_at: document.getElementById('unlock-time').value,
+                questions: JSON.parse(qRaw) 
             };
             
-            const res = await fetch('/save_test', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
-            const r = await res.json(); if(r.success) { alert("Test Published!"); location.reload(); }
+            const btn = document.querySelector('.publish-btn');
+            btn.innerText = "Publishing..."; btn.disabled = true;
+
+            const res = await fetch('/save_test', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify(data) 
+            });
+            const r = await res.json(); 
+            if(r.success) { alert("Test Published Successfully!"); location.reload(); }
+            else { alert("Error: " + r.error); btn.innerText = "PUBLISH TEST"; btn.disabled = false; }
         }
 
         async function loadManage() {
-            await fetchConfig(); let h = '';
+            const res = await fetch('/get_config?v=' + Date.now());
+            config = await res.json();
+            let h = '';
             for (let s in config) {
-                h += `<button class="collapsible" onclick="toggle('sub-${s}')">📁 ${s.toUpperCase()} <span onclick="event.stopPropagation(); del({subject:'${s}', target:'subject'})" style="background:red; padding:2px 5px; border-radius:3px; font-size:10px;">DEL</span></button>
+                h += `
+                <div class="collapsible" onclick="toggle('sub-${s}')">
+                    <span>📁 ${s.toUpperCase()}</span>
+                    <button class="del-btn" onclick="event.stopPropagation(); del({subject:'${s}', target:'subject'})">Del Sub</button>
+                </div>
                 <div id="sub-${s}" class="content">`;
                 for (let c in config[s]) {
                     const cId = `chap-${s}-${c.replace(/\s+/g,'_')}`;
-                    h += `<div class="item-box" style="background:#eee; margin-top:5px;" onclick="toggle('${cId}')"><b>${c}</b><button class="del-btn" style="background:orange;" onclick="event.stopPropagation(); del({subject:'${s}', chapter:'${c}', target:'chapter'})">Del Chap</button></div>
-                    <div id="${cId}" class="content">`;
-                    config[s][c].forEach(t => { h += `<div class="item-box"><span>📄 ${t.name}</span><button class="del-btn" onclick="del({subject:'${s}', chapter:'${c}', test_name:'${t.name}', target:'test'})">Delete</button></div>`; });
+                    h += `
+                    <div class="item-box" style="background:#eee; margin:5px 0; padding:8px; border-radius:5px;" onclick="toggle('${cId}')">
+                        <b>${c}</b>
+                        <button class="del-btn" style="background:orange;" onclick="event.stopPropagation(); del({subject:'${s}', chapter:'${c}', target:'chapter'})">Del Chap</button>
+                    </div>
+                    <div id="${cId}" class="content" style="border-left: 2px solid orange;">`;
+                    config[s][c].forEach(t => { 
+                        h += `
+                        <div class="item-box">
+                            <span>📄 ${t.name}</span>
+                            <button class="del-btn" onclick="del({subject:'${s}', chapter:'${c}', test_name:'${t.name}', target:'test'})">Delete</button>
+                        </div>`; 
+                    });
                     h += `</div>`;
                 }
                 h += `</div>`;
             }
-            document.getElementById('manage-tree').innerHTML = h;
+            document.getElementById('manage-tree').innerHTML = h || "No data found.";
         }
 
-        function toggle(id) { let el = document.getElementById(id); if(el) el.style.display = (el.style.display === "block") ? "none" : "block"; }
-        async function del(p) { if(!confirm("Delete?")) return; await fetch('/delete_item', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(p) }); loadManage(); }
+        function toggle(id) { 
+            let el = document.getElementById(id); 
+            if(el) el.style.display = (el.style.display === "block") ? "none" : "block"; 
+        }
+
+        async function del(p) { 
+            if(!confirm("Are you sure you want to delete this?")) return; 
+            const res = await fetch('/delete_item', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify(p) 
+            }); 
+            const r = await res.json();
+            if(r.success) loadManage(); else alert("Error deleting item.");
+        }
     </script>
 </body>
 </html>
