@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Target720 | NEET Portal</title>
+    <title>Target720 | NEET Practice Portal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -19,17 +19,18 @@
         .subject-card { background: var(--card); padding: 30px 15px; border-radius: 30px; text-align: center; border: 1px solid var(--border); cursor: pointer; transition: 0.3s; position: relative; }
         .item-card { background: var(--card); border-radius: 20px; border: 1px solid var(--border); margin-bottom: 12px; padding: 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; }
 
-        /* Test Engine (Black Theme) */
+        /* Test Engine (Simple Black Theme) */
         #page-test { background: #000 !important; color: white !important; }
         .option-box { background: #1e293b; border: 1px solid #334155; padding: 18px; border-radius: 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.2s; color: white; }
-        .option-box.correct { background: #064e3b !important; border-color: #10b981 !important; }
-        .option-box.wrong { background: #7f1d1d !important; border-color: #ef4444 !important; }
+        /* Jab option select ho */
+        .option-box.selected { border-color: #c7d2fe !important; background: #334155 !important; box-shadow: 0 0 10px rgba(199, 210, 254, 0.3); }
+        
         .nav-dot { min-width: 38px; height: 38px; border-radius: 8px; background: #1e293b; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; }
-        .nav-dot.active { background: #7f1d1d; color: #fca5a5; border: 1px solid #fca5a5; }
+        .nav-dot.active { background: #1e40af; color: #fff; border: 1px solid #60a5fa; }
+        .nav-dot.answered { background: #334155; border: 1px solid #10b981; }
 
         .header-sticky { background: var(--card); padding: 15px 20px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
         .footer-nav { position: fixed; bottom: 0; width: 100%; max-width: 1200px; background: #111; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #334155; box-sizing: border-box; }
-        
         .specials-title { font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; margin: 30px 0 15px 0; display: block; border-top: 1px dashed #ddd; padding-top: 20px; }
     </style>
 </head>
@@ -41,15 +42,10 @@
             <div onclick="toggleDarkMode()" style="font-size:1.2rem; cursor:pointer;"><i class="fas fa-adjust"></i></div>
             <div style="font-weight:900; color:var(--pw-blue);">TARGET 720</div>
         </div>
-        <div class="banner-card" style="background: var(--pw-blue);"><h3>Daily Practice</h3><p>Success is a habit, not a destination.</p></div>
+        <div class="banner-card" style="background: var(--pw-blue);"><h3>Practice Mode</h3><p>Submit the test to see your final score.</p></div>
         <div id="neet-timer" style="background:#ef4444; color:white; padding:8px 15px; border-radius:50px; font-weight:900; font-size:0.75rem; display:inline-block; margin-bottom:20px;">NEET 2026: 00d 00h 00m</div>
-        
         <div id="main-subjects" style="display:grid; grid-template-columns:1fr 1fr; gap:15px;"></div>
-        
-        <div id="specials-container" style="display:none;">
-            <span class="specials-title">Specials</span>
-            <div id="custom-list" style="display:grid; grid-template-columns:1fr 1fr; gap:15px;"></div>
-        </div>
+        <div id="specials-container" style="display:none;"><span class="specials-title">Specials</span><div id="custom-list" style="display:grid; grid-template-columns:1fr 1fr; gap:15px;"></div></div>
     </div>
 </div>
 
@@ -66,11 +62,11 @@
 <div id="page-instructions" class="page-section">
     <div class="header-sticky"><i class="fas fa-arrow-left" onclick="goBack()"></i><h3 style="margin:0;">Instructions</h3></div>
     <div class="container">
-        <div style="background:#1e40af; color:white; padding:15px; border-radius:12px; margin-bottom:20px; font-size:0.8rem;"><i class="fas fa-info-circle"></i> Don't worry, missing XP points will be added soon!</div>
+        <div style="background:#1e40af; color:white; padding:15px; border-radius:12px; margin-bottom:20px; font-size:0.8rem;"><i class="fas fa-info-circle"></i> Result will be shown after submission.</div>
         <div style="background:var(--card); padding:25px; border-radius:20px; border:1px solid var(--border);">
             Questions: <b id="ins-qcount">0</b><br>
             Time: <b id="ins-time">0</b> Minutes<br>
-            Marks: <span style="color:#10b981;">+4</span> | Wrong: <span style="color:#ef4444;">-1</span>
+            Marking: <span style="color:#10b981;">+4</span> | <span style="color:#ef4444;">-1</span>
         </div>
         <button onclick="startActualTest()" style="position:fixed; bottom:25px; left:5%; width:90%; padding:18px; background:#c7d2fe; color:#1e1b4b; border:none; border-radius:15px; font-weight:800; font-size:1.1rem; cursor:pointer;">Start Test</button>
     </div>
@@ -78,7 +74,7 @@
 
 <div id="page-test" class="page-section">
     <div class="test-header" style="display:flex; justify-content:space-between; padding:15px; border-bottom:1px solid #334155;">
-        <h3 id="test-timer-val" style="margin:0;">00:00:00</h3>
+        <h3 id="test-timer-val" style="margin:0;">02:59:45</h3>
         <button onclick="submitTest()" style="background:#fca5a5; color:#000; border:none; padding:8px 18px; border-radius:10px; font-weight:bold;">Submit</button>
     </div>
     <div id="test-nav" style="display:flex; gap:10px; overflow-x:auto; padding:15px; scrollbar-width:none;"></div>
@@ -105,13 +101,12 @@
             config = await res.json();
             renderHome();
             setInterval(updateCountdown, 1000);
-        } catch(e) { console.error("Config load error"); }
+        } catch(e) { console.error("Config error"); }
     };
 
     function renderHome() {
         const mainSubs = ['physics', 'chemistry', 'botany', 'zoology'];
         let mH = '', sH = '', hasSpecial = false;
-
         for (let s in config) {
             let isMain = mainSubs.includes(s.toLowerCase());
             let icon = 'book';
@@ -123,7 +118,6 @@
             let card = `<div class="subject-card" onclick="openSub('${s}')">
                 <i class="fas fa-${isMain ? icon : 'star'}" style="font-size:2rem; color:var(--pw-blue); margin-bottom:10px;"></i>
                 <h3 style="margin:0;">${s.toUpperCase()}</h3>
-                ${!isMain ? '<i class="fas fa-certificate" style="position:absolute; top:10px; right:10px; color:#f59e0b; font-size:0.8rem;"></i>' : ''}
             </div>`;
             if (isMain) mH += card; else { sH += card; hasSpecial = true; }
         }
@@ -151,7 +145,7 @@
         config[curSub][ch].forEach(t => {
             h += `<div class="item-card" onclick="loadTest('${t.file}')">
                     <div style="width:50px; height:50px; background:#fed7aa; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:0.7rem;">DPP</div>
-                    <div style="flex:1;"><b>${t.name}</b><br><small>Earn 40 🍎</small></div>
+                    <div style="flex:1;"><b>${t.name}</b><br><small>NEET Mode</small></div>
                   </div>`;
         });
         document.getElementById('dpp-items').innerHTML = h; showPage('page-dpp');
@@ -172,72 +166,67 @@
         document.getElementById('ques-text').innerHTML = `<b>Q${qIdx+1}.</b> ${q.question}`;
         let h = '';
         q.options.forEach((opt, i) => {
-            let cls = "";
-            if(userAns[qIdx] !== undefined) {
-                if(i == q.correct) cls = "correct";
-                else if(i == userAns[qIdx]) cls = "wrong";
-            }
-            h += `<div class="option-box ${cls}" onclick="checkAns(this, ${i}, ${q.correct})">
+            let selectedCls = (userAns[qIdx] === i) ? 'selected' : '';
+            h += `<div class="option-box ${selectedCls}" onclick="selectAns(${i})">
                     <span>${String.fromCharCode(65 + i)}. ${opt}</span>
-                    <i class="far ${cls==='correct'?'fa-check-circle':cls==='wrong'?'fa-times-circle':'fa-circle'}"></i>
+                    <i class="${userAns[qIdx] === i ? 'fas fa-check-circle' : 'far fa-circle'}"></i>
                   </div>`;
         });
         document.getElementById('opts-area').innerHTML = h;
     }
 
-    function checkAns(el, chosen, correct) {
-        if(userAns[qIdx] !== undefined) return;
-        userAns[qIdx] = chosen;
-        const boxes = document.querySelectorAll('.option-box');
-        boxes.forEach(b => b.style.pointerEvents = 'none');
-        if(chosen == correct) {
-            el.classList.add('correct');
-            el.querySelector('i').className = "fas fa-check-circle";
-        } else {
-            el.classList.add('wrong');
-            el.querySelector('i').className = "fas fa-times-circle";
-            boxes[correct].classList.add('correct');
-            boxes[correct].querySelector('i').className = "fas fa-check-circle";
-        }
+    function selectAns(chosen) {
+        userAns[qIdx] = chosen; // Sirf save karo
+        renderQ();
         renderNav();
     }
 
     function renderNav() {
-        let h = ''; curTest.forEach((_, i) => h += `<div class="nav-dot ${i===qIdx?'active':''} ${userAns[i]!==undefined?'answered':''}" onclick="qIdx=${i};renderQ();renderNav()">${i+1}</div>`);
+        let h = ''; 
+        curTest.forEach((_, i) => {
+            let cls = (i === qIdx) ? 'active' : (userAns[i] !== undefined ? 'answered' : '');
+            h += `<div class="nav-dot ${cls}" onclick="qIdx=${i};renderQ();renderNav()">${i+1}</div>`;
+        });
         document.getElementById('test-nav').innerHTML = h;
     }
 
     function submitTest() {
-        if(!confirm("Submit Test?")) return;
+        if(!confirm("Are you sure you want to submit?")) return;
         let score = 0, c = 0, w = 0, u = 0;
         curTest.forEach((q, i) => {
             if(userAns[i] === undefined) u++;
             else if(userAns[i] == q.correct) { score += 4; c++; }
             else { score -= 1; w++; }
         });
-        renderGraph(score, c, w, u);
+        renderFinalResult(score, c, w, u);
         showPage('page-result');
     }
 
-    function renderGraph(score, c, w, u) {
-        const acc = curTest.length > 0 ? ((c / (c+w)) * 100 || 0).toFixed(1) : 0;
+    function renderFinalResult(score, c, w, u) {
+        const total = curTest.length;
+        const acc = total > 0 ? ((c / (c+w || 1)) * 100).toFixed(1) : 0;
+        
         document.getElementById('result-content').innerHTML = `
             <div style="background:white; color:#000; padding:25px; border-radius:30px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.1);">
-                <h2 style="color:var(--pw-blue);">Report Card</h2>
-                <p>Score: <b>${score}</b> / ${curTest.length*4}</p>
+                <h2 style="color:var(--pw-blue); margin-bottom:5px;">Test Analytics</h2>
+                <p>Final Score: <b>${score}</b> / ${total*4}</p>
                 <div style="width:180px; margin:20px auto;"><canvas id="resChart"></canvas></div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
-                    <div style="background:#f0fdf4; padding:10px; border-radius:12px;">Correct: <b>${c}</b></div>
-                    <div style="background:#fef2f2; padding:10px; border-radius:12px;">Wrong: <b>${w}</b></div>
-                    <div style="background:#f8fafc; padding:10px; border-radius:12px;">Skipped: <b>${u}</b></div>
-                    <div style="background:#fffbeb; padding:10px; border-radius:12px;">Acc: <b>${acc}%</b></div>
+                    <div style="background:#f0fdf4; padding:10px; border-radius:12px; border:1px solid #bbf7d0;">Correct: <b>${c}</b></div>
+                    <div style="background:#fef2f2; padding:10px; border-radius:12px; border:1px solid #fecaca;">Wrong: <b>${w}</b></div>
+                    <div style="background:#f8fafc; padding:10px; border-radius:12px; border:1px solid #e2e8f0;">Skipped: <b>${u}</b></div>
+                    <div style="background:#fffbeb; padding:10px; border-radius:12px; border:1px solid #fef3c7;">Accuracy: <b>${acc}%</b></div>
                 </div>
-                <button onclick="location.reload()" style="background:var(--pw-blue); color:white; padding:15px; width:100%; border:none; border-radius:15px; font-weight:bold; cursor:pointer;">Dashboard</button>
+                <button onclick="location.reload()" style="background:var(--pw-blue); color:white; padding:18px; width:100%; border:none; border-radius:15px; font-weight:bold; cursor:pointer;">Dashboard</button>
             </div>`;
+
         new Chart(document.getElementById('resChart'), {
             type: 'doughnut',
-            data: { labels: ['C', 'W', 'S'], datasets: [{ data: [c, w, u], backgroundColor: ['#10b981', '#ef4444', '#cbd5e1'] }] },
-            options: { cutout: '70%', plugins: { legend: { display: false } } }
+            data: { 
+                labels: ['Correct', 'Wrong', 'Skipped'], 
+                datasets: [{ data: [c, w, u], backgroundColor: ['#10b981', '#ef4444', '#cbd5e1'], borderWidth: 0 }] 
+            },
+            options: { cutout: '75%', plugins: { legend: { display: false } } }
         });
     }
 
