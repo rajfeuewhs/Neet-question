@@ -9,61 +9,57 @@
         :root {
             --pw-blue: #1b10b1;
             --pw-gradient: linear-gradient(135deg, #1b10b1 0%, #4a3aff 100%);
-            --bg: #f4f7fe;
-            --text: #2d3436;
-            --card: #ffffff;
-            --border: rgba(27, 16, 177, 0.08);
+            --bg: #f4f7fe; --text: #2d3436; --card: #ffffff; --border: rgba(27, 16, 177, 0.08);
         }
-
-        body.dark-mode {
-            --bg: #0f172a;
-            --text: #f8fafc;
-            --card: #1e293b;
-            --border: #334155;
-        }
-
+        body.dark-mode { --bg: #0f172a; --text: #f8fafc; --card: #1e293b; --border: #334155; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--bg); color: var(--text); transition: 0.3s; overflow-x: hidden; }
         .container { width: 100%; max-width: 1200px; margin: auto; padding: 20px; box-sizing: border-box; }
 
-        /* Pulsing Countdown Effect */
-        @keyframes pulse-red {
-            0% { background-color: #ef4444; color: white; transform: scale(1); }
-            50% { background-color: white; color: #ef4444; transform: scale(1.02); }
-            100% { background-color: #ef4444; color: white; transform: scale(1); }
+        /* Auto-Sliding Banners */
+        .banner-wrapper { width: 100%; overflow: hidden; border-radius: 25px; margin-bottom: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .banner-container { display: flex; transition: transform 0.5s ease-in-out; }
+        .banner-card { 
+            min-width: 100%; height: 140px; color: white; padding: 30px; 
+            display: flex; flex-direction: column; justify-content: center; 
+            position: relative; box-sizing: border-box;
         }
-        .countdown-box {
-            display: inline-block;
-            margin-top: 8px;
-            padding: 5px 15px;
-            border-radius: 50px;
-            font-weight: 900;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-            border: 2px solid #ef4444;
+        .banner-card i { position: absolute; right: 15px; bottom: -10px; font-size: 5.5rem; opacity: 0.15; }
+
+        /* Pulsing Countdown */
+        @keyframes pulse-red {
+            0% { background: #ef4444; color: white; border-color: #ef4444; }
+            50% { background: white; color: #ef4444; border-color: #ef4444; }
+            100% { background: #ef4444; color: white; border-color: #ef4444; }
+        }
+        .countdown-badge {
+            display: inline-block; margin-top: 10px; padding: 6px 16px; border-radius: 50px;
+            font-weight: 900; font-size: 0.8rem; border: 2px solid #ef4444;
             animation: pulse-red 2s infinite;
         }
 
-        /* Profile & Rank Badge */
-        .user-badge { 
-            display: none; align-items: center; gap: 12px; 
-            background: var(--card); padding: 8px 15px; border-radius: 50px; 
-            border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-        .rank-tag { background: gold; color: #000; font-size: 0.7rem; font-weight: 900; padding: 2px 8px; border-radius: 10px; }
+        /* Profile & Rank */
+        .user-badge { display: none; align-items: center; gap: 12px; background: var(--card); padding: 8px 15px; border-radius: 50px; border: 1px solid var(--border); }
+        .rank-tag { background: gold; color: #000; font-size: 0.65rem; font-weight: 900; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; }
 
-        /* Banners & Grids */
-        .banner-container { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 25px; scrollbar-width: none; }
-        .banner-card { min-width: 300px; flex: 1; height: 130px; border-radius: 25px; background: var(--pw-gradient); color: white; padding: 25px; position: relative; overflow: hidden; }
-        
-        .main-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; margin-top: 20px; }
-        .subject-card { background: var(--card); padding: 35px 15px; border-radius: 30px; text-align: center; border: 1px solid var(--border); transition: 0.3s; cursor: pointer; }
-        .subject-card:hover { transform: translateY(-10px); }
+        /* Analytics with Login Alert */
+        .stats-bar { background: var(--card); padding: 20px; border-radius: 25px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); margin-bottom: 25px; cursor: pointer; position: relative; }
+        .login-alert { font-size: 0.7rem; color: #be123c; font-weight: bold; margin-top: 5px; display: block; }
 
-        /* Analytics Bar */
-        .stats-bar { background: var(--card); padding: 20px; border-radius: 25px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); margin-bottom: 30px; cursor: pointer; position: relative; }
+        /* Main Grid & Specials Grid */
+        .grid-title { font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin: 30px 0 10px 0; display: block; }
+        .main-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
         
+        /* Subject Card Style */
+        .subject-card { background: var(--card); padding: 30px 10px; border-radius: 25px; text-align: center; border: 1px solid var(--border); transition: 0.3s; cursor: pointer; position: relative; }
+        .subject-card:hover { transform: translateY(-8px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .star-icon { position: absolute; top: 15px; right: 15px; color: #f59e0b; font-size: 1rem; }
+
+        /* Small Rectangular (Laptop wide, Mobile small) */
+        .specials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
+        .special-card { padding: 20px 10px; border-radius: 20px; text-align: center; } /* Main cards jaisa hi square, thoda chota */
+
         .modal { display:none; position:fixed; z-index:999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); }
-        .modal-box { background:var(--card); width:90%; max-width:400px; margin:120px auto; padding:30px; border-radius:30px; text-align:center; }
+        .modal-box { background:var(--card); width:85%; max-width:350px; margin:150px auto; padding:30px; border-radius:30px; text-align:center; }
     </style>
 </head>
 <body>
@@ -72,90 +68,110 @@
     <div class="container">
         
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <div onclick="toggleDarkMode()" style="font-size:1.5rem; color:var(--pw-blue); cursor:pointer;"><i class="fas fa-moon"></i></div>
-            <div id="auth-section">
+            <div onclick="toggleDarkMode()" style="font-size:1.5rem; color:var(--pw-blue); cursor:pointer;"><i class="fas fa-adjust"></i></div>
+            <div id="auth-ui">
                 <div id="g_id_onload" data-client_id="614180387554-801p5epi2emvn7mt5tkn3pf3sth0imga.apps.googleusercontent.com" data-callback="handleCredentialResponse"></div>
                 <div class="g_id_signin" data-type="icon" data-shape="circle"></div>
-                <div id="user-badge" class="user-badge">
+                <div id="user-profile" class="user-badge">
                     <div style="text-align: right;">
-                        <div id="display-un" style="font-weight:800; font-size:0.85rem;">GUEST</div>
-                        <div class="rank-tag" id="display-rank">RANK: --</div>
+                        <div id="un-name" style="font-weight:800; font-size:0.85rem;">GUEST</div>
+                        <div class="rank-tag" id="un-rank">RANK: #0</div>
                     </div>
-                    <img id="user-pic" src="" style="width:40px; height:40px; border-radius:50%; border:2px solid var(--pw-blue);">
+                    <img id="un-pic" src="" style="width:40px; height:40px; border-radius:50%; border:2px solid var(--pw-blue);">
                 </div>
             </div>
         </div>
 
-        <div class="banner-container">
-            <div class="banner-card"><h3>Practice Mode</h3><p>Daily NEET Challenges</p><i class="fas fa-bolt"></i></div>
-            <div class="banner-card" style="background:linear-gradient(135deg, #f59e0b, #ea580c);"><h3>New Content</h3><p>Chemistry DPPs Live</p><i class="fas fa-vial"></i></div>
-            <div class="banner-card" style="background:linear-gradient(135deg, #10b981, #059669);"><h3>Victory Wall</h3><p>Check Global Ranks</p><i class="fas fa-trophy"></i></div>
+        <div class="banner-wrapper">
+            <div class="banner-container" id="banner-slide">
+                <div class="banner-card" style="background: linear-gradient(135deg, #1b10b1, #4a3aff);">
+                    <h3>Believe in Yourself</h3><p>Success starts with a single step.</p><i class="fas fa-quote-left"></i>
+                </div>
+                <div class="banner-card" style="background: linear-gradient(135deg, #f59e0b, #ea580c);">
+                    <h3>Focus & Grind</h3><p>Don't stop until you are proud.</p><i class="fas fa-fire"></i>
+                </div>
+                <div class="banner-card" style="background: linear-gradient(135deg, #10b981, #059669);">
+                    <h3>Consistency is Key</h3><p>Daily practice leads to perfection.</p><i class="fas fa-apple-alt"></i>
+                </div>
+            </div>
         </div>
 
-        <div style="margin-bottom: 30px; text-align: left;">
-            <h1 style="margin:0; font-size:2.5rem; font-weight:900; color:var(--pw-blue);">Target720</h1>
-            <div id="live-clock" style="font-weight:bold; color:#64748b; font-size:0.9rem;">LOADING TIME...</div>
-            <div id="neet-countdown" class="countdown-box">NEET 2026: 00d 00h 00m</div>
+        <div style="margin-bottom: 25px;">
+            <h1 style="margin:0; font-size:2.4rem; font-weight:900; color:var(--pw-blue);">Target720</h1>
+            <div id="live-clock" style="font-weight:bold; color:#64748b; font-size:0.85rem; letter-spacing:1px;"></div>
+            <div id="neet-timer" class="countdown-badge">NEET 2026: 00d 00h 00m</div>
         </div>
 
         <div class="stats-bar" onclick="checkLoginLB()">
-            <div style="display:flex; align-items:center; gap:15px;">
-                <i class="fas fa-chart-pie" style="color:#10b981; font-size:1.5rem;"></i>
-                <span style="font-weight:800;">Analytics</span>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <i class="fas fa-chart-line" style="color:#10b981; font-size:1.4rem;"></i>
+                <div>
+                    <span style="font-weight:800;">Analytics</span>
+                    <small id="login-msg" class="login-alert">To unlock this rank log in please</small>
+                </div>
             </div>
-            <div style="color:#ef4444; font-weight:900; font-size:1.3rem;">
-                <span id="apple-val">0</span> 🍎
+            <div style="color:#ef4444; font-weight:900; font-size:1.2rem;">
+                <span id="apple-count">0</span> 🍎
             </div>
             <div id="lock-layer" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.1); backdrop-filter:blur(4px); border-radius:25px; display:flex; align-items:center; justify-content:center;">
-                <i class="fas fa-lock" style="background:white; padding:10px; border-radius:50%; color:var(--pw-blue); box-shadow:0 5px 15px rgba(0,0,0,0.1);"></i>
+                <i class="fas fa-lock" style="background:white; padding:10px; border-radius:50%; color:var(--pw-blue); box-shadow:0 4px 10px rgba(0,0,0,0.1);"></i>
             </div>
         </div>
 
         <div class="main-grid" id="main-subjects"></div>
+
+        <div id="custom-subjects-area" style="display:none; margin-top:30px;">
+            <span class="grid-title">Specials</span>
+            <div class="specials-grid" id="custom-list"></div>
+        </div>
     </div>
 </div>
 
 <div id="un-modal" class="modal">
     <div class="modal-box">
         <h3>Create Identity</h3>
-        <input type="text" id="un-input" placeholder="Enter Username" style="width:100%; padding:15px; border-radius:15px; border:1px solid #ddd; margin:15px 0; font-size:1rem; outline:none;">
+        <input type="text" id="un-input" placeholder="Unique Username" style="width:100%; padding:15px; border-radius:15px; border:1px solid #ddd; margin:15px 0; outline:none;">
         <p style="color:red; font-size:0.7rem; font-weight:bold;">⚠️ ONLY 1 TIME CHANGE ALLOWED!</p>
-        <button onclick="saveUsername()" style="width:100%; padding:15px; background:var(--pw-blue); color:white; border:none; border-radius:15px; font-weight:bold; cursor:pointer;">CONFIRM</button>
+        <button onclick="saveUsername()" style="width:100%; padding:15px; background:var(--pw-blue); color:white; border:none; border-radius:15px; font-weight:bold;">CONFIRM</button>
     </div>
 </div>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
-    let config = {};
+    let config = {}, bannerIdx = 0;
 
     window.onload = async () => {
         const res = await fetch('/get_config?v='+Date.now());
         config = await res.json();
         renderHome();
-        updateClock(); setInterval(updateClock, 1000); // 1 sec for countdown
-        if(localStorage.getItem('un')) updateUserUI();
+        updateTime(); setInterval(updateTime, 1000);
+        setInterval(autoSlide, 3500); 
+        if(localStorage.getItem('un')) updateUI();
     };
 
-    function updateClock() {
-        const now = new Date();
-        // Main Clock
-        const opt = { weekday:'short', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' };
-        document.getElementById('live-clock').innerText = now.toLocaleString('en-IN', opt).toUpperCase();
+    function autoSlide() {
+        const container = document.getElementById('banner-slide');
+        bannerIdx = (bannerIdx + 1) % 3;
+        container.style.transform = `translateX(-${bannerIdx * 100}%)`;
+    }
 
-        // NEET Countdown (Target: May 3, 2026)
+    function updateTime() {
+        const now = new Date();
+        document.getElementById('live-clock').innerText = now.toLocaleString('en-IN', { weekday:'short', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }).toUpperCase();
+        
         const target = new Date("May 3, 2026 10:00:00").getTime();
         const diff = target - now.getTime();
         const d = Math.floor(diff / (1000 * 60 * 60 * 24));
         const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        document.getElementById('neet-countdown').innerText = `NEET 2026: ${d}d ${h}h ${m}m`;
+        document.getElementById('neet-timer').innerText = `NEET 2026: ${d}d ${h}h ${m}m`;
     }
 
     function handleCredentialResponse(response) {
         const user = JSON.parse(atob(response.credential.split('.')[1]));
         localStorage.setItem('gpic', user.picture);
         if(!localStorage.getItem('un')) document.getElementById('un-modal').style.display = 'block';
-        else updateUserUI();
+        else updateUI();
     }
 
     function saveUsername() {
@@ -163,31 +179,45 @@
         if(un.length < 3) return alert("Too short!");
         localStorage.setItem('un', un);
         document.getElementById('un-modal').style.display = 'none';
-        updateUserUI();
+        updateUI();
     }
 
-    function updateUserUI() {
+    function updateUI() {
         document.querySelector('.g_id_signin').style.display = 'none';
-        document.getElementById('user-badge').style.display = 'flex';
+        document.getElementById('user-profile').style.display = 'flex';
         document.getElementById('lock-layer').style.display = 'none';
-        document.getElementById('user-pic').src = localStorage.getItem('gpic');
-        document.getElementById('display-un').innerText = localStorage.getItem('un').toUpperCase();
-        document.getElementById('display-rank').innerText = "RANK: #0"; 
+        document.getElementById('login-msg').style.display = 'none'; // Message hata do
+        document.getElementById('un-pic').src = localStorage.getItem('gpic');
+        document.getElementById('un-name').innerText = localStorage.getItem('un').toUpperCase();
     }
 
+    // Fixed Additional Subject Logic (Point 1)
     function renderHome() {
-        const main = ['physics','chemistry','botany','zoology'];
-        let mH = '';
+        const mainSubs = ['physics','chemistry','botany','zoology'];
+        let mH = '', sH = '', hasSpecial = false;
+        
         for (let s in config) {
-            if (main.includes(s)) {
+            if (mainSubs.includes(s)) {
                 let icon = s==='physics'?'atom':s==='chemistry'?'flask':s==='botany'?'leaf':'dna';
                 mH += `<div class="subject-card" onclick="openSubject('${s}')">
-                    <i class="fas fa-${icon}" style="font-size:3rem; color:var(--pw-blue); margin-bottom:15px;"></i>
-                    <h3>${s.toUpperCase()}</h3>
+                    <i class="fas fa-${icon}" style="font-size:2.8rem; color:var(--pw-blue); margin-bottom:12px;"></i>
+                    <h3 style="margin:0; font-size:1rem;">${s.toUpperCase()}</h3>
+                </div>`;
+            } else {
+                hasSpecial = true;
+                // Square cards, chote, with stars
+                sH += `<div class="subject-card special-card" onclick="openSubject('${s}')">
+                    <i class="fas fa-bolt" style="font-size:2.2rem; background: var(--pw-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom:10px;"></i>
+                    <h3 style="margin:0; font-size:0.9rem;">${s.toUpperCase()}</h3>
+                    <i class="fas fa-star star-icon"></i>
                 </div>`;
             }
         }
         document.getElementById('main-subjects').innerHTML = mH;
+        if(hasSpecial) {
+            document.getElementById('custom-subjects-area').style.display = 'block';
+            document.getElementById('custom-list').innerHTML = sH;
+        }
     }
 
     function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
