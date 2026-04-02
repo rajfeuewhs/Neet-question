@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Consider a water tank shown in the figure. It has one wall at x = L and can be taken to be very wide in the z direction. When filled with a liquid of surface tension S and density \u03c1, the liquid surface makes angle \u03b80 (\u03b80 << 1) with the x-axis at x = L. If y(x) is the height of the surface then the equation for y(x) is:",
+    "options": [
+      "d\u00b2y/dx\u00b2 = (\u03c1g/S) x",
+      "d\u00b2y/dx\u00b2 = (\u03c1g/S) y",
+      "d\u00b2y/dx\u00b2 = \u221a(\u03c1g/S)",
+      "dy/dx = \u221a(\u03c1g/S) x"
+    ],
+    "correct": null
+  },
+  {
+    "question": "A microscope has an objective of focal length 2 cm, eyepiece of focal length 4 cm and tube length of 40 cm. If distance of distinct vision is 25 cm, the magnification is:",
+    "options": [
+      "100",
+      "125",
+      "150",
+      "250"
+    ],
+    "correct": null
+  },
+  {
+    "question": "An electron moving with speed c/100 is injected into a magnetic field B of magnitude 9 \u00d7 10^-4 T perpendicular to its direction of motion. To prevent deflection, an electric field E is applied. Then:",
+    "options": [
+      "E \u27c2 B and magnitude = 27 \u00d7 10^4 V/m",
+      "E \u27c2 B and magnitude = 27 \u00d7 10^2 V/m",
+      "E \u2225 B and magnitude = 27 \u00d7 10^2 V/m",
+      "E \u2225 B and magnitude = 27 \u00d7 10^4 V/m"
+    ],
+    "correct": null
+  },
+  {
+    "question": "There are two inclined surfaces of equal length and angle 45\u00b0. One is rough and one smooth. A body takes 2 times more time on rough surface. Coefficient of friction is:",
+    "options": [
+      "0.25",
+      "0.40",
+      "0.5",
+      "0.75"
+    ],
+    "correct": null
+  },
+  {
+    "question": "The kinetic energies of two cars A and B are 100 J and 225 J respectively. On braking, A stops after 1000 m and B after 1500 m. Ratio FA/FB is:",
+    "options": [
+      "3/2",
+      "2/3",
+      "1/3",
+      "1/2"
+    ],
+    "correct": null
+  }
+]
