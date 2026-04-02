@@ -91,5 +91,23 @@
     "Human Health and Disease": [],
     "Biotechnology: Principles and Processes": [],
     "Biotechnology and Its Applications": []
+  },
+  "720MARKS": {
+    "Direct_Tests": [
+      {
+        "name": "dpp_01",
+        "file": "720MARKS_dpp_01.json",
+        "unlock_at": "2026-04-02T18:25"
+      }
+    ]
+  },
+  "w": {
+    "Direct_Tests": [
+      {
+        "name": "dp",
+        "file": "w/Direct_Tests/dp",
+        "unlock_at": ""
+      }
+    ]
   }
 }
