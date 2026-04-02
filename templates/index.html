@@ -140,10 +140,150 @@
     window.onload = async () => {
         const res = await fetch('/get_config?v='+Date.now()); config = await res.json();
         renderHome(); updateTime(); setInterval(updateTime, 1000);
-        setInterval(() => { bIdx = (bIdx + 1) % 3; document.getElementById('banner-slide').style.transform = `translateX(-${bIdx * 100}%)`; }, 4000);
+        setInterval(() => { 
+            bIdx = (bIdx + 1) % 3; 
+            document.getElementById('banner-slide').style.transform = `translateX(-${bIdx * 100}%)`; 
+        }, 4000);
         if(localStorage.getItem('un')) updateUI();
     };
 
     function updateTime() {
         const now = new Date();
-        document.getElementById('live-clock').innerText
+        document.getElementById('live-clock').innerText = now.toLocaleString('en-IN', { weekday:'short', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }).toUpperCase();
+        const diff = new Date("May 3, 2026") - now;
+        const d = Math.floor(diff/864e5), h = Math.floor((diff%864e5)/36e5), m = Math.floor((diff%36e5)/6e4);
+        document.getElementById('neet-timer').innerText = `NEET 2026: ${d}d ${h}h ${m}m`;
+    }
+
+    function renderHome() {
+        const mainSubs = ['physics','chemistry','botany','zoology'];
+        let mH = '', sH = '', hasSpecial = false;
+        for (let s in config) {
+            let isMain = mainSubs.includes(s.toLowerCase());
+            let icon = s.toLowerCase()==='physics'?'atom':s.toLowerCase()==='chemistry'?'flask':s.toLowerCase()==='botany'?'leaf':'dna';
+            let card = `<div class="subject-card" onclick="openSubjectPage('${s}')">
+                <i class="fas fa-${isMain ? icon : 'file-alt'}" style="font-size:3.5rem; color:var(--pw-blue); margin-bottom:15px;"></i>
+                <h3 style="margin:0;">${s.toUpperCase()}</h3>
+                ${!isMain ? '<i class="fas fa-star star-icon"></i>' : ''}
+            </div>`;
+            if (isMain) mH += card;
+            else { sH += card; hasSpecial = true; }
+        }
+        document.getElementById('main-subjects').innerHTML = mH;
+        if(hasSpecial) {
+            document.getElementById('custom-subjects-area').style.display = 'block';
+            document.getElementById('custom-list').innerHTML = sH;
+        }
+    }
+
+    function showPage(id) {
+        document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active-page'));
+        document.getElementById(id).classList.add('active-page');
+        if (pageStack[pageStack.length - 1] !== id) pageStack.push(id);
+    }
+
+    function goBack() {
+        if (pageStack.length > 1) {
+            pageStack.pop();
+            const prev = pageStack[pageStack.length - 1];
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active-page'));
+            document.getElementById(prev).classList.add('active-page');
+        }
+    }
+
+    function openSubjectPage(s) {
+        curSub = s;
+        document.getElementById('sub-title').innerText = s.toUpperCase();
+        let h = '', i = 1;
+        for (let ch in config[s]) {
+            h += `<div class="subject-card" style="text-align:left; padding:25px; margin-bottom:15px;" onclick="openDPPList('${ch}')">
+                    <span style="background:#2d3436; color:white; font-size:0.65rem; padding:4px 10px; border-radius:6px; font-weight:900;">CH - ${i<10?'0'+i:i}</span>
+                    <h3 style="margin:10px 0;">${ch}</h3>
+                    <div style="font-size:0.85rem; color:var(--pw-blue); font-weight:800;"><i class="fas fa-check-circle"></i> Completed: 0 / Total: ${config[s][ch].length} DPPs</div>
+                  </div>`;
+            i++;
+        }
+        document.getElementById('chapter-list').innerHTML = h;
+        showPage('page-chapters');
+    }
+
+    function openDPPList(ch) {
+        document.getElementById('ch-title-dpp').innerText = ch;
+        let h = '', dpps = config[curSub][ch];
+        dpps.forEach(d => {
+            h += `<div class="dpp-card">
+                <div class="dpp-thumb"><small style="position:absolute; top:8px; left:10px; font-weight:900; font-size:0.6rem;">OBJ</small><div class="dpp-icon-box" style="background:white; padding:5px 8px; border-radius:8px; font-weight:900; font-size:0.8rem;">DPP</div></div>
+                <div style="flex:1;">
+                    <div style="font-size:0.75rem; color:#64748b; font-weight:bold;">DPP • TARGET 720</div>
+                    <span style="font-weight:700; display:block; margin:5px 0;">${d.name}</span>
+                    <div style="font-size:0.8rem; color:#64748b; font-weight:600; margin-bottom:10px;">20 Qs. • 80 Marks • Earn 40 🍎</div>
+                    <button class="attempt-bar" onclick="prepareInstructions('${d.file}')">Attempt Now</button>
+                </div>
+            </div>`;
+        });
+        document.getElementById('dpp-items').innerHTML = h;
+        showPage('page-dpp');
+    }
+
+    async function prepareInstructions(file) {
+        try {
+            const res = await fetch(`/get_test/${file}`);
+            if(!res.ok) throw new Error("File Missing");
+            currentTest = await res.json();
+            document.getElementById('ins-qcount').innerText = currentTest.length;
+            document.getElementById('ins-time').innerText = currentTest.length;
+            document.getElementById('ins-marks').innerText = currentTest.length * 4;
+            showPage('page-instructions');
+        } catch(e) { alert("Test file not found on server!"); }
+    }
+
+    function startActualTest() {
+        qIdx = 0; renderQ(); renderNav(); showPage('page-test');
+    }
+
+    function renderQ() {
+        const q = currentTest[qIdx];
+        document.getElementById('ques-area').innerText = q.question;
+        let h = '';
+        q.options.forEach((opt, i) => {
+            h += `<div class="option-box" onclick="checkAns(this, ${i}, ${q.correct})">${i+1}. &nbsp; ${opt}</div>`;
+        });
+        document.getElementById('opts-area').innerHTML = h;
+    }
+
+    function checkAns(el, chosen, correct) {
+        const main = ['physics','chemistry','botany','zoology'];
+        if (main.includes(curSub.toLowerCase())) {
+            const boxes = document.querySelectorAll('.option-box');
+            boxes.forEach(b => b.style.pointerEvents = 'none');
+            if (chosen === correct) el.classList.add('correct');
+            else { el.classList.add('wrong'); boxes[correct].classList.add('correct'); }
+        } else { el.style.borderColor = '#1b10b1'; }
+    }
+
+    function renderNav() {
+        let h = '';
+        currentTest.forEach((_, i) => h += `<div class="nav-dot ${i===qIdx?'active':''}" onclick="qIdx=${i};renderQ();renderNav()">${i+1}</div>`);
+        document.getElementById('test-nav').innerHTML = h;
+    }
+
+    function nextQ() { if(qIdx < currentTest.length-1) { qIdx++; renderQ(); renderNav(); } }
+    function prevQ() { if(qIdx > 0) { qIdx--; renderQ(); renderNav(); } }
+
+    function handleCredentialResponse(r) {
+        const u = JSON.parse(atob(r.credential.split('.')[1]));
+        localStorage.setItem('un', u.name); localStorage.setItem('gpic', u.picture); updateUI();
+    }
+
+    function updateUI() {
+        document.querySelector('.g_id_signin').style.display = 'none';
+        document.getElementById('user-badge').style.display = 'flex';
+        document.getElementById('lock-layer').style.display = 'none';
+        document.getElementById('un-pic').src = localStorage.getItem('gpic');
+        document.getElementById('un-name').innerText = localStorage.getItem('un').toUpperCase();
+    }
+
+    function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
+</script>
+</body>
+</html>
