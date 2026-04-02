@@ -8,13 +8,29 @@ GITHUB_TOKEN = os.environ.get("MY_GITHUB_TOKEN")
 REPO_OWNER = "rajfeuewhs"
 REPO_NAME = "Neet-question"
 GITHUB_API_URL = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/"
+# RAW_BASE_URL: Yeh 'data' folder ke liye hai (config/leaderboard)
 RAW_BASE_URL = f"https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/main/data/"
+# TEST_BASE_URL: Yeh 'tests' folder ke liye hai jahan aapki DPP files hongi
+TEST_BASE_URL = f"https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/main/tests/"
 
 @app.route('/')
 def index(): return render_template('index.html')
 
 @app.route('/admin')
 def admin(): return render_template('admin.html')
+
+# DPP Fetch karne ka naya route
+@app.route('/get_test/<path:filename>')
+def get_test(filename):
+    try:
+        # GitHub se seedha test file fetch karega
+        r = requests.get(f"{TEST_BASE_URL}{filename}?v={int(time.time())}")
+        if r.status_code == 200:
+            return jsonify(r.json())
+        else:
+            return jsonify({"error": "File not found on GitHub"}), 404
+    except:
+        return jsonify({"error": "Connection Error"}), 500
 
 @app.route('/get_config')
 def get_config():
@@ -23,7 +39,6 @@ def get_config():
         return jsonify(r.json()) if r.status_code == 200 else jsonify({})
     except: return jsonify({})
 
-# Leaderboard fetch karne ka route
 @app.route('/get_leaderboard')
 def get_lb():
     try:
@@ -31,7 +46,6 @@ def get_lb():
         return jsonify(r.json()) if r.status_code == 200 else jsonify([])
     except: return jsonify([])
 
-# Apple aur Score update karne ka route
 @app.route('/submit_result', methods=['POST'])
 def submit_res():
     d = request.json # {username, score, apples}
@@ -39,7 +53,6 @@ def submit_res():
         r_lb = requests.get(f"{RAW_BASE_URL}leaderboard.json")
         lb = r_lb.json() if r_lb.status_code == 200 else []
         
-        # User update ya add logic
         user = next((item for item in lb if item["username"] == d["username"]), None)
         if user:
             user["apples"] += d["apples"]
@@ -47,7 +60,6 @@ def submit_res():
         else:
             lb.append({"username": d["username"], "score": d["score"], "apples": d["apples"]})
         
-        # Ranking based on Apples
         lb = sorted(lb, key=lambda x: x['apples'], reverse=True)
         github_upload("data/leaderboard.json", json.dumps(lb, indent=2), "Update Rank")
         return jsonify({"success": True})
