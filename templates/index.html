@@ -7,143 +7,139 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --pw-blue: #1b10b1;
-            --pw-gradient: linear-gradient(135deg, #1b10b1 0%, #4a3aff 100%);
-            --bg: #f8faff;
-            --text: #2d3436;
-            --card: #ffffff;
-            --border: rgba(27, 16, 177, 0.1);
-        }
-
-        /* Full App Dark Mode */
-        body.dark-mode {
-            --bg: #0f172a;
-            --text: #f8fafc;
-            --card: #1e293b;
-            --border: #334155;
-        }
-
+        :root { --pw-blue: #1b10b1; --bg: #f8faff; --text: #2d3436; --card: #ffffff; --border: rgba(27, 16, 177, 0.1); }
+        body.dark-mode { --bg: #0f172a; --text: #f8fafc; --card: #1e293b; --border: #334155; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--bg); color: var(--text); transition: 0.3s; }
         .page-section { display: none; min-height: 100vh; background-color: var(--bg); }
         .active-page { display: block !important; }
-        .container { max-width: 800px; margin: auto; padding: 20px; }
+        .container { max-width: 600px; margin: auto; padding: 20px; }
 
-        /* Top Header Design */
-        .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .mode-toggle { cursor: pointer; font-size: 1.5rem; color: var(--pw-blue); }
+        /* Username Modal */
+        .modal { display:none; position:fixed; z-index:2000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px); }
+        .modal-box { background:var(--card); width:85%; max-width:350px; margin:100px auto; padding:25px; border-radius:20px; text-align:center; border:1px solid var(--pw-blue); }
+        
+        /* Leaderboard Design */
+        .lb-row { display:flex; align-items:center; justify-content:space-between; padding:15px; background:var(--card); margin-bottom:10px; border-radius:15px; border:1px solid var(--border); }
+        .rank-1 { border:2px solid #fbbf24; background: linear-gradient(to right, var(--card), #fffbeb); }
 
-        /* Subject Grid (Interactive) */
-        .main-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px; }
-        .main-card { 
-            background: var(--card); padding: 30px 10px; border-radius: 24px; text-align: center; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05); cursor: pointer; border: 1px solid var(--border);
-            transition: 0.3s;
-        }
-        .main-card:active { transform: scale(0.95); }
-        .main-card i { font-size: 2.5rem; color: var(--pw-blue); margin-bottom: 12px; }
-
-        /* Search Bar */
-        .search-box { margin-bottom: 25px; position: relative; }
-        .search-box input { width: 100%; padding: 15px 15px 15px 45px; border-radius: 15px; border: 1px solid var(--border); background: var(--card); color: var(--text); outline: none; box-sizing: border-box; }
-        .search-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #64748b; }
-
-        /* Special Subject Card */
-        .special-card {
-            background: var(--card); border: 2px solid var(--pw-blue); padding: 20px; border-radius: 20px; 
-            margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;
-        }
-
-        .footer { position: fixed; bottom: 0; width: 100%; background: var(--card); padding: 15px; display: flex; gap: 10px; box-sizing: border-box; border-top: 1px solid var(--border); }
-        .btn { flex: 1; padding: 16px; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; }
+        /* Special Rectangles */
+        .special-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
+        .special-rect { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid var(--border); text-align: center; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="page-home" class="page-section active-page">
     <div class="container">
-        <div class="top-nav">
-            <div class="mode-toggle" onclick="toggleDarkMode()"><i class="fas fa-moon"></i></div>
-            
-            <div id="login-module">
-                <div id="g_id_onload"
-                     data-client_id="614180387554-801p5epi2emvn7mt5tkn3pf3sth0imga.apps.googleusercontent.com"
-                     data-callback="handleCredentialResponse">
-                </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <div onclick="toggleDarkMode()"><i class="fas fa-moon"></i></div>
+            <div id="login-area">
+                <div id="g_id_onload" data-client_id="614180387554-801p5epi2emvn7mt5tkn3pf3sth0imga.apps.googleusercontent.com" data-callback="handleCredentialResponse"></div>
                 <div class="g_id_signin" data-type="icon" data-shape="circle"></div>
-                
-                <div id="user-info" style="display: none;">
-                    <img id="user-img" src="" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--pw-blue);">
-                </div>
+                <img id="user-img" src="" style="display:none; width:38px; height:38px; border-radius:50%; border:2px solid var(--pw-blue);">
             </div>
         </div>
 
-        <div style="margin-bottom: 30px;">
-            <h1 style="margin: 0; color: var(--pw-blue); font-size: 2.2rem; font-weight: 800;">Target720</h1>
-            <div id="live-clock" style="font-size: 0.85rem; color: #64748b; font-weight: 600; margin-top: 5px;">LOADING CLOCK...</div>
+        <h1 style="color:var(--pw-blue); margin:0;">Target720</h1>
+        <div id="live-clock" style="font-size:0.8rem; color:#64748b; margin-bottom:25px;"></div>
+
+        <div id="lb-btn-box" style="display:none;">
+            <div onclick="showLB()" style="background:linear-gradient(135deg, #fbbf24, #f59e0b); color:white; padding:15px; border-radius:15px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; font-weight:bold;">
+                <span><i class="fas fa-apple-alt"></i> Rank List (Apple Based)</span>
+                <i class="fas fa-chevron-right"></i>
+            </div>
         </div>
 
-        <div class="search-box">
-            <input type="text" id="searchBar" placeholder="Search Chapters or DPPs..." onkeyup="filterContent()">
-            <i class="fas fa-search"></i>
-        </div>
-        
-        <div class="main-grid" id="main-subjects"></div>
+        <div class="main-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:15px;" id="main-subjects"></div>
+
         <div id="custom-subjects-area" style="display:none; margin-top:30px;">
-            <div id="custom-list"></div>
+            <small style="font-weight:bold; color:#64748b;">SPECIAL TESTS</small>
+            <div class="special-grid" id="custom-list"></div>
         </div>
+    </div>
+</div>
+
+<div id="un-modal" class="modal">
+    <div class="modal-box">
+        <h3>Choose Username</h3>
+        <p style="font-size:0.8rem; color:#666;">This will be used for ranking.</p>
+        <input type="text" id="un-input" style="width:100%; padding:12px; border-radius:10px; border:1px solid #ddd; box-sizing:border-box;">
+        <div style="color:red; font-size:0.7rem; margin-top:10px; font-weight:bold;">Warning: Only 1 time change allowed!</div>
+        <button onclick="saveUN()" style="width:100%; padding:12px; background:var(--pw-blue); color:white; border:none; border-radius:10px; margin-top:15px; font-weight:bold;">CONFIRM</button>
+    </div>
+</div>
+
+<div id="page-lb" class="page-section">
+    <div class="container">
+        <div onclick="goBack()" style="cursor:pointer; margin-bottom:20px;"><i class="fas fa-arrow-left"></i> Back</div>
+        <h2 style="text-align:center;"><i class="fas fa-apple-alt" style="color:#ef4444;"></i> Global Apple Ranking</h2>
+        <div id="lb-list"></div>
     </div>
 </div>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
-    let config = {}, pageStack = ['page-home'];
+    let config = {}, questions = [], curSub = "", pageStack=['page-home'];
 
     window.onload = async () => {
-        const res = await fetch('/get_config?v=' + Date.now());
-        config = await res.json();
+        const res = await fetch('/get_config?v='+Date.now()); config = await res.json();
         renderHome();
+        updateClock(); setInterval(updateClock, 60000);
+        // Login check
+        if(localStorage.getItem('un')) document.getElementById('lb-btn-box').style.display = 'block';
     };
 
-    // Live Clock (Minute Update Only)
     function updateClock() {
         const now = new Date();
-        const options = { weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' };
+        const options = { weekday:'short', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' };
         document.getElementById('live-clock').innerText = now.toLocaleString('en-IN', options).toUpperCase();
     }
-    setInterval(updateClock, 60000); 
-    updateClock();
 
-    // Google Login Handler
     function handleCredentialResponse(response) {
-        const user = parseJwt(response.credential);
+        const user = JSON.parse(atob(response.credential.split('.')[1]));
+        localStorage.setItem('gid', user.sub);
+        localStorage.setItem('gpic', user.picture);
         document.querySelector('.g_id_signin').style.display = 'none';
-        document.getElementById('user-info').style.display = 'block';
         document.getElementById('user-img').src = user.picture;
-        localStorage.setItem('user_name', user.name);
+        document.getElementById('user-img').style.display = 'block';
+        
+        if(!localStorage.getItem('un')) document.getElementById('un-modal').style.display = 'block';
+        else document.getElementById('lb-btn-box').style.display = 'block';
     }
 
-    function parseJwt(token) {
-        var base64Url = token.split('.')[1];
-        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        return JSON.parse(window.atob(base64));
+    function saveUN() {
+        const un = document.getElementById('un-input').value.trim();
+        if(un.length < 3) return alert("Min 3 chars!");
+        localStorage.setItem('un', un);
+        document.getElementById('un-modal').style.display = 'none';
+        document.getElementById('lb-btn-box').style.display = 'block';
+        alert("Username set as: " + un);
     }
 
-    function toggleDarkMode() {
-        document.body.classList.toggle('dark-mode');
-        const icon = document.querySelector('.mode-toggle i');
-        icon.classList.toggle('fa-moon'); icon.classList.toggle('fa-sun');
+    async function showLB() {
+        const res = await fetch('/get_leaderboard?v='+Date.now());
+        const lb = await res.json();
+        let h = '';
+        lb.forEach((u, i) => {
+            h += `
+            <div class="lb-row ${i===0?'rank-1':''}">
+                <span><b>${i+1}.</b> ${u.username}</span>
+                <span style="font-weight:bold; color:#ef4444;">🍎 ${u.apples} Apples</span>
+            </div>`;
+        });
+        document.getElementById('lb-list').innerHTML = h || "No ranking yet.";
+        showPage('page-lb');
     }
 
     function renderHome() {
-        const mainSubs = ['physics', 'chemistry', 'botany', 'zoology'];
+        const main = ['physics','chemistry','botany','zoology'];
         let mH = '', sH = '';
         for (let s in config) {
-            if (mainSubs.includes(s)) {
-                let icon = s === 'physics' ? 'atom' : s === 'chemistry' ? 'flask' : s === 'botany' ? 'leaf' : 'dna';
-                mH += `<div class="main-card" onclick="openSubject('${s}')"><i class="fas fa-${icon}"></i><h3>${s.toUpperCase()}</h3></div>`;
+            if (main.includes(s)) {
+                let icon = s==='physics'?'atom':s==='chemistry'?'flask':s==='botany'?'leaf':'dna';
+                mH += `<div style="background:var(--card); padding:30px 10px; border-radius:20px; text-align:center; border:1px solid var(--border);" onclick="openSubject('${s}')"><i class="fas fa-${icon}" style="font-size:2.5rem; color:var(--pw-blue);"></i><h3>${s.toUpperCase()}</h3></div>`;
             } else {
-                sH += `<div class="special-card" onclick="openSubject('${s}')"><h3>${s.toUpperCase()}</h3><i class="fas fa-star"></i></div>`;
+                sH += `<div class="special-rect" onclick="openSubject('${s}')"><i class="fas fa-star" style="color:#f59e0b;"></i><br><b>${s.toUpperCase()}</b></div>`;
             }
         }
         document.getElementById('main-subjects').innerHTML = mH;
@@ -151,20 +147,9 @@
         if(sH) document.getElementById('custom-subjects-area').style.display = 'block';
     }
 
-    function filterContent() {
-        let input = document.getElementById('searchBar').value.toLowerCase();
-        document.querySelectorAll('.main-card, .special-card').forEach(card => {
-            card.style.display = card.innerText.toLowerCase().includes(input) ? "block" : "none";
-        });
-    }
-
-    // Navigation Logic
-    function showPage(id, push = true) {
-        document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active-page'));
-        document.getElementById(id).classList.add('active-page');
-        if(push && pageStack[pageStack.length-1] !== id) pageStack.push(id);
-    }
-    function goBack() { if (pageStack.length > 1) { pageStack.pop(); showPage(pageStack[pageStack.length - 1], false); } }
+    function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
+    function showPage(id) { document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active-page')); document.getElementById(id).classList.add('active-page'); pageStack.push(id); }
+    function goBack() { pageStack.pop(); const id = pageStack[pageStack.length-1]; document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active-page')); document.getElementById(id).classList.add('active-page'); }
 </script>
 </body>
 </html>
