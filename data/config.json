@@ -16,13 +16,7 @@
     ],
     "Work, Energy and Power": [],
     "System of Particles": [],
-    "Gravitation": [
-      {
-        "name": "lol",
-        "file": "physics/Gravitation/lol",
-        "unlock_at": ""
-      }
-    ],
+    "Gravitation": [],
     "Mechanical Properties of Solids": [],
     "Mechanical Properties of Fluids": [],
     "Thermal Properties of Matter": [],
@@ -189,20 +183,6 @@
       {
         "name": "dpp_04",
         "file": "kinf/Direct_Tests/dpp_04",
-        "unlock_at": ""
-      }
-    ]
-  },
-  "720marks": {
-    "Direct_Tests": [
-      {
-        "name": "dpp_01",
-        "file": "720marks/Direct_Tests/dpp_01",
-        "unlock_at": "2026-04-01T19:30"
-      },
-      {
-        "name": "raj",
-        "file": "720marks/Direct_Tests/raj",
         "unlock_at": ""
       }
     ]
