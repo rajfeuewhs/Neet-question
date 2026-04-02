@@ -41,6 +41,10 @@
             <input type="text" id="new-chap-input" placeholder="Enter New Chapter Name" style="display:none;">
 
             <input type="text" id="t-name" placeholder="Test Name">
+            
+            <label>Unlock Test At (Timer):</label>
+            <input type="datetime-local" id="unlock-time">
+
             <textarea id="json-data" rows="5" placeholder="JSON..."></textarea>
             <button onclick="saveTest()" id="up-btn" style="width:100%; padding:12px; background:#1b10b1; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">PUBLISH TEST</button>
         </div>
@@ -83,7 +87,16 @@
             const fSub = isNewSub ? document.getElementById('custom-sub').value : document.getElementById('sub-select').value;
             const chapVal = document.getElementById('chap-select').value;
             const fChap = (chapVal === 'new') ? document.getElementById('new-chap-input').value : chapVal;
-            const data = { subject: fSub, chapter: fChap, test_name: document.getElementById('t-name').value, questions: JSON.parse(document.getElementById('json-data').value) };
+            
+            // Timer data added here
+            const data = { 
+                subject: fSub, 
+                chapter: fChap, 
+                test_name: document.getElementById('t-name').value, 
+                unlock_at: document.getElementById('unlock-time').value, // Timer
+                questions: JSON.parse(document.getElementById('json-data').value) 
+            };
+            
             const res = await fetch('/save_test', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
             const r = await res.json(); if(r.success) { alert("Test Published!"); location.reload(); }
         }
