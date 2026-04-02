@@ -23,7 +23,7 @@
 
         /* Test Engine */
         #page-test { background: #000 !important; color: white !important; }
-        .option-box { background: #1e293b; border: 1px solid #334155; padding: 18px; border-radius: 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.2s; }
+        .option-box { background: #1e293b; border: 1px solid #334155; padding: 18px; border-radius: 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.2s; color: white; }
         .option-box.correct { background: #064e3b !important; border-color: #10b981 !important; }
         .option-box.wrong { background: #7f1d1d !important; border-color: #ef4444 !important; }
         .nav-dot { min-width: 38px; height: 38px; border-radius: 8px; background: #1e293b; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; }
@@ -38,7 +38,7 @@
 <div id="page-home" class="page-section active-page">
     <div class="container">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <div onclick="toggleDarkMode()" style="font-size:1.2rem;"><i class="fas fa-adjust"></i></div>
+            <div onclick="toggleDarkMode()" style="font-size:1.2rem; cursor:pointer;"><i class="fas fa-adjust"></i></div>
             <div style="font-weight:900; color:var(--pw-blue);">TARGET 720</div>
         </div>
         <div class="banner-card" style="background: var(--pw-blue);"><h3>Daily Practice</h3><p>Consistent effort beats talent.</p></div>
@@ -70,13 +70,189 @@
         <div style="background:var(--card); padding:25px; border-radius:20px; border:1px solid var(--border);">
             Questions: <b id="ins-qcount">0</b><br>
             Time: <b id="ins-time">0</b> Minutes<br>
-            Correct: <span style="color:#10b981;">+4</span> | Wrong: <span style="color:#ef4444;">-1</span>
+            Marks: <span style="color:#10b981;">+4</span> | Wrong: <span style="color:#ef4444;">-1</span>
         </div>
-        <button onclick="startActualTest()" style="position:fixed; bottom:25px; left:5%; width:90%; padding:18px; background:#c7d2fe; color:#1e1b4b; border:none; border-radius:15px; font-weight:800; font-size:1.1rem;">Start Test</button>
+        <button onclick="startActualTest()" style="position:fixed; bottom:25px; left:5%; width:90%; padding:18px; background:#c7d2fe; color:#1e1b4b; border:none; border-radius:15px; font-weight:800; font-size:1.1rem; cursor:pointer;">Start Test</button>
     </div>
 </div>
 
 <div id="page-test" class="page-section">
-    <div class="test-header" style="display:flex; justify-content:space-between; padding:15px; border-bottom:1px solid #334155;">
-        <h3 id="test-timer" style="margin:0;">00:00</h3>
-        <button onclick="submitTest()" style="background:#f
+    <div class="test-header">
+        <h3 id="test-timer-val" style="margin:0;">00:00:00</h3>
+        <button onclick="submitTest()" style="background:#fca5a5; color:#000; border:none; padding:8px 18px; border-radius:10px; font-weight:bold;">Submit</button>
+    </div>
+    <div id="test-nav" style="display:flex; gap:10px; overflow-x:auto; padding:15px; scrollbar-width:none;"></div>
+    <div class="container">
+        <div id="ques-text" style="font-size:1.2rem; margin-bottom:25px;"></div>
+        <div id="opts-area"></div>
+    </div>
+    <div class="footer-nav">
+        <button onclick="prevQ()" style="flex:1; background:#1e293b; color:white; border:none; padding:15px; border-radius:12px;">Previous</button>
+        <button onclick="nextQ()" style="flex:1; background:#c7d2fe; color:#1e1b4b; border:none; padding:15px; border-radius:12px;">Save & Next</button>
+    </div>
+</div>
+
+<div id="page-result" class="page-section">
+    <div class="container" id="result-content" style="padding-top:50px;"></div>
+</div>
+
+<script>
+    let config = {}, pageStack = ['page-home'], curSub = "", curTest = [], qIdx = 0, userAns = {};
+
+    window.onload = async () => {
+        try {
+            const res = await fetch('/get_config');
+            config = await res.json();
+            renderHome();
+            setInterval(updateCountdown, 1000);
+        } catch(e) { console.error("Config load error"); }
+    };
+
+    function renderHome() {
+        const mainSubs = ['physics', 'chemistry', 'botany', 'zoology'];
+        let mH = '', sH = '', hasSpecial = false;
+
+        for (let s in config) {
+            let sLower = s.toLowerCase();
+            let isMain = mainSubs.includes(sLower);
+            let icon = 'book';
+            if(sLower==='physics') icon='atom';
+            else if(sLower==='chemistry') icon='flask';
+            else if(sLower==='botany') icon='leaf';
+            else if(sLower==='zoology') icon='dna';
+
+            let card = `<div class="subject-card" onclick="openSub('${s}')">
+                <i class="fas fa-${isMain ? icon : 'star'}" style="font-size:2rem; color:var(--pw-blue); margin-bottom:10px;"></i>
+                <h3 style="margin:0;">${s.toUpperCase()}</h3>
+                ${!isMain ? '<i class="fas fa-certificate" style="position:absolute; top:10px; right:10px; color:#f59e0b; font-size:0.8rem;"></i>' : ''}
+            </div>`;
+
+            if (isMain) mH += card;
+            else { sH += card; hasSpecial = true; }
+        }
+
+        document.getElementById('main-subjects').innerHTML = mH;
+        if (hasSpecial) {
+            document.getElementById('specials-container').style.display = 'block';
+            document.getElementById('custom-list').innerHTML = sH;
+        }
+    }
+
+    function openSub(s) {
+        curSub = s; document.getElementById('sub-title').innerText = s.toUpperCase();
+        let h = '', i = 1;
+        for(let ch in config[s]) {
+            h += `<div class="item-card" onclick="openDPP('${ch}')">
+                    <div style="flex:1;"><span style="background:#2d3436; color:white; font-size:0.6rem; padding:3px 8px; border-radius:4px; font-weight:900;">CH-${i<10?'0'+i:i}</span><h3 style="margin:5px 0;">${ch}</h3><small style="color:var(--pw-blue); font-weight:bold;">${config[s][ch].length} DPPs Available</small></div>
+                    <i class="fas fa-chevron-right" style="color:#ddd;"></i>
+                  </div>`; i++;
+        }
+        document.getElementById('chapter-list').innerHTML = h; showPage('page-chapters');
+    }
+
+    function openDPP(ch) {
+        document.getElementById('ch-title').innerText = ch; let h = '';
+        if(config[curSub] && config[curSub][ch]) {
+            config[curSub][ch].forEach(t => {
+                h += `<div class="item-card" onclick="loadTest('${t.file}')">
+                        <div style="width:50px; height:50px; background:#fed7aa; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:0.7rem;">DPP</div>
+                        <div style="flex:1;"><b>${t.name}</b><br><small style="color:#64748b;">NEET Pattern • 40 🍎</small></div>
+                      </div>`;
+            });
+        }
+        document.getElementById('dpp-items').innerHTML = h; showPage('page-dpp');
+    }
+
+    async function loadTest(file) {
+        try {
+            const res = await fetch(`/get_test/${file}`);
+            curTest = await res.json();
+            document.getElementById('ins-qcount').innerText = curTest.length;
+            document.getElementById('ins-time').innerText = curTest.length;
+            showPage('page-instructions');
+        } catch(e) { alert("Test file not found!"); }
+    }
+
+    function startActualTest() { qIdx = 0; userAns = {}; renderQ(); renderNav(); showPage('page-test'); }
+
+    function renderQ() {
+        const q = curTest[qIdx]; document.getElementById('ques-text').innerText = (qIdx+1) + ". " + q.question;
+        let h = '';
+        q.options.forEach((opt, i) => {
+            let cls = "";
+            if(userAns[qIdx] !== undefined) {
+                if(i === q.correct) cls = "correct";
+                else if(i === userAns[qIdx]) cls = "wrong";
+            }
+            h += `<div class="option-box ${cls}" onclick="checkAns(this, ${i}, ${q.correct})">
+                    <span>${i+1}. ${opt}</span>
+                    <i class="far ${cls==='correct'?'fa-check-circle':cls==='wrong'?'fa-times-circle':'fa-circle'}"></i>
+                  </div>`;
+        });
+        document.getElementById('opts-area').innerHTML = h;
+    }
+
+    function checkAns(el, chosen, correct) {
+        if(userAns[qIdx] !== undefined) return;
+        userAns[qIdx] = chosen;
+        const boxes = document.querySelectorAll('.option-box');
+        if(chosen === correct) el.classList.add('correct');
+        else { el.classList.add('wrong'); boxes[correct].classList.add('correct'); }
+        renderNav();
+    }
+
+    function renderNav() {
+        let h = ''; curTest.forEach((_, i) => h += `<div class="nav-dot ${i===qIdx?'active':''} ${userAns[i]!==undefined?'answered':''}" onclick="qIdx=${i};renderQ();renderNav()">${i+1}</div>`);
+        document.getElementById('test-nav').innerHTML = h;
+    }
+
+    function submitTest() {
+        if(!confirm("Submit Test?")) return;
+        let score = 0, correct = 0;
+        curTest.forEach((q, i) => {
+            if(userAns[i] === q.correct) { score += 4; correct++; }
+            else if(userAns[i] !== undefined) score -= 1;
+        });
+        const acc = ((correct/curTest.length)*100).toFixed(1);
+        document.getElementById('result-content').innerHTML = `
+            <div style="background:white; color:#000; padding:30px; border-radius:30px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.1);">
+                <h2 style="color:var(--pw-blue);">Report Card</h2>
+                <div style="font-size:3.5rem; font-weight:900; margin:20px 0;">${score}/${curTest.length*4}</div>
+                <div style="display:flex; gap:10px; margin-bottom:25px;">
+                    <div style="flex:1; background:#f1f5f9; padding:15px; border-radius:15px;"><b>${correct}</b><br><small>Correct</small></div>
+                    <div style="flex:1; background:#f1f5f9; padding:15px; border-radius:15px;"><b>${acc}%</b><br><small>Accuracy</small></div>
+                </div>
+                <button onclick="location.reload()" style="background:var(--pw-blue); color:white; padding:18px; border:none; width:100%; border-radius:15px; font-weight:bold; cursor:pointer;">Done</button>
+            </div>`;
+        showPage('page-result');
+    }
+
+    function nextQ() { if(qIdx < curTest.length-1) { qIdx++; renderQ(); renderNav(); } }
+    function prevQ() { if(qIdx > 0) { qIdx--; renderQ(); renderNav(); } }
+    
+    function updateCountdown() {
+        const neetDate = new Date("May 3, 2026 10:00:00").getTime();
+        const now = new Date().getTime();
+        const diff = neetDate - now;
+        const d = Math.floor(diff/864e5), h = Math.floor((diff%864e5)/36e5), m = Math.floor((diff%36e5)/6e4);
+        document.getElementById('neet-timer').innerText = `NEET 2026: ${d}d ${h}h ${m}m`;
+    }
+
+    function showPage(id) { 
+        document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active-page')); 
+        document.getElementById(id).classList.add('active-page'); 
+        if(pageStack[pageStack.length-1]!==id) pageStack.push(id); 
+    }
+    
+    function goBack() { 
+        if(pageStack.length > 1) { 
+            pageStack.pop(); 
+            showPage(pageStack[pageStack.length-1]); 
+            pageStack.pop(); 
+        } 
+    }
+
+    function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
+</script>
+</body>
+</html>
