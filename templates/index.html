@@ -14,7 +14,6 @@
             --text: #2d3436;
             --card: #ffffff;
             --border: rgba(27, 16, 177, 0.1);
-            --special-grad: linear-gradient(90deg, #ff8a00, #e52e71); /* Extra subject ke liye */
         }
 
         /* Full App Dark Mode */
@@ -30,10 +29,11 @@
         .active-page { display: block !important; }
         .container { max-width: 800px; margin: auto; padding: 20px; }
 
-        /* Mode Toggle (Home Only) */
-        .mode-toggle { position: absolute; top: 25px; right: 25px; cursor: pointer; font-size: 1.5rem; color: var(--pw-blue); z-index: 100; }
+        /* Top Header Design */
+        .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .mode-toggle { cursor: pointer; font-size: 1.5rem; color: var(--pw-blue); }
 
-        /* Main 4 Grid */
+        /* Subject Grid (Interactive) */
         .main-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px; }
         .main-card { 
             background: var(--card); padding: 30px 10px; border-radius: 24px; text-align: center; 
@@ -43,53 +43,59 @@
         .main-card:active { transform: scale(0.95); }
         .main-card i { font-size: 2.5rem; color: var(--pw-blue); margin-bottom: 12px; }
 
-        /* SPECIAL SUBJECT DESIGN (Point: 4 Squares se alag) */
-        .special-section { margin-top: 40px; }
-        .section-tag { font-size: 0.8rem; font-weight: bold; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; display: block; }
-        
-        .special-card {
-            background: var(--card);
-            border: 2px solid transparent;
-            background-image: linear-gradient(var(--card), var(--card)), var(--special-grad);
-            background-origin: border-box;
-            background-clip: content-box, border-box;
-            padding: 20px;
-            border-radius: 20px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            box-shadow: 0 15px 30px rgba(229, 46, 113, 0.1);
-        }
-        .special-card h3 { margin: 0; font-size: 1.1rem; background: var(--special-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .special-card i { color: #e52e71; font-size: 1.2rem; }
+        /* Search Bar */
+        .search-box { margin-bottom: 25px; position: relative; }
+        .search-box input { width: 100%; padding: 15px 15px 15px 45px; border-radius: 15px; border: 1px solid var(--border); background: var(--card); color: var(--text); outline: none; box-sizing: border-box; }
+        .search-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #64748b; }
 
-        /* Baki pages ke basic styles... */
-        .nav-header { padding: 15px; display: flex; align-items: center; gap: 15px; background: var(--card); border-bottom: 1px solid var(--border); }
+        /* Special Subject Card */
+        .special-card {
+            background: var(--card); border: 2px solid var(--pw-blue); padding: 20px; border-radius: 20px; 
+            margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+        }
+
+        .footer { position: fixed; bottom: 0; width: 100%; background: var(--card); padding: 15px; display: flex; gap: 10px; box-sizing: border-box; border-top: 1px solid var(--border); }
+        .btn { flex: 1; padding: 16px; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="page-home" class="page-section active-page">
     <div class="container">
-        <div class="mode-toggle" onclick="toggleDarkMode()"><i class="fas fa-moon"></i></div>
-        <h1 style="text-align: center; color: var(--pw-blue);">Target<span style="color:var(--text)">720</span></h1>
+        <div class="top-nav">
+            <div class="mode-toggle" onclick="toggleDarkMode()"><i class="fas fa-moon"></i></div>
+            
+            <div id="login-module">
+                <div id="g_id_onload"
+                     data-client_id="614180387554-801p5epi2emvn7mt5tkn3pf3sth0imga.apps.googleusercontent.com"
+                     data-callback="handleCredentialResponse">
+                </div>
+                <div class="g_id_signin" data-type="icon" data-shape="circle"></div>
+                
+                <div id="user-info" style="display: none;">
+                    <img id="user-img" src="" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--pw-blue);">
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <h1 style="margin: 0; color: var(--pw-blue); font-size: 2.2rem; font-weight: 800;">Target720</h1>
+            <div id="live-clock" style="font-size: 0.85rem; color: #64748b; font-weight: 600; margin-top: 5px;">LOADING CLOCK...</div>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchBar" placeholder="Search Chapters or DPPs..." onkeyup="filterContent()">
+            <i class="fas fa-search"></i>
+        </div>
         
         <div class="main-grid" id="main-subjects"></div>
-
-        <div class="special-section" id="custom-subjects-area" style="display:none;">
-            <span class="section-tag">Special Exams & Mock Tests</span>
+        <div id="custom-subjects-area" style="display:none; margin-top:30px;">
             <div id="custom-list"></div>
         </div>
     </div>
 </div>
 
-<div id="page-chapters" class="page-section">
-    <div class="nav-header"><i class="fas fa-arrow-left" onclick="goBack()"></i> <h3 id="sub-title" style="margin:0"></h3></div>
-    <div class="container" id="chapter-list-content"></div>
-</div>
-
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
     let config = {}, pageStack = ['page-home'];
 
@@ -99,6 +105,30 @@
         renderHome();
     };
 
+    // Live Clock (Minute Update Only)
+    function updateClock() {
+        const now = new Date();
+        const options = { weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' };
+        document.getElementById('live-clock').innerText = now.toLocaleString('en-IN', options).toUpperCase();
+    }
+    setInterval(updateClock, 60000); 
+    updateClock();
+
+    // Google Login Handler
+    function handleCredentialResponse(response) {
+        const user = parseJwt(response.credential);
+        document.querySelector('.g_id_signin').style.display = 'none';
+        document.getElementById('user-info').style.display = 'block';
+        document.getElementById('user-img').src = user.picture;
+        localStorage.setItem('user_name', user.name);
+    }
+
+    function parseJwt(token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        return JSON.parse(window.atob(base64));
+    }
+
     function toggleDarkMode() {
         document.body.classList.toggle('dark-mode');
         const icon = document.querySelector('.mode-toggle i');
@@ -107,34 +137,28 @@
 
     function renderHome() {
         const mainSubs = ['physics', 'chemistry', 'botany', 'zoology'];
-        let mH = '', sH = '', hasSpecial = false;
-        
+        let mH = '', sH = '';
         for (let s in config) {
             if (mainSubs.includes(s)) {
                 let icon = s === 'physics' ? 'atom' : s === 'chemistry' ? 'flask' : s === 'botany' ? 'leaf' : 'dna';
-                mH += `
-                <div class="main-card" onclick="openSubject('${s}')">
-                    <i class="fas fa-${icon}"></i>
-                    <h3>${s.toUpperCase()}</h3>
-                </div>`;
+                mH += `<div class="main-card" onclick="openSubject('${s}')"><i class="fas fa-${icon}"></i><h3>${s.toUpperCase()}</h3></div>`;
             } else {
-                hasSpecial = true;
-                // Special subjects ke liye alag design card
-                sH += `
-                <div class="special-card" onclick="openSubject('${s}')">
-                    <h3>${s.toUpperCase()}</h3>
-                    <i class="fas fa-star"></i>
-                </div>`;
+                sH += `<div class="special-card" onclick="openSubject('${s}')"><h3>${s.toUpperCase()}</h3><i class="fas fa-star"></i></div>`;
             }
         }
         document.getElementById('main-subjects').innerHTML = mH;
-        if(hasSpecial) {
-            document.getElementById('custom-subjects-area').style.display = 'block';
-            document.getElementById('custom-list').innerHTML = sH;
-        }
+        document.getElementById('custom-list').innerHTML = sH;
+        if(sH) document.getElementById('custom-subjects-area').style.display = 'block';
     }
 
-    // openSubject aur baki logic pichle code jaisa hi rahega...
+    function filterContent() {
+        let input = document.getElementById('searchBar').value.toLowerCase();
+        document.querySelectorAll('.main-card, .special-card').forEach(card => {
+            card.style.display = card.innerText.toLowerCase().includes(input) ? "block" : "none";
+        });
+    }
+
+    // Navigation Logic
     function showPage(id, push = true) {
         document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active-page'));
         document.getElementById(id).classList.add('active-page');
