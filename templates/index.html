@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Target720 | Premier NEET Portal</title>
+    <title>Target720 | NEET Portal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --pw-blue: #1b10b1; --bg: #f4f7fe; --text: #2d3436; --card: #ffffff; --border: rgba(27, 16, 177, 0.08); }
         body.dark-mode { --bg: #0f172a; --text: #f8fafc; --card: #1e293b; --border: #334155; }
@@ -13,15 +14,12 @@
         .page-section { display: none; min-height: 100vh; }
         .active-page { display: block !important; }
 
-        /* Home Design */
+        /* Home Page */
         .banner-card { min-width: 100%; height: 130px; color: white; padding: 25px; border-radius: 25px; display: flex; flex-direction: column; justify-content: center; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(27, 16, 177, 0.2); }
         .subject-card { background: var(--card); padding: 30px 15px; border-radius: 30px; text-align: center; border: 1px solid var(--border); cursor: pointer; transition: 0.3s; position: relative; }
         .item-card { background: var(--card); border-radius: 20px; border: 1px solid var(--border); margin-bottom: 12px; padding: 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; }
 
-        /* Specials Section */
-        .specials-title { font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; margin: 30px 0 15px 0; display: block; border-top: 1px dashed #ddd; padding-top: 20px; }
-
-        /* Test Engine */
+        /* Test Engine (Black Theme) */
         #page-test { background: #000 !important; color: white !important; }
         .option-box { background: #1e293b; border: 1px solid #334155; padding: 18px; border-radius: 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.2s; color: white; }
         .option-box.correct { background: #064e3b !important; border-color: #10b981 !important; }
@@ -31,6 +29,8 @@
 
         .header-sticky { background: var(--card); padding: 15px 20px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
         .footer-nav { position: fixed; bottom: 0; width: 100%; max-width: 1200px; background: #111; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #334155; box-sizing: border-box; }
+        
+        .specials-title { font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; margin: 30px 0 15px 0; display: block; border-top: 1px dashed #ddd; padding-top: 20px; }
     </style>
 </head>
 <body>
@@ -41,7 +41,7 @@
             <div onclick="toggleDarkMode()" style="font-size:1.2rem; cursor:pointer;"><i class="fas fa-adjust"></i></div>
             <div style="font-weight:900; color:var(--pw-blue);">TARGET 720</div>
         </div>
-        <div class="banner-card" style="background: var(--pw-blue);"><h3>Daily Practice</h3><p>Consistent effort beats talent.</p></div>
+        <div class="banner-card" style="background: var(--pw-blue);"><h3>Daily Practice</h3><p>Success is a habit, not a destination.</p></div>
         <div id="neet-timer" style="background:#ef4444; color:white; padding:8px 15px; border-radius:50px; font-weight:900; font-size:0.75rem; display:inline-block; margin-bottom:20px;">NEET 2026: 00d 00h 00m</div>
         
         <div id="main-subjects" style="display:grid; grid-template-columns:1fr 1fr; gap:15px;"></div>
@@ -77,13 +77,13 @@
 </div>
 
 <div id="page-test" class="page-section">
-    <div class="test-header">
+    <div class="test-header" style="display:flex; justify-content:space-between; padding:15px; border-bottom:1px solid #334155;">
         <h3 id="test-timer-val" style="margin:0;">00:00:00</h3>
         <button onclick="submitTest()" style="background:#fca5a5; color:#000; border:none; padding:8px 18px; border-radius:10px; font-weight:bold;">Submit</button>
     </div>
     <div id="test-nav" style="display:flex; gap:10px; overflow-x:auto; padding:15px; scrollbar-width:none;"></div>
     <div class="container">
-        <div id="ques-text" style="font-size:1.2rem; margin-bottom:25px;"></div>
+        <div id="ques-text" style="font-size:1.2rem; margin-bottom:25px; line-height:1.5;"></div>
         <div id="opts-area"></div>
     </div>
     <div class="footer-nav">
@@ -93,7 +93,7 @@
 </div>
 
 <div id="page-result" class="page-section">
-    <div class="container" id="result-content" style="padding-top:50px;"></div>
+    <div class="container" id="result-content" style="padding-top:40px;"></div>
 </div>
 
 <script>
@@ -113,24 +113,20 @@
         let mH = '', sH = '', hasSpecial = false;
 
         for (let s in config) {
-            let sLower = s.toLowerCase();
-            let isMain = mainSubs.includes(sLower);
+            let isMain = mainSubs.includes(s.toLowerCase());
             let icon = 'book';
-            if(sLower==='physics') icon='atom';
-            else if(sLower==='chemistry') icon='flask';
-            else if(sLower==='botany') icon='leaf';
-            else if(sLower==='zoology') icon='dna';
+            if(s.toLowerCase()==='physics') icon='atom';
+            else if(s.toLowerCase()==='chemistry') icon='flask';
+            else if(s.toLowerCase()==='botany') icon='leaf';
+            else if(s.toLowerCase()==='zoology') icon='dna';
 
             let card = `<div class="subject-card" onclick="openSub('${s}')">
                 <i class="fas fa-${isMain ? icon : 'star'}" style="font-size:2rem; color:var(--pw-blue); margin-bottom:10px;"></i>
                 <h3 style="margin:0;">${s.toUpperCase()}</h3>
                 ${!isMain ? '<i class="fas fa-certificate" style="position:absolute; top:10px; right:10px; color:#f59e0b; font-size:0.8rem;"></i>' : ''}
             </div>`;
-
-            if (isMain) mH += card;
-            else { sH += card; hasSpecial = true; }
+            if (isMain) mH += card; else { sH += card; hasSpecial = true; }
         }
-
         document.getElementById('main-subjects').innerHTML = mH;
         if (hasSpecial) {
             document.getElementById('specials-container').style.display = 'block';
@@ -143,7 +139,7 @@
         let h = '', i = 1;
         for(let ch in config[s]) {
             h += `<div class="item-card" onclick="openDPP('${ch}')">
-                    <div style="flex:1;"><span style="background:#2d3436; color:white; font-size:0.6rem; padding:3px 8px; border-radius:4px; font-weight:900;">CH-${i<10?'0'+i:i}</span><h3 style="margin:5px 0;">${ch}</h3><small style="color:var(--pw-blue); font-weight:bold;">${config[s][ch].length} DPPs Available</small></div>
+                    <div style="flex:1;"><span style="background:#2d3436; color:white; font-size:0.6rem; padding:3px 8px; border-radius:4px; font-weight:900;">CH-${i<10?'0'+i:i}</span><h3 style="margin:5px 0;">${ch}</h3></div>
                     <i class="fas fa-chevron-right" style="color:#ddd;"></i>
                   </div>`; i++;
         }
@@ -152,40 +148,37 @@
 
     function openDPP(ch) {
         document.getElementById('ch-title').innerText = ch; let h = '';
-        if(config[curSub] && config[curSub][ch]) {
-            config[curSub][ch].forEach(t => {
-                h += `<div class="item-card" onclick="loadTest('${t.file}')">
-                        <div style="width:50px; height:50px; background:#fed7aa; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:0.7rem;">DPP</div>
-                        <div style="flex:1;"><b>${t.name}</b><br><small style="color:#64748b;">NEET Pattern • 40 🍎</small></div>
-                      </div>`;
-            });
-        }
+        config[curSub][ch].forEach(t => {
+            h += `<div class="item-card" onclick="loadTest('${t.file}')">
+                    <div style="width:50px; height:50px; background:#fed7aa; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:0.7rem;">DPP</div>
+                    <div style="flex:1;"><b>${t.name}</b><br><small>Earn 40 🍎</small></div>
+                  </div>`;
+        });
         document.getElementById('dpp-items').innerHTML = h; showPage('page-dpp');
     }
 
     async function loadTest(file) {
-        try {
-            const res = await fetch(`/get_test/${file}`);
-            curTest = await res.json();
-            document.getElementById('ins-qcount').innerText = curTest.length;
-            document.getElementById('ins-time').innerText = curTest.length;
-            showPage('page-instructions');
-        } catch(e) { alert("Test file not found!"); }
+        const res = await fetch(`/get_test/${file}`);
+        curTest = await res.json();
+        document.getElementById('ins-qcount').innerText = curTest.length;
+        document.getElementById('ins-time').innerText = curTest.length;
+        showPage('page-instructions');
     }
 
     function startActualTest() { qIdx = 0; userAns = {}; renderQ(); renderNav(); showPage('page-test'); }
 
     function renderQ() {
-        const q = curTest[qIdx]; document.getElementById('ques-text').innerText = (qIdx+1) + ". " + q.question;
+        const q = curTest[qIdx];
+        document.getElementById('ques-text').innerHTML = `<b>Q${qIdx+1}.</b> ${q.question}`;
         let h = '';
         q.options.forEach((opt, i) => {
             let cls = "";
             if(userAns[qIdx] !== undefined) {
-                if(i === q.correct) cls = "correct";
-                else if(i === userAns[qIdx]) cls = "wrong";
+                if(i == q.correct) cls = "correct";
+                else if(i == userAns[qIdx]) cls = "wrong";
             }
             h += `<div class="option-box ${cls}" onclick="checkAns(this, ${i}, ${q.correct})">
-                    <span>${i+1}. ${opt}</span>
+                    <span>${String.fromCharCode(65 + i)}. ${opt}</span>
                     <i class="far ${cls==='correct'?'fa-check-circle':cls==='wrong'?'fa-times-circle':'fa-circle'}"></i>
                   </div>`;
         });
@@ -196,8 +189,16 @@
         if(userAns[qIdx] !== undefined) return;
         userAns[qIdx] = chosen;
         const boxes = document.querySelectorAll('.option-box');
-        if(chosen === correct) el.classList.add('correct');
-        else { el.classList.add('wrong'); boxes[correct].classList.add('correct'); }
+        boxes.forEach(b => b.style.pointerEvents = 'none');
+        if(chosen == correct) {
+            el.classList.add('correct');
+            el.querySelector('i').className = "fas fa-check-circle";
+        } else {
+            el.classList.add('wrong');
+            el.querySelector('i').className = "fas fa-times-circle";
+            boxes[correct].classList.add('correct');
+            boxes[correct].querySelector('i').className = "fas fa-check-circle";
+        }
         renderNav();
     }
 
@@ -208,50 +209,47 @@
 
     function submitTest() {
         if(!confirm("Submit Test?")) return;
-        let score = 0, correct = 0;
+        let score = 0, c = 0, w = 0, u = 0;
         curTest.forEach((q, i) => {
-            if(userAns[i] === q.correct) { score += 4; correct++; }
-            else if(userAns[i] !== undefined) score -= 1;
+            if(userAns[i] === undefined) u++;
+            else if(userAns[i] == q.correct) { score += 4; c++; }
+            else { score -= 1; w++; }
         });
-        const acc = ((correct/curTest.length)*100).toFixed(1);
-        document.getElementById('result-content').innerHTML = `
-            <div style="background:white; color:#000; padding:30px; border-radius:30px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.1);">
-                <h2 style="color:var(--pw-blue);">Report Card</h2>
-                <div style="font-size:3.5rem; font-weight:900; margin:20px 0;">${score}/${curTest.length*4}</div>
-                <div style="display:flex; gap:10px; margin-bottom:25px;">
-                    <div style="flex:1; background:#f1f5f9; padding:15px; border-radius:15px;"><b>${correct}</b><br><small>Correct</small></div>
-                    <div style="flex:1; background:#f1f5f9; padding:15px; border-radius:15px;"><b>${acc}%</b><br><small>Accuracy</small></div>
-                </div>
-                <button onclick="location.reload()" style="background:var(--pw-blue); color:white; padding:18px; border:none; width:100%; border-radius:15px; font-weight:bold; cursor:pointer;">Done</button>
-            </div>`;
+        renderGraph(score, c, w, u);
         showPage('page-result');
+    }
+
+    function renderGraph(score, c, w, u) {
+        const acc = curTest.length > 0 ? ((c / (c+w)) * 100 || 0).toFixed(1) : 0;
+        document.getElementById('result-content').innerHTML = `
+            <div style="background:white; color:#000; padding:25px; border-radius:30px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.1);">
+                <h2 style="color:var(--pw-blue);">Report Card</h2>
+                <p>Score: <b>${score}</b> / ${curTest.length*4}</p>
+                <div style="width:180px; margin:20px auto;"><canvas id="resChart"></canvas></div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+                    <div style="background:#f0fdf4; padding:10px; border-radius:12px;">Correct: <b>${c}</b></div>
+                    <div style="background:#fef2f2; padding:10px; border-radius:12px;">Wrong: <b>${w}</b></div>
+                    <div style="background:#f8fafc; padding:10px; border-radius:12px;">Skipped: <b>${u}</b></div>
+                    <div style="background:#fffbeb; padding:10px; border-radius:12px;">Acc: <b>${acc}%</b></div>
+                </div>
+                <button onclick="location.reload()" style="background:var(--pw-blue); color:white; padding:15px; width:100%; border:none; border-radius:15px; font-weight:bold; cursor:pointer;">Dashboard</button>
+            </div>`;
+        new Chart(document.getElementById('resChart'), {
+            type: 'doughnut',
+            data: { labels: ['C', 'W', 'S'], datasets: [{ data: [c, w, u], backgroundColor: ['#10b981', '#ef4444', '#cbd5e1'] }] },
+            options: { cutout: '70%', plugins: { legend: { display: false } } }
+        });
     }
 
     function nextQ() { if(qIdx < curTest.length-1) { qIdx++; renderQ(); renderNav(); } }
     function prevQ() { if(qIdx > 0) { qIdx--; renderQ(); renderNav(); } }
-    
     function updateCountdown() {
-        const neetDate = new Date("May 3, 2026 10:00:00").getTime();
-        const now = new Date().getTime();
-        const diff = neetDate - now;
+        const diff = new Date("May 3, 2026") - new Date();
         const d = Math.floor(diff/864e5), h = Math.floor((diff%864e5)/36e5), m = Math.floor((diff%36e5)/6e4);
         document.getElementById('neet-timer').innerText = `NEET 2026: ${d}d ${h}h ${m}m`;
     }
-
-    function showPage(id) { 
-        document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active-page')); 
-        document.getElementById(id).classList.add('active-page'); 
-        if(pageStack[pageStack.length-1]!==id) pageStack.push(id); 
-    }
-    
-    function goBack() { 
-        if(pageStack.length > 1) { 
-            pageStack.pop(); 
-            showPage(pageStack[pageStack.length-1]); 
-            pageStack.pop(); 
-        } 
-    }
-
+    function showPage(id) { document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active-page')); document.getElementById(id).classList.add('active-page'); if(pageStack[pageStack.length-1]!==id) pageStack.push(id); }
+    function goBack() { if(pageStack.length > 1) { pageStack.pop(); showPage(pageStack[pageStack.length-1]); pageStack.pop(); } }
     function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
 </script>
 </body>
