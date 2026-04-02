@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Target720 | NEET Prep</title>
+    <title>Target720 | NEET Professional</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -13,50 +13,35 @@
         }
         body.dark-mode { --bg: #0f172a; --text: #f8fafc; --card: #1e293b; --border: #334155; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--bg); color: var(--text); transition: 0.3s; overflow-x: hidden; }
-        .container { width: 100%; max-width: 1200px; margin: auto; padding: 20px; box-sizing: border-box; }
+        .container { width: 100%; max-width: 1200px; margin: auto; padding: 15px; box-sizing: border-box; }
 
-        /* Auto-Sliding Banners */
-        .banner-wrapper { width: 100%; overflow: hidden; border-radius: 25px; margin-bottom: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .banner-container { display: flex; transition: transform 0.5s ease-in-out; }
-        .banner-card { 
-            min-width: 100%; height: 140px; color: white; padding: 30px; 
-            display: flex; flex-direction: column; justify-content: center; 
-            position: relative; box-sizing: border-box;
-        }
-        .banner-card i { position: absolute; right: 15px; bottom: -10px; font-size: 5.5rem; opacity: 0.15; }
+        /* Navigation */
+        .page-section { display: none; min-height: 100vh; width: 100%; }
+        .active-page { display: block !important; }
 
-        /* Pulsing Countdown */
-        @keyframes pulse-red {
-            0% { background: #ef4444; color: white; border-color: #ef4444; }
-            50% { background: white; color: #ef4444; border-color: #ef4444; }
-            100% { background: #ef4444; color: white; border-color: #ef4444; }
-        }
-        .countdown-badge {
-            display: inline-block; margin-top: 10px; padding: 6px 16px; border-radius: 50px;
-            font-weight: 900; font-size: 0.8rem; border: 2px solid #ef4444;
-            animation: pulse-red 2s infinite;
-        }
-
-        /* Profile & Rank */
-        .user-badge { display: none; align-items: center; gap: 12px; background: var(--card); padding: 8px 15px; border-radius: 50px; border: 1px solid var(--border); }
-        .rank-tag { background: gold; color: #000; font-size: 0.65rem; font-weight: 900; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; }
-
-        /* Analytics with Login Alert */
-        .stats-bar { background: var(--card); padding: 20px; border-radius: 25px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); margin-bottom: 25px; cursor: pointer; position: relative; }
-        .login-alert { font-size: 0.7rem; color: #be123c; font-weight: bold; margin-top: 5px; display: block; }
-
-        /* Main Grid & Specials Grid */
-        .grid-title { font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin: 30px 0 10px 0; display: block; }
-        .main-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+        /* 1st Page: Banner & Countdown */
+        .banner-wrapper { width: 100%; overflow: hidden; border-radius: 25px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .banner-container { display: flex; transition: transform 0.5s ease; }
+        .banner-card { min-width: 100%; height: 130px; color: white; padding: 25px; display: flex; flex-direction: column; justify-content: center; position: relative; box-sizing: border-box; }
         
-        /* Subject Card Style */
-        .subject-card { background: var(--card); padding: 30px 10px; border-radius: 25px; text-align: center; border: 1px solid var(--border); transition: 0.3s; cursor: pointer; position: relative; }
-        .subject-card:hover { transform: translateY(-8px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .star-icon { position: absolute; top: 15px; right: 15px; color: #f59e0b; font-size: 1rem; }
+        @keyframes pulse-red { 0%, 100% { background: #ef4444; color: white; } 50% { background: white; color: #ef4444; } }
+        .countdown-badge { display: inline-block; padding: 6px 15px; border-radius: 50px; font-weight: 900; font-size: 0.8rem; border: 2px solid #ef4444; animation: pulse-red 2s infinite; margin-top: 10px; }
 
-        /* Small Rectangular (Laptop wide, Mobile small) */
-        .specials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
-        .special-card { padding: 20px 10px; border-radius: 20px; text-align: center; } /* Main cards jaisa hi square, thoda chota */
+        /* 2nd Page: Chapter List (As per Screenshot) */
+        .chapter-header { background: var(--card); padding: 15px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+        .chapter-card { background: var(--card); margin: 12px 0; padding: 18px; border-radius: 18px; border: 1px solid var(--border); position: relative; cursor: pointer; }
+        .ch-tag { background: #2d3436; color: white; font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; font-weight: 900; display: inline-block; margin-bottom: 8px; }
+        .ch-title { font-size: 1rem; font-weight: 700; margin-bottom: 8px; display: block; padding-right: 30px; }
+        .ch-stats { font-size: 0.8rem; color: #64748b; display: flex; gap: 12px; }
+
+        /* Grids */
+        .main-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
+        .subject-card { background: var(--card); padding: 30px 10px; border-radius: 25px; text-align: center; border: 1px solid var(--border); position: relative; cursor: pointer; }
+        .star-icon { position: absolute; top: 12px; right: 12px; color: #f59e0b; font-size: 0.9rem; }
+
+        /* Profile */
+        .user-badge { display: none; align-items: center; gap: 10px; background: var(--card); padding: 5px 12px; border-radius: 50px; border: 1px solid var(--border); }
+        .rank-tag { background: gold; color: #000; font-size: 0.6rem; font-weight: 900; padding: 2px 6px; border-radius: 8px; }
 
         .modal { display:none; position:fixed; z-index:999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); }
         .modal-box { background:var(--card); width:85%; max-width:350px; margin:150px auto; padding:30px; border-radius:30px; text-align:center; }
@@ -66,7 +51,6 @@
 
 <div id="page-home" class="page-section active-page">
     <div class="container">
-        
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
             <div onclick="toggleDarkMode()" style="font-size:1.5rem; color:var(--pw-blue); cursor:pointer;"><i class="fas fa-adjust"></i></div>
             <div id="auth-ui">
@@ -74,109 +58,102 @@
                 <div class="g_id_signin" data-type="icon" data-shape="circle"></div>
                 <div id="user-profile" class="user-badge">
                     <div style="text-align: right;">
-                        <div id="un-name" style="font-weight:800; font-size:0.85rem;">GUEST</div>
+                        <div id="un-name" style="font-weight:800; font-size:0.8rem;">GUEST</div>
                         <div class="rank-tag" id="un-rank">RANK: #0</div>
                     </div>
-                    <img id="un-pic" src="" style="width:40px; height:40px; border-radius:50%; border:2px solid var(--pw-blue);">
+                    <img id="un-pic" src="" style="width:35px; height:35px; border-radius:50%; border:2px solid var(--pw-blue);">
                 </div>
             </div>
         </div>
 
         <div class="banner-wrapper">
             <div class="banner-container" id="banner-slide">
-                <div class="banner-card" style="background: linear-gradient(135deg, #1b10b1, #4a3aff);">
-                    <h3>Believe in Yourself</h3><p>Success starts with a single step.</p><i class="fas fa-quote-left"></i>
-                </div>
-                <div class="banner-card" style="background: linear-gradient(135deg, #f59e0b, #ea580c);">
-                    <h3>Focus & Grind</h3><p>Don't stop until you are proud.</p><i class="fas fa-fire"></i>
-                </div>
-                <div class="banner-card" style="background: linear-gradient(135deg, #10b981, #059669);">
-                    <h3>Consistency is Key</h3><p>Daily practice leads to perfection.</p><i class="fas fa-apple-alt"></i>
-                </div>
+                <div class="banner-card" style="background: linear-gradient(135deg, #1b10b1, #4a3aff);"><h3>Believe in Yourself</h3><p>Success starts with a single step.</p></div>
+                <div class="banner-card" style="background: linear-gradient(135deg, #f59e0b, #ea580c);"><h3>Focus & Grind</h3><p>Don't stop until you are proud.</p></div>
+                <div class="banner-card" style="background: linear-gradient(135deg, #10b981, #059669);"><h3>Consistency is Key</h3><p>Daily practice leads to perfection.</p></div>
             </div>
         </div>
 
-        <div style="margin-bottom: 25px;">
-            <h1 style="margin:0; font-size:2.4rem; font-weight:900; color:var(--pw-blue);">Target720</h1>
-            <div id="live-clock" style="font-weight:bold; color:#64748b; font-size:0.85rem; letter-spacing:1px;"></div>
-            <div id="neet-timer" class="countdown-badge">NEET 2026: 00d 00h 00m</div>
-        </div>
+        <h1 style="margin:0; font-size:2.2rem; font-weight:900; color:var(--pw-blue);">Target720</h1>
+        <div id="live-clock" style="font-weight:bold; color:#64748b; font-size:0.85rem;"></div>
+        <div id="neet-timer" class="countdown-badge">NEET 2026: 00d 00h 00m</div>
 
-        <div class="stats-bar" onclick="checkLoginLB()">
-            <div style="display:flex; align-items:center; gap:12px;">
-                <i class="fas fa-chart-line" style="color:#10b981; font-size:1.4rem;"></i>
-                <div>
-                    <span style="font-weight:800;">Analytics</span>
-                    <small id="login-msg" class="login-alert">To unlock this rank log in please</small>
-                </div>
+        <div style="background: var(--card); padding: 18px; border-radius: 22px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); margin: 25px 0; cursor: pointer; position: relative;">
+            <div style="display:flex; align-items:center; gap:12px;"><i class="fas fa-chart-line" style="color:#10b981; font-size:1.4rem;"></i>
+                <div><span style="font-weight:800; font-size:0.9rem;">Analytics</span><small id="login-msg" style="color:#be123c; font-size:0.65rem; display:block;">To unlock this rank log in please</small></div>
             </div>
-            <div style="color:#ef4444; font-weight:900; font-size:1.2rem;">
-                <span id="apple-count">0</span> 🍎
-            </div>
-            <div id="lock-layer" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.1); backdrop-filter:blur(4px); border-radius:25px; display:flex; align-items:center; justify-content:center;">
-                <i class="fas fa-lock" style="background:white; padding:10px; border-radius:50%; color:var(--pw-blue); box-shadow:0 4px 10px rgba(0,0,0,0.1);"></i>
-            </div>
+            <div style="color:#ef4444; font-weight:900; font-size:1.2rem;">0 🍎</div>
+            <div id="lock-layer" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.1); backdrop-filter:blur(4px); border-radius:22px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-lock" style="background:white; padding:8px; border-radius:50%; color:var(--pw-blue); box-shadow:0 4px 10px rgba(0,0,0,0.1);"></i></div>
         </div>
 
         <div class="main-grid" id="main-subjects"></div>
-
-        <div id="custom-subjects-area" style="display:none; margin-top:30px;">
-            <span class="grid-title">Specials</span>
-            <div class="specials-grid" id="custom-list"></div>
-        </div>
+        <div id="custom-subjects-area" style="display:none; margin-top:25px;"><span style="font-weight:800; color:#64748b; text-transform:uppercase; font-size:0.8rem;">Specials</span><div class="main-grid" id="custom-list" style="margin-top:10px;"></div></div>
     </div>
 </div>
 
-<div id="un-modal" class="modal">
-    <div class="modal-box">
-        <h3>Create Identity</h3>
-        <input type="text" id="un-input" placeholder="Unique Username" style="width:100%; padding:15px; border-radius:15px; border:1px solid #ddd; margin:15px 0; outline:none;">
-        <p style="color:red; font-size:0.7rem; font-weight:bold;">⚠️ ONLY 1 TIME CHANGE ALLOWED!</p>
-        <button onclick="saveUsername()" style="width:100%; padding:15px; background:var(--pw-blue); color:white; border:none; border-radius:15px; font-weight:bold;">CONFIRM</button>
-    </div>
+<div id="page-chapters" class="page-section">
+    <div class="chapter-header"><i class="fas fa-chevron-left" onclick="goBack()" style="font-size:1.2rem;"></i><h3 id="sub-title" style="margin:0;">Physics</h3></div>
+    <div style="display:flex; gap:20px; padding: 15px; font-size: 0.85rem; font-weight: bold; border-bottom: 1px solid var(--border); color:#64748b;"><span style="color:var(--pw-blue); border-bottom: 2px solid var(--pw-blue); padding-bottom:5px;">Chapters</span><span>Study Material</span></div>
+    <div class="container" id="chapter-list"></div>
 </div>
+
+<div id="un-modal" class="modal"><div class="modal-box"><h3>Create Identity</h3><input type="text" id="un-input" placeholder="Unique Username" style="width:100%; padding:15px; border-radius:15px; border:1px solid #ddd; margin:15px 0; outline:none;"><p style="color:red; font-size:0.7rem; font-weight:bold;">⚠️ ONLY 1 TIME CHANGE ALLOWED!</p><button onclick="saveUsername()" style="width:100%; padding:15px; background:var(--pw-blue); color:white; border:none; border-radius:15px; font-weight:bold;">CONFIRM</button></div></div>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
-    let config = {}, bannerIdx = 0;
+    let config = {}, bIdx = 0, pageStack = ['page-home'];
 
     window.onload = async () => {
-        const res = await fetch('/get_config?v='+Date.now());
-        config = await res.json();
+        const res = await fetch('/get_config?v='+Date.now()); config = await res.json();
         renderHome();
         updateTime(); setInterval(updateTime, 1000);
-        setInterval(autoSlide, 3500); 
+        setInterval(() => { bIdx = (bIdx + 1) % 3; document.getElementById('banner-slide').style.transform = `translateX(-${bIdx * 100}%)`; }, 3500);
         if(localStorage.getItem('un')) updateUI();
     };
-
-    function autoSlide() {
-        const container = document.getElementById('banner-slide');
-        bannerIdx = (bannerIdx + 1) % 3;
-        container.style.transform = `translateX(-${bannerIdx * 100}%)`;
-    }
 
     function updateTime() {
         const now = new Date();
         document.getElementById('live-clock').innerText = now.toLocaleString('en-IN', { weekday:'short', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }).toUpperCase();
-        
         const target = new Date("May 3, 2026 10:00:00").getTime();
         const diff = target - now.getTime();
-        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24)), h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)), m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         document.getElementById('neet-timer').innerText = `NEET 2026: ${d}d ${h}h ${m}m`;
     }
 
-    function handleCredentialResponse(response) {
-        const user = JSON.parse(atob(response.credential.split('.')[1]));
-        localStorage.setItem('gpic', user.picture);
-        if(!localStorage.getItem('un')) document.getElementById('un-modal').style.display = 'block';
-        else updateUI();
+    function renderHome() {
+        const main = ['physics','chemistry','botany','zoology'];
+        let mH = '', sH = '', hasS = false;
+        for (let s in config) {
+            let icon = s==='physics'?'atom':s==='chemistry'?'flask':s==='botany'?'leaf':'dna';
+            let card = `<div class="subject-card" onclick="openSubject('${s}')"><i class="fas fa-${icon}" style="font-size:2.5rem; color:var(--pw-blue); margin-bottom:12px;"></i><h3 style="margin:0; font-size:0.9rem;">${s.toUpperCase()}</h3>${!main.includes(s)?'<i class="fas fa-star star-icon"></i>':''}</div>`;
+            if (main.includes(s)) mH += card; else { sH += card; hasS = true; }
+        }
+        document.getElementById('main-subjects').innerHTML = mH;
+        if(hasS) { document.getElementById('custom-subjects-area').style.display = 'block'; document.getElementById('custom-list').innerHTML = sH; }
+    }
+
+    // CHAPTER LIST LOGIC
+    function openSubject(s) {
+        document.getElementById('sub-title').innerText = s.toUpperCase();
+        let h = '', i = 1;
+        for (let ch in config[s]) {
+            if(ch === "Direct_Tests") continue;
+            h += `<div class="chapter-card"><span class="ch-tag">CH - ${i<10?'0'+i:i}</span><span class="ch-title">${ch}</span><div class="ch-stats"><span>Lectures : 0/0</span><span>•</span><span>DPP : 0/${config[s][ch].length}</span></div><i class="fas fa-chevron-right" style="position:absolute; right:20px; top:50%; transform:translateY(-50%); color:#64748b;"></i></div>`;
+            i++;
+        }
+        document.getElementById('chapter-list').innerHTML = h;
+        showPage('page-chapters');
+    }
+
+    function handleCredentialResponse(r) {
+        const u = JSON.parse(atob(r.credential.split('.')[1]));
+        localStorage.setItem('gpic', u.picture);
+        if(!localStorage.getItem('un')) document.getElementById('un-modal').style.display = 'block'; else updateUI();
     }
 
     function saveUsername() {
         const un = document.getElementById('un-input').value.trim();
-        if(un.length < 3) return alert("Too short!");
+        if(un.length < 3) return alert("Min 3 Chars!");
         localStorage.setItem('un', un);
         document.getElementById('un-modal').style.display = 'none';
         updateUI();
@@ -186,40 +163,13 @@
         document.querySelector('.g_id_signin').style.display = 'none';
         document.getElementById('user-profile').style.display = 'flex';
         document.getElementById('lock-layer').style.display = 'none';
-        document.getElementById('login-msg').style.display = 'none'; // Message hata do
+        document.getElementById('login-msg').style.display = 'none';
         document.getElementById('un-pic').src = localStorage.getItem('gpic');
         document.getElementById('un-name').innerText = localStorage.getItem('un').toUpperCase();
     }
 
-    // Fixed Additional Subject Logic (Point 1)
-    function renderHome() {
-        const mainSubs = ['physics','chemistry','botany','zoology'];
-        let mH = '', sH = '', hasSpecial = false;
-        
-        for (let s in config) {
-            if (mainSubs.includes(s)) {
-                let icon = s==='physics'?'atom':s==='chemistry'?'flask':s==='botany'?'leaf':'dna';
-                mH += `<div class="subject-card" onclick="openSubject('${s}')">
-                    <i class="fas fa-${icon}" style="font-size:2.8rem; color:var(--pw-blue); margin-bottom:12px;"></i>
-                    <h3 style="margin:0; font-size:1rem;">${s.toUpperCase()}</h3>
-                </div>`;
-            } else {
-                hasSpecial = true;
-                // Square cards, chote, with stars
-                sH += `<div class="subject-card special-card" onclick="openSubject('${s}')">
-                    <i class="fas fa-bolt" style="font-size:2.2rem; background: var(--pw-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom:10px;"></i>
-                    <h3 style="margin:0; font-size:0.9rem;">${s.toUpperCase()}</h3>
-                    <i class="fas fa-star star-icon"></i>
-                </div>`;
-            }
-        }
-        document.getElementById('main-subjects').innerHTML = mH;
-        if(hasSpecial) {
-            document.getElementById('custom-subjects-area').style.display = 'block';
-            document.getElementById('custom-list').innerHTML = sH;
-        }
-    }
-
+    function showPage(id) { document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active-page')); document.getElementById(id).classList.add('active-page'); if(pageStack[pageStack.length-1]!==id) pageStack.push(id); }
+    function goBack() { if(pageStack.length>1) { pageStack.pop(); showPage(pageStack[pageStack.length-1]); } }
     function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
 </script>
 </body>
